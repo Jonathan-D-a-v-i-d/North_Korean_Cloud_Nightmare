@@ -4,3 +4,5 @@ pyqrcode
 tqdm
 pyfiglet
 termcolor
+faker
+boto3

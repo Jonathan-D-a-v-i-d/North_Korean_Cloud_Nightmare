@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
 
 def wait_for_output_file():
-    sleep_duration = 10
+    sleep_duration = 5
     output_file = "Infra/forrester-2025-output.json"  # FIXED PATH
 
     with tqdm.tqdm(total=sleep_duration, desc="Validating Deployment") as pbar:

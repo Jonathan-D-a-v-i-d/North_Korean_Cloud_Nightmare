@@ -2,11 +2,15 @@
 
 import pulumi
 import pulumi_aws as aws
-
+import json
+import random
+from faker import Faker
 
 config = pulumi.Config()
 region = config.get("aws:region") or "us-east-1"
 
+# ✅ Initialize Faker
+fake = Faker()
 
 
 #               _           _         _    _               
@@ -108,7 +112,7 @@ Note: Made after Q1-4 naming convention of company quarterly information
 # --------------------------------------------------- #
 # Creates 4 S3 buckets for non-sensitive company data #
 # --------------------------------------------------- #
-regular_buckets = [aws.s3.Bucket(f"company-data-Q{i}-2024") for i in range(1, 5)]
+regular_buckets = [aws.s3.Bucket(f"company-data-Q{i}-2024", force_destroy=True) for i in range(1, 5)]
 ###################################################                                                
 ############## SENSITIVE COMPANY DATA #############
 ###################################################
@@ -122,15 +126,15 @@ Note: Creating:
 # ---------------------------------------- #
 # Create S3 bucket for Configuration Files #
 # ---------------------------------------- #
-config_files_bucket = aws.s3.Bucket("configeration-files")
+config_files_bucket = aws.s3.Bucket("configuration-files", force_destroy=True)
 # ---------------------------------- #
 # Create S3 bucket for Customer Data #
 # ---------------------------------- #
-customer_data_bucket = aws.s3.Bucket("customer-data")
+customer_data_bucket = aws.s3.Bucket("customer-data", force_destroy=True)
 # --------------------------------- #
 # Create S3 bucket for Payment Data #
 # --------------------------------- #
-payment_data_bucket = aws.s3.Bucket("payment-data")
+payment_data_bucket = aws.s3.Bucket("payment-data", force_destroy=True)
 
 
 
@@ -148,26 +152,111 @@ payment_data_bucket = aws.s3.Bucket("payment-data")
 #          |___/                                          
 
 # Regular Orders Table (Non-Sensitive Information)
-regular_table = aws.dynamodb.Table("customer_orders_table",
-    name="CustomerOrdersTable",
+orders_table = aws.dynamodb.Table("CustomerOrdersTable",
+    attributes=[aws.dynamodb.TableAttributeArgs(name="ID", type="S")],
     hash_key="ID",
-    billing_mode="PAY_PER_REQUEST",
-    attributes=[aws.dynamodb.TableAttributeArgs(
-        name="ID",
-        type="S"
-    )]
+    billing_mode="PAY_PER_REQUEST"
 )
 
 # Sensitive Data Table (High-Value Target)
-sensitive_table = aws.dynamodb.Table("customer_ssn_table",
-    name="CustomerSSNTable",
-    hash_key="ID",  # Only declare attributes that are used as keys
-    billing_mode="PAY_PER_REQUEST",
-    attributes=[aws.dynamodb.TableAttributeArgs(
-        name="ID",
-        type="S"
-    )]
+ssn_table = aws.dynamodb.Table("CustomerSSNTable",
+    attributes=[aws.dynamodb.TableAttributeArgs(name="ID", type="S")],
+    hash_key="ID",
+    billing_mode="PAY_PER_REQUEST"
 )
+
+
+
+
+
+
+
+
+# ✅ Generate Fake Data
+fake_config_data = {
+    "system": "Enterprise App",
+    "config_version": "1.2.3",
+    "allowed_ips": [f"192.168.1.{i}" for i in range(1, 101)]
+}
+
+fake_customer_data = [
+    {
+        "id": i,
+        "name": fake.name(),
+        "email": f"{fake.first_name().lower()}{random.randint(1,99)}@{random.choice(['gmail.com', 'yahoo.com'])}"
+    }
+    for i in range(1, 101)
+]
+
+fake_payment_data = [
+    {
+        "id": i,
+        "card": f"{random.choice(['4111', '5500'])}-XXXX-XXXX-{random.randint(1000,9999)}",
+        "cvv": f"{random.randint(100,999)}"
+    }
+    for i in range(1, 101)
+]
+
+# ✅ Upload Data to S3 Using Pulumi
+aws.s3.BucketObject("config-file",
+    bucket=config_files_bucket.id,
+    key="config.json",
+    content=json.dumps(fake_config_data, indent=4)
+)
+
+aws.s3.BucketObject("customer-file",
+    bucket=customer_data_bucket.id,
+    key="customers.json",
+    content=json.dumps(fake_customer_data, indent=4)
+)
+
+aws.s3.BucketObject("payment-file",
+    bucket=payment_data_bucket.id,
+    key="payments.json",
+    content=json.dumps(fake_payment_data, indent=4)
+)
+
+# ✅ Populate DynamoDB Tables Using Pulumi
+for i in range(1, 101):
+    aws.dynamodb.TableItem(f"order-{i}",
+        table_name=orders_table.name,
+        hash_key="ID",
+        item=json.dumps({
+            "ID": {"S": str(1000 + i)},
+            "OrderDate": {"S": fake.date_between(start_date="-1y", end_date="today").strftime("%Y-%m-%d")},
+            "CustomerName": {"S": fake.name()},
+            "ItemPurchased": {"S": random.choice(["Laptop", "Keyboard", "Monitor", "Mouse", "Tablet", "Phone", "Headphones", "Charger"])}
+        })
+    )
+
+    aws.dynamodb.TableItem(f"ssn-{i}",
+        table_name=ssn_table.name,
+        hash_key="ID",
+        item=json.dumps({
+            "ID": {"S": str(2000 + i)},
+            "CustomerName": {"S": fake.name()},
+            "SSN": {"S": f"{random.randint(100,999)}-{random.randint(10,99)}-{random.randint(1000,9999)}"},
+            "CreditCard": {"S": f"{random.choice(['4111', '5500'])}-XXXX-XXXX-{random.randint(1000,9999)}"}
+        })
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Enable GuardDuty
@@ -186,7 +275,7 @@ gd_detector = aws.guardduty.Detector("gd_detector", enable=True)
 # ----------------------------------------- #                                                
 # Creating s3 Bucket for CloudTrail Logging #
 # ----------------------------------------- #  
-cloudtrail_log_bucket = aws.s3.Bucket("cloudtrail-log-bucket")
+cloudtrail_log_bucket = aws.s3.Bucket("cloudtrail-log-bucket", force_destroy=True)
 # ---------------------------------------------- #                                                
 # Enable CloudTrail logging to track IAM changes #
 # ---------------------------------------------- # 
@@ -211,8 +300,8 @@ pulumi.export("regular_buckets", [bucket.bucket for bucket in regular_buckets])
 pulumi.export("config_files_bucket", config_files_bucket.bucket)
 pulumi.export("customer_data_bucket", customer_data_bucket.bucket)
 pulumi.export("payment_data_bucket", payment_data_bucket.bucket)
-pulumi.export("CustomerOrdersTable", regular_table.name)
-pulumi.export("CustomerSSNTable", sensitive_table.name)
+pulumi.export("CustomerOrdersTable", orders_table.name)
+pulumi.export("CustomerSSNTable", ssn_table.name)
 pulumi.export("gd_detector_id", gd_detector.id)
 # pulumi.export("cloudtrail_id", cloudtrail.id)
 
