@@ -1,0 +1,11 @@
+name: Forrester-Attack-Demo
+description: an AWS Python Pulumi program for deploying IaC for Kimusky/APT29 Model attacks as the base for a Forrester Demo
+runtime:
+  name: python
+  options:
+    toolchain: pip
+    virtualenv: venv
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-python

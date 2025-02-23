@@ -1,0 +1,16 @@
+{
+  "CustomerOrdersTable": "CustomerOrdersTable",
+  "CustomerSSNTable": "CustomerSSNTable",
+  "admin_user_arn": "arn:aws:iam::522814731902:user/AdminUser",
+  "config_files_bucket": "configeration-files-bedb0e2",
+  "customer_data_bucket": "customer-data-ea206fb",
+  "devops_user_arn": "arn:aws:iam::522814731902:user/DevopsUser",
+  "gd_detector_id": "2aca984389dac23d318b855ea8890b7e",
+  "payment_data_bucket": "payment-data-eb57eba",
+  "regular_buckets": [
+    "company-data-q1-2024-0f531d3",
+    "company-data-q2-2024-7087a26",
+    "company-data-q3-2024-3552b38",
+    "company-data-q4-2024-4c1a5fa"
+  ]
+}
