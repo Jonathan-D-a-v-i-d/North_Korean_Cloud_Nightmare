@@ -3,6 +3,7 @@ import sys
 import os
 import tqdm
 from time import sleep
+import time
 
 
 def validate_pulumi_outputs_after_rollout(pulumi_stack_output_file):
@@ -66,3 +67,33 @@ def wait_for_output_file():
 
     print(f"❌ ERROR: {output_file} not found after waiting.")
     sys.exit(1)  # Exit if file was never found
+
+
+
+
+
+
+
+def attack_execution_duration(minutes: int, description: str = None):
+    """
+    ⏳ Displays a tqdm progress bar to simulate attack execution time.
+
+    Parameters:
+        - minutes (int): The duration in minutes for the attack execution.
+        - description (str, optional): Custom description for the attack progress.
+    """
+    seconds = minutes * 60  # Convert minutes to seconds
+
+    # ✅ Automatically format description if not provided
+    if description is None:
+        description = f"Executing attack for {minutes} minutes..."
+
+    print(f"\n🔥 {description} (Estimated time: {minutes} minutes)")
+
+    with tqdm.tqdm(total=seconds, desc="⏳ Attack Execution Progress", bar_format="{l_bar}{bar} [ {elapsed}/{remaining} ]") as pbar:
+        for _ in range(seconds):
+            time.sleep(1)  # Sleep for 1 second
+            pbar.update(1)  # Update progress bar
+            
+    print("\n✅ Attack execution time elapsed. Proceeding with cleanup...")
+

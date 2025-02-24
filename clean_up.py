@@ -1,0 +1,272 @@
+import boto3
+import json
+import subprocess
+import time
+from datetime import datetime, timezone
+from attack import Attack
+
+attack = Attack()
+
+
+# Initialize AWS clients
+iam_client = boto3.client("iam")
+s3_client = boto3.client("s3")
+dynamodb_client = boto3.client("dynamodb")
+
+
+
+
+
+
+class Cleanup:
+    """🧹 Generic IAM Cleanup Class"""
+
+    class CleanUser:
+        def __init__(self, user: str, region="us-east-1"):
+            """Initialize AWS Clients for a specific IAM user"""
+            self.iam_client = boto3.client("iam", region_name=region)
+            self.user = user
+
+        def remove_mfa_devices(self):
+            """🔐 Remove all MFA devices for the user"""
+            try:
+                response = self.iam_client.list_mfa_devices(UserName=self.user)
+                for device in response.get("MFADevices", []):
+                    print(f"🗑️ Deactivating and deleting MFA device: {device['SerialNumber']}")
+                    self.iam_client.deactivate_mfa_device(
+                        UserName=self.user, SerialNumber=device["SerialNumber"]
+                    )
+                    self.iam_client.delete_virtual_mfa_device(
+                        SerialNumber=device["SerialNumber"]
+                    )
+            except Exception as e:
+                print(f"❌ ERROR: Failed to remove MFA devices: {e}")
+
+        def delete_access_keys(self):
+            """🔑 Delete all access keys for the user"""
+            try:
+                response = self.iam_client.list_access_keys(UserName=self.user)
+                for key in response.get("AccessKeyMetadata", []):
+                    print(f"🗑️ Deleting access key: {key['AccessKeyId']}")
+                    self.iam_client.delete_access_key(
+                        UserName=self.user, AccessKeyId=key["AccessKeyId"]
+                    )
+            except Exception as e:
+                print(f"❌ ERROR: Failed to delete access keys: {e}")
+
+        def delete_login_profile(self):
+            """🗝️ Delete IAM Console Login Profile"""
+            try:
+                print(f"🗑️ Deleting login profile for `{self.user}` (if exists)...")
+                self.iam_client.delete_login_profile(UserName=self.user)
+            except self.iam_client.exceptions.NoSuchEntityException:
+                print(f"✅ No login profile found for `{self.user}`.")
+            except Exception as e:
+                print(f"❌ ERROR: Failed to delete login profile: {e}")
+
+        def detach_policies(self):
+            """📜 Detach all attached IAM policies from the user"""
+            try:
+                response = self.iam_client.list_attached_user_policies(UserName=self.user)
+                for policy in response.get("AttachedPolicies", []):
+                    print(f"🗑️ Detaching policy: {policy['PolicyArn']}")
+                    self.iam_client.detach_user_policy(
+                        UserName=self.user, PolicyArn=policy["PolicyArn"]
+                    )
+            except Exception as e:
+                print(f"❌ ERROR: Failed to detach policies: {e}")
+
+        def remove_from_groups(self):
+            """👥 Remove user from all IAM groups"""
+            try:
+                response = self.iam_client.list_groups_for_user(UserName=self.user)
+                for group in response.get("Groups", []):
+                    print(f"🗑️ Removing `{self.user}` from group: {group['GroupName']}")
+                    self.iam_client.remove_user_from_group(
+                        UserName=self.user, GroupName=group["GroupName"]
+                    )
+            except Exception as e:
+                print(f"❌ ERROR: Failed to remove user from groups: {e}")
+
+        def delete_user(self):
+            """🔥 Final step: Delete IAM user"""
+            try:
+                print(f"\n🔥 Deleting IAM user: `{self.user}`...")
+                self.iam_client.delete_user(UserName=self.user)
+                print(f"✅ `{self.user}` deleted successfully!")
+            except Exception as e:
+                print(f"❌ ERROR: Failed to delete `{self.user}`: {e}")
+
+        def execute_cleanup(self):
+            """🚀 Full cleanup workflow for the user"""
+            print(f"\n🔍 Starting cleanup for `{self.user}`...")
+            self.remove_mfa_devices()
+            self.delete_access_keys()
+            self.delete_login_profile()
+            self.detach_policies()
+            self.remove_from_groups()
+            self.delete_user()
+            print("\n✅ Cleanup completed successfully!")
+
+
+# ✅ Example Usage: Cleanup for DevopsUser
+if __name__ == "__main__":
+    user_cleanup = Cleanup.CleanUser(user="DevopsUser")  # Instantiate for a specific user
+    user_cleanup.execute_cleanup()  # Run full cleanup process
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # Load Pulumi Stack Outputs
+# def load_pulumi_outputs():
+#     """Loads the Pulumi stack outputs to retrieve known resources."""
+#     with open("Infra/forrester-2025-output.json", "r") as file:
+#         return json.load(file)
+
+# def find_new_iam_users():
+#     """Detects IAM users created AFTER Pulumi deployed the stack AND created by known attack paths."""
+#     pulumi_outputs = load_pulumi_outputs()
+#     devops_user = pulumi_outputs["devops_user_arn"].split("/")[-1]  # Extract DevOps username
+
+#     print("\n🔍 Checking for newly created IAM users...")
+
+#     # Get Pulumi Deployment Timestamp
+#     pulumi_deploy_time = subprocess.run(
+#         "cd Infra/ && pulumi stack history --json | jq -r '.[-1].startTime'",
+#         shell=True, capture_output=True, text=True
+#     ).stdout.strip()
+
+#     if not pulumi_deploy_time:
+#         print("❌ ERROR: Could not determine Pulumi deployment time.")
+#         return []
+
+#     pulumi_deploy_time = datetime.fromisoformat(pulumi_deploy_time.replace("Z", "+00:00"))
+
+#     # Get List of IAM Users
+#     users = iam_client.list_users()["Users"]
+#     new_users = []
+
+#     for user in users:
+#         user_name = user["UserName"]
+#         created_time = user["CreateDate"].replace(tzinfo=timezone.utc)
+
+#         # ✅ Check if the user was created AFTER Pulumi was deployed
+#         if created_time > pulumi_deploy_time:
+#             # ✅ Verify if DevOps User Created This User
+#             try:
+#                 user_policies = iam_client.list_attached_user_policies(UserName=user_name)
+#                 user_inline_policies = iam_client.list_user_policies(UserName=user_name)
+
+#                 if user_policies["AttachedPolicies"] or user_inline_policies["PolicyNames"]:
+#                     print(f"🚨 Found new IAM user {user_name} created after Pulumi deployment")
+#                     new_users.append(user_name)
+#             except Exception as e:
+#                 print(f"⚠️ WARNING: Could not verify IAM user {user_name}: {e}")
+
+#     if new_users:
+#         print(f"🚨 Found new IAM users created by the attack path: {new_users}")
+#     else:
+#         print("✅ No unexpected IAM users found.")
+
+#     return new_users
+
+# def delete_iam_users(users):
+#     """Deletes any IAM users that were created during the attack simulation."""
+#     for user in users:
+#         print(f"🔥 Deleting IAM User: {user}")
+
+#         # List and detach any attached policies
+#         attached_policies = iam_client.list_attached_user_policies(UserName=user)
+#         for policy in attached_policies["AttachedPolicies"]:
+#             iam_client.detach_user_policy(UserName=user, PolicyArn=policy["PolicyArn"])
+#             print(f"✅ Detached policy {policy['PolicyArn']} from {user}")
+
+#         # List and delete any inline policies
+#         inline_policies = iam_client.list_user_policies(UserName=user)["PolicyNames"]
+#         for policy_name in inline_policies:
+#             iam_client.delete_user_policy(UserName=user, PolicyName=policy_name)
+#             print(f"✅ Deleted inline policy {policy_name} from {user}")
+
+#         # Finally, delete the user
+#         iam_client.delete_user(UserName=user)
+#         print(f"✅ IAM User {user} deleted.")
+
+# def cleanup_s3():
+#     """Detects and removes ransom notes & deletes any modified objects in S3."""
+#     pulumi_outputs = load_pulumi_outputs()
+#     s3_buckets = [
+#         pulumi_outputs["config_files_bucket"],
+#         pulumi_outputs["customer_data_bucket"],
+#         pulumi_outputs["payment_data_bucket"]
+#     ]
+
+#     for bucket in s3_buckets:
+#         print(f"\n🔍 Scanning bucket {bucket} for ransom notes or deleted data...")
+#         objects = s3_client.list_objects_v2(Bucket=bucket)
+
+#         if "Contents" in objects:
+#             for obj in objects["Contents"]:
+#                 key = obj["Key"]
+#                 if "ransom_note" in key or "deleted" in key:
+#                     print(f"🚨 Found suspicious file: {key} (Removing it...)")
+#                     s3_client.delete_object(Bucket=bucket, Key=key)
+#                     print(f"✅ Deleted {key} from {bucket}")
+
+#         print(f"✅ S3 cleanup completed for {bucket}")
+
+# def cleanup_dynamodb():
+#     """Checks for empty or compromised DynamoDB tables and restores them."""
+#     pulumi_outputs = load_pulumi_outputs()
+#     dynamo_tables = [pulumi_outputs["CustomerOrdersTable"], pulumi_outputs["CustomerSSNTable"]]
+
+#     for table in dynamo_tables:
+#         print(f"\n🔍 Checking {table} for modified or deleted records...")
+#         scan_response = dynamodb_client.scan(TableName=table, Limit=1)
+
+#         if "Items" not in scan_response or len(scan_response["Items"]) == 0:
+#             print(f"🚨 WARNING: {table} appears to be empty! It may have been wiped.")
+#         else:
+#             print(f"✅ Data still exists in {table}")
+
+# def run_pulumi_destroy():
+#     """Runs Pulumi destroy to remove tracked infrastructure."""
+#     print("\n🔥 Running Pulumi Destroy to remove all tracked infrastructure...")
+#     subprocess.call("cd Infra/ && pulumi destroy -s dev -y", shell=True)
+#     print("✅ Pulumi Destroy Completed!")
+
+# def main():
+#     """Executes the full cleanup process."""
+#     print("\n🚀 Starting Cleanup Process...")
+#     new_users = find_new_iam_users()
+
+#     if new_users:
+#         delete_iam_users(new_users)
+
+#     cleanup_s3()
+#     cleanup_dynamodb()
+#     run_pulumi_destroy()
+#     print("\n✅ Cleanup Process Completed!")
+
+# if __name__ == "__main__":
+#     main()

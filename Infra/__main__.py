@@ -81,13 +81,41 @@ devops_user_policy_attachment = aws.iam.UserPolicyAttachment("DevopsUserPolicyAt
     policy_arn=devops_policy.arn
 )
 
-# # Setup MFA for DevopsUser
-# devops_user_mfa = aws.iam.VirtualMfaDevice("DevopsUserMFA",
-#     user=devops_user.name,
-#     serial_number="arn:aws:iam::123456789012:mfa/DevopsUserVirtualMFA",
-#     authentication_code1="123456",  # Replace with your MFA code part 1
-#     authentication_code2="654321"   # Replace with your MFA code part 2
-# )
+# ✅ Define MFA Management Policy for DevOps User
+devops_mfa_policy = aws.iam.Policy("DevopsMFASetupPolicy",
+    name="DevopsMFASetupPolicy",
+    description="Allows DevopsUser to manage their own MFA",
+    policy=json.dumps({
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "iam:CreateVirtualMFADevice",
+                    "iam:EnableMFADevice",
+                    "iam:ResyncMFADevice",
+                    "iam:ListMFADevices",
+                    "iam:DeactivateMFADevice",
+                    "iam:DeleteVirtualMFADevice"
+                ],
+                "Resource": "*"
+            }
+        ]
+    })
+)
+
+# ✅ Attach the MFA Management Policy to DevOps User
+devops_user_mfa_attachment = aws.iam.UserPolicyAttachment("DevopsUserMFAAttachment",
+    user=devops_user.name,
+    policy_arn=devops_mfa_policy.arn
+)
+
+# ✅ Create Virtual MFA Device for DevopsUser
+devops_user_mfa = aws.iam.VirtualMfaDevice("DevopsUserMFA",
+    virtual_mfa_device_name="DevopsUserMFA",
+    tags={"Name": "DevopsUserMFA"}
+)
+
 
 
 
@@ -217,7 +245,7 @@ aws.s3.BucketObject("payment-file",
 )
 
 # ✅ Populate DynamoDB Tables Using Pulumi
-for i in range(1, 101):
+for i in range(1, 11):
     aws.dynamodb.TableItem(f"order-{i}",
         table_name=orders_table.name,
         hash_key="ID",
@@ -303,5 +331,7 @@ pulumi.export("payment_data_bucket", payment_data_bucket.bucket)
 pulumi.export("CustomerOrdersTable", orders_table.name)
 pulumi.export("CustomerSSNTable", ssn_table.name)
 pulumi.export("gd_detector_id", gd_detector.id)
+pulumi.export("devops_user_mfa_policy_arn", devops_mfa_policy.arn)
+pulumi.export("devops_user_mfa_arn", devops_user_mfa.arn)
 # pulumi.export("cloudtrail_id", cloudtrail.id)
 

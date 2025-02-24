@@ -6,11 +6,17 @@ from time import sleep
 from termcolor import colored
 import Functions
 from Helpers import loading_animation
+import pyqrcode
+from attack import Attack
+from clean_up import Cleanup
 
+
+cleanup = Cleanup()
+attack = Attack()
 
 def forrester_scenario_execute():
     """🚀 Execute Pulumi Deployment for the Forrester 2025 Attack Scenario"""
-    
+
     print("-" * 30)
     print(colored("Executing Forrester 2025 Scenario: Compromise DevOps User, takeover, priv escalation, perform ransomware on S3 & DynamoDB", color="red"))
     loading_animation()
@@ -20,8 +26,8 @@ def forrester_scenario_execute():
     loading_animation()
     print("-" * 30)
 
-    file_path = ".Infra/forrester-2025-output.json"
-    
+    file_path = "Infra/forrester-2025-output.json"
+
     # ✅ Ensure Previous Pulumi Output is Removed
     if os.path.exists(file_path):
         os.remove(file_path)
@@ -31,18 +37,16 @@ def forrester_scenario_execute():
 
     # ✅ Execute Pulumi Deployment
     subprocess.call("cd ./Infra/ && pulumi up -s dev -y", shell=True)
-    
+
     # ✅ Capture Pulumi Stack Output
     subprocess.call("cd ./Infra/ && pulumi stack -s dev output --json > forrester-2025-output.json", shell=True)
     print("📂 Pulumi output saved inside Infra/:forrester-2025-output.json")
 
-
 def forrester_scenario_validate_rollout():
     """🔍 Validate that Pulumi successfully deployed all resources"""
-    
+
     Functions.wait_for_output_file()
     Functions.validate_pulumi_outputs_after_rollout(pulumi_stack_output_file="Infra/forrester-2025-output.json")
-
 
 def forrester_scenario_validate_data():
     """🔍 Validate that Pulumi-created data exists in S3 and DynamoDB"""
@@ -62,7 +66,7 @@ def forrester_scenario_validate_data():
         outputs["customer_data_bucket"],
         outputs["payment_data_bucket"]
     ]
-    
+
     for bucket in s3_buckets:
         validation_cmd = f"aws s3 ls s3://{bucket} --region us-east-1"
         result = subprocess.run(validation_cmd, shell=True, capture_output=True, text=True)
@@ -89,9 +93,26 @@ def forrester_scenario_validate_data():
 
 
 
-# ✅ Run Deployment
-forrester_scenario_execute()
-forrester_scenario_validate_rollout()
-forrester_scenario_validate_data()
+if __name__ == "__main__":
+    # ✅ Run Deployment
+    # forrester_scenario_execute()
+    # forrester_scenario_validate_rollout()
+    # forrester_scenario_validate_data()
+    # attack.MFA_phishing_login()
+
+    # Functions.attack_execution_duration(minutes=1)
 
 
+    devops_user_cleanup = Cleanup.CleanUser(user="DevopsUser")
+    devops_user_cleanup.execute_cleanup()
+
+
+
+
+
+
+
+
+    # 🚀 Proceed with Attack Scenario
+    # print("\n🔥 MFA Phishing Simulated Successfully! Proceeding with Attack...")
+    # Here, you will continue the attack scenario.

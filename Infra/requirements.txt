@@ -6,3 +6,4 @@ pyfiglet
 termcolor
 faker
 boto3
+pyotp

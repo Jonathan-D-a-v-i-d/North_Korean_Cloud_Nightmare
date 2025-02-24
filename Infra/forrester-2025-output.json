@@ -1,16 +1,18 @@
 {
-  "CustomerOrdersTable": "CustomerOrdersTable-38e24d8",
-  "CustomerSSNTable": "CustomerSSNTable-0b0670b",
+  "CustomerOrdersTable": "CustomerOrdersTable-9ba49a9",
+  "CustomerSSNTable": "CustomerSSNTable-3fd966d",
   "admin_user_arn": "arn:aws:iam::522814731902:user/AdminUser",
-  "config_files_bucket": "configuration-files-5412577",
-  "customer_data_bucket": "customer-data-cf1d18d",
+  "config_files_bucket": "configuration-files-9fc42d4",
+  "customer_data_bucket": "customer-data-1098c13",
   "devops_user_arn": "arn:aws:iam::522814731902:user/DevopsUser",
-  "gd_detector_id": "00ca98c95b056ebf478b40c7ad4dcc0d",
-  "payment_data_bucket": "payment-data-694838e",
+  "devops_user_mfa_arn": "arn:aws:iam::522814731902:mfa/DevopsUserMFA",
+  "devops_user_mfa_policy_arn": "arn:aws:iam::522814731902:policy/DevopsMFASetupPolicy",
+  "gd_detector_id": "68ca99bb7878a53c1f6bea001611c7ff",
+  "payment_data_bucket": "payment-data-15302b9",
   "regular_buckets": [
-    "company-data-q1-2024-7352d18",
-    "company-data-q2-2024-451d613",
-    "company-data-q3-2024-4211e2c",
-    "company-data-q4-2024-0a7dc10"
+    "company-data-q1-2024-6296736",
+    "company-data-q2-2024-39e1cd4",
+    "company-data-q3-2024-d4e5d28",
+    "company-data-q4-2024-b376c1a"
   ]
 }
