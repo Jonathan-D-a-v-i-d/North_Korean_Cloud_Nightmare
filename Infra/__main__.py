@@ -47,6 +47,12 @@ admin_user_admin_access = aws.iam.UserPolicyAttachment("AdminUserAdminAccess",
 # Creates DevOps User #
 # ------------------- #   
 devops_user = aws.iam.User("DevopsUser", name="DevopsUser")
+
+# --------------------------------- #                                                                                        
+# Creates Access Key for DevopsUser #
+# --------------------------------- #  
+devops_access_key = aws.iam.AccessKey("DevopsUserAccessKey", user=devops_user.name)
+
 # ------------------------------------------ #                                                                                        
 # Creates DevOps Like Policy for DevOps User #
 # ------------------------------------------ #
@@ -81,10 +87,10 @@ devops_user_policy_attachment = aws.iam.UserPolicyAttachment("DevopsUserPolicyAt
     policy_arn=devops_policy.arn
 )
 
-# ✅ Define MFA Management Policy for DevOps User
+# ✅ Define MFA & Session Token Management Policy for DevOps User
 devops_mfa_policy = aws.iam.Policy("DevopsMFASetupPolicy",
     name="DevopsMFASetupPolicy",
-    description="Allows DevopsUser to manage their own MFA",
+    description="Allows DevopsUser to manage their own MFA and obtain session tokens",
     policy=json.dumps({
         "Version": "2012-10-17",
         "Statement": [
@@ -96,7 +102,8 @@ devops_mfa_policy = aws.iam.Policy("DevopsMFASetupPolicy",
                     "iam:ResyncMFADevice",
                     "iam:ListMFADevices",
                     "iam:DeactivateMFADevice",
-                    "iam:DeleteVirtualMFADevice"
+                    "iam:DeleteVirtualMFADevice",
+                    "sts:GetSessionToken"  
                 ],
                 "Resource": "*"
             }
@@ -104,11 +111,43 @@ devops_mfa_policy = aws.iam.Policy("DevopsMFASetupPolicy",
     })
 )
 
+
 # ✅ Attach the MFA Management Policy to DevOps User
 devops_user_mfa_attachment = aws.iam.UserPolicyAttachment("DevopsUserMFAAttachment",
     user=devops_user.name,
     policy_arn=devops_mfa_policy.arn
 )
+
+
+# ✅ Define a new policy to allow session authentication with MFA
+devops_mfa_session_policy = aws.iam.Policy("DevopsMFASessionPolicy",
+    name="DevopsMFASessionPolicy",
+    description="Allows DevOpsUser to assume session token with MFA",
+    policy=json.dumps({
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "sts:GetSessionToken"
+                ],
+                "Resource": "*",
+                "Condition": {
+                    "Bool": {"aws:MultiFactorAuthPresent": "true"}
+                }
+            }
+        ]
+    })
+)
+
+# ✅ Attach the policy to DevOpsUser
+devops_user_mfa_session_attachment = aws.iam.UserPolicyAttachment("DevopsUserMFASessionAttachment",
+    user=devops_user.name,
+    policy_arn=devops_mfa_session_policy.arn
+)
+
+
+
 
 # ✅ Create Virtual MFA Device for DevopsUser
 devops_user_mfa = aws.iam.VirtualMfaDevice("DevopsUserMFA",
@@ -324,6 +363,8 @@ cloudtrail = aws.cloudtrail.Trail("cloudtrail",
 # Outputs
 pulumi.export("admin_user_arn", admin_user.arn)
 pulumi.export("devops_user_arn", devops_user.arn)
+pulumi.export("devops_access_key_id", devops_access_key.id)
+pulumi.export("devops_secret_access_key", devops_access_key.secret)
 pulumi.export("regular_buckets", [bucket.bucket for bucket in regular_buckets])
 pulumi.export("config_files_bucket", config_files_bucket.bucket)
 pulumi.export("customer_data_bucket", customer_data_bucket.bucket)
