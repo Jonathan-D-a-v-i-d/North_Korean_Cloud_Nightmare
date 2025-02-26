@@ -39,9 +39,9 @@ def validate_pulumi_outputs_after_rollout(pulumi_stack_output_file):
 
 
 
-if __name__ == "__main__":
-    if validate_pulumi_outputs_after_rollout(pulumi_stack_output_file="forrester-2025-output.json"):
-        print("✅ Validation passed! Moving to the next stage...")
+# if __name__ == "__main__":
+#     if validate_pulumi_outputs_after_rollout(pulumi_stack_output_file="forrester-2025-output.json"):
+#         print("✅ Validation passed! Moving to the next stage...")
 
 
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
 def wait_for_output_file():
     sleep_duration = 5
-    output_file = "Infra/forrester-2025-output.json"  # FIXED PATH
+    output_file = "/workspaces/Pulumi/Infra/forrester-2025-output.json"  # FIXED PATH
 
     with tqdm.tqdm(total=sleep_duration, desc="Validating Deployment") as pbar:
         while sleep_duration > 0:
@@ -74,26 +74,48 @@ def wait_for_output_file():
 
 
 
-def attack_execution_duration(minutes: int, description: str = None):
+import time
+import tqdm
+
+def attack_execution_duration(minutes: float = 0, seconds: float = 0, description: str = None):
     """
     ⏳ Displays a tqdm progress bar to simulate attack execution time.
 
     Parameters:
-        - minutes (int): The duration in minutes for the attack execution.
+        - minutes (float, optional): The duration in minutes for the attack execution. Default is 0.
+        - seconds (float, optional): The duration in seconds for the attack execution. Default is 0.
         - description (str, optional): Custom description for the attack progress.
     """
-    seconds = minutes * 60  # Convert minutes to seconds
+    total_seconds = (minutes * 60) + seconds  # Convert minutes to seconds and sum
+
+    if total_seconds <= 0:
+        print("⚠️ Duration must be greater than 0 seconds.")
+        return
 
     # ✅ Automatically format description if not provided
     if description is None:
-        description = f"Executing attack for {minutes} minutes..."
+        description = f"Executing attack for {minutes}m {seconds}s..."
 
-    print(f"\n🔥 {description} (Estimated time: {minutes} minutes)")
+    print(f"\n🔥 {description} (Estimated time: {minutes}m {seconds}s)")
 
-    with tqdm.tqdm(total=seconds, desc="⏳ Attack Execution Progress", bar_format="{l_bar}{bar} [ {elapsed}/{remaining} ]") as pbar:
-        for _ in range(seconds):
+    with tqdm.tqdm(total=total_seconds, desc="⏳ Attack Execution Progress", 
+                   bar_format="{l_bar}{bar} [ {elapsed}/{remaining} ]") as pbar:
+        for _ in range(int(total_seconds)):
             time.sleep(1)  # Sleep for 1 second
             pbar.update(1)  # Update progress bar
-            
+
     print("\n✅ Attack execution time elapsed. Proceeding with cleanup...")
 
+# Example usages:
+# attack_execution_duration(minutes=1)      # Executes for 1 minute
+# attack_execution_duration(seconds=30)     # Executes for 30 seconds
+# attack_execution_duration(minutes=1, seconds=30)  # Executes for 1 minute 30 seconds
+
+
+
+
+def progress_bar(seconds):
+    """⏳ Display a progress bar while waiting for AWS to propagate MFA registration"""
+    print("\n⏳ Waiting for AWS to propagate MFA registration...")
+    for _ in tqdm.tqdm(range(seconds), desc="MFA Propagation", unit="s", ncols=80):
+        time.sleep(1)
