@@ -3,9 +3,9 @@ import json
 import subprocess
 import time
 from datetime import datetime, timezone
-from attack import Attack
-
-attack = Attack()
+import os
+import shutil
+import sys
 
 
 # Initialize AWS clients
@@ -108,21 +108,145 @@ class Cleanup:
             self.delete_user()
             print("\n✅ Cleanup completed successfully!")
 
-
-# ✅ Example Usage: Cleanup for DevopsUser
-if __name__ == "__main__":
-    user_cleanup = Cleanup.CleanUser(user="DevopsUser")  # Instantiate for a specific user
-    user_cleanup.execute_cleanup()  # Run full cleanup process
-
-
-
-
-
-
-
+    @staticmethod
+    def delete_attack_results():
+        """🗑️ Delete the AWS_Enumeration folder"""
+        attack_results_dir = "/workspaces/Pulumi/AWS_Enumeration"
+        if os.path.exists(attack_results_dir):
+            print(f"\n🗑️ Deleting {attack_results_dir} and all its contents...")
+            shutil.rmtree(attack_results_dir)
+            print("AWS_Enumeration folder deleted successfully!")
+        else:
+            print("No existing AWS_Enumeration folder found. Nothing to delete.")
 
 
 
+class AWSProfileCleanup:
+    """🧹 Cleans AWS CLI Profiles & Session Tokens"""
+
+
+    @staticmethod
+    def clear_env_vars():
+        """🚀 Unset AWS environment variables"""
+        print("\n🧹 Clearing AWS environment variables...")
+        for var in ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"]:
+            os.environ.pop(var, None)
+
+    @staticmethod
+    def remove_aws_profiles():
+        """🗑️ Remove AWS CLI profiles from ~/.aws/credentials & ~/.aws/config"""
+        print("\n🗑️ Removing AWS CLI profiles...")
+
+        profiles = ["devopsuser", "run_while_you_can"]
+        for profile in profiles:
+            print(f"🧹 Removing AWS profile: {profile}")
+            subprocess.run(f"aws configure set aws_access_key_id '' --profile {profile}", shell=True)
+            subprocess.run(f"aws configure set aws_secret_access_key '' --profile {profile}", shell=True)
+            subprocess.run(f"aws configure set aws_session_token '' --profile {profile}", shell=True)
+
+            # Remove profile from AWS credentials and config files
+            subprocess.run(f"sed -i '/\\[{profile}\\]/,/^$/d' ~/.aws/credentials", shell=True)
+            subprocess.run(f"sed -i '/\\[{profile}\\]/,/^$/d' ~/.aws/config", shell=True)
+
+        print("✅ AWS profiles removed.")
+
+    @staticmethod
+    def clear_aws_cache():
+        """🗑️ Clear AWS CLI cache to prevent session conflicts"""
+        print("\n🧹 Clearing AWS CLI cache...")
+        aws_cache_dir = os.path.expanduser("~/.aws/cli/cache")
+        if os.path.exists(aws_cache_dir):
+            shutil.rmtree(aws_cache_dir)
+            print("✅ AWS CLI cache cleared.")
+        else:
+            print("✅ No AWS CLI cache found.")
+
+    @staticmethod
+    def verify_cleanup():
+        """🔍 Verify AWS cleanup"""
+        print("\n🔍 Verifying AWS cleanup...")
+        subprocess.run("aws configure list", shell=True)
+        subprocess.run("aws sts get-caller-identity", shell=True)
+
+
+
+class SystemCacheCleanup:
+    """🗑️ Purges Python & System Caches"""
+
+    @staticmethod
+    def remove_python_cache():
+        """🗑️ Remove Python cache (`__pycache__` & compiled files)"""
+        print("\n🗑️ Removing Python cache...")
+        for root, dirs, files in os.walk("/workspaces/Pulumi"):
+            for dir_name in dirs:
+                if dir_name == "__pycache__":
+                    shutil.rmtree(os.path.join(root, dir_name))
+        print("✅ Python cache cleared.")
+
+
+def delete_attack_results():
+    """🗑️ Delete AttackResults folder"""
+    attack_results_dir = "/workspaces/Pulumi/AttackResults"
+    if os.path.exists(attack_results_dir):
+        print(f"\n🗑️ Deleting {attack_results_dir} and all its contents...")
+        shutil.rmtree(attack_results_dir)
+        print("✅ AttackResults folder deleted successfully!")
+    else:
+        print("✅ No existing AttackResults folder found. Nothing to delete.")
+
+
+
+
+def full_cleanup():
+    """ 
+         Deploys cleanup opposote of run time sequence.
+          First, attack python wrapper - boto3
+          Then, all pulumi infra resource roll outs - pulumi
+    """
+
+    print("\n\n\n")
+    print("Starting Full Attack & Deployment Cleanup\n")
+    print("\n\n\n")
+
+
+    ###
+    ### Need to refractor to make user intake more clean & modular
+    ###
+    clean_user = Cleanup.CleanUser(user="DevopsUser")
+    clean_user.execute_cleanup()
+    print("\n\n\n")
+    print("Deleted all DevopsUser information")
+    print("\n\n\n")
+
+    # ✅ Cleanup AWS credentials, profiles, and cache
+    AWSProfileCleanup.clear_env_vars()
+    AWSProfileCleanup.remove_aws_profiles()
+    AWSProfileCleanup.clear_aws_cache()
+    print("\n\n\n")
+    print("Deleted AWS env_vars, profiles, & cache")
+    print("\n\n\n")
+
+    # ✅ Delete attack results
+    delete_attack_results()
+    print("\n\n\n")
+    print("Deleted Attack Results Folder")
+    print("\n\n\n")
+
+    # ✅ Verify cleanup
+    AWSProfileCleanup.verify_cleanup()
+    print("\n\n\n")
+    print("Post Deploymenyt Cleanup verified successfully")
+    print("\n\n\n")
+
+    # Entering 
+    subprocess.call("cd /workspaces/Pulumi/Infra && pulumi destroy -s dev -y", shell=True)
+    print("\n\n\n")
+    print("Pulumi Deployment cleaned up successfully")
+    print("\n\n\n")
+
+    print("\n\n\n")
+    print("And just like that the attack and deployment vanished :)")
+    print("\n\n\n")
 
 
 
@@ -131,8 +255,20 @@ if __name__ == "__main__":
 
 
 
-
-
+#    _____ _                    _    _       
+#   / ____| |                  | |  | |      
+#  | |    | | ___  __ _ _ __   | |  | |_ __  
+#  | |    | |/ _ \/ _` | '_ \  | |  | | '_ \ 
+#  | |____| |  __/ (_| | | | | | |__| | |_) |
+#   \_____|_|\___|\__,_|_| |_|  \____/| .__/ 
+#                                     | |    
+#                                     |_|        
+"""
+Post attack clean up
+Cleanes all boto3 Attack methods that can't be destroyed through Pulumi, 
+since Pulumi didn't create them, and thus doesn't trace them in its stack
+"""
+#full_cleanup()
 
 
 

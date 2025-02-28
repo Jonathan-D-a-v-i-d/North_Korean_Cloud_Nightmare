@@ -1,0 +1,208 @@
+{
+    "Policies": [
+        {
+            "PolicyName": "dev-pol",
+            "PolicyId": "ANPAXTORPWZ7CHOJBTX3B",
+            "Arn": "arn:aws:iam::522814731902:policy/dev-pol",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 0,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2025-01-23 12:57:45+00:00",
+            "UpdateDate": "2025-01-23 12:57:45+00:00"
+        },
+        {
+            "PolicyName": "AmazonSageMakerServiceCatalogProductsUseRole-20250218T125996",
+            "PolicyId": "ANPAXTORPWZ7CX5X67WX2",
+            "Arn": "arn:aws:iam::522814731902:policy/service-role/AmazonSageMakerServiceCatalogProductsUseRole-20250218T125996",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2025-02-18 10:59:32+00:00",
+            "UpdateDate": "2025-02-18 10:59:32+00:00"
+        },
+        {
+            "PolicyName": "DevopsDynamoDBPolicy",
+            "PolicyId": "ANPAXTORPWZ7DXK5XET56",
+            "Arn": "arn:aws:iam::522814731902:policy/DevopsDynamoDBPolicy",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 0,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2025-02-28 21:29:47+00:00",
+            "UpdateDate": "2025-02-28 21:29:47+00:00"
+        },
+        {
+            "PolicyName": "assume_ci_cd_roles",
+            "PolicyId": "ANPAXTORPWZ7EDZCBDRVM",
+            "Arn": "arn:aws:iam::522814731902:policy/assume_ci_cd_roles",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2025-02-10 10:11:50+00:00",
+            "UpdateDate": "2025-02-10 10:11:50+00:00"
+        },
+        {
+            "PolicyName": "DevopsS3Policy",
+            "PolicyId": "ANPAXTORPWZ7G6P5624FY",
+            "Arn": "arn:aws:iam::522814731902:policy/DevopsS3Policy",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 0,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2025-02-28 21:29:48+00:00",
+            "UpdateDate": "2025-02-28 21:29:48+00:00"
+        },
+        {
+            "PolicyName": "cg-ecs-takeover-ecs_takeover_cgid000gqauz5m-privd",
+            "PolicyId": "ANPAXTORPWZ7ITCEGN6BJ",
+            "Arn": "arn:aws:iam::522814731902:policy/cg-ecs-takeover-ecs_takeover_cgid000gqauz5m-privd",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2024-11-17 14:58:39+00:00",
+            "UpdateDate": "2024-11-17 14:58:39+00:00"
+        },
+        {
+            "PolicyName": "aws-goat-instance-policy",
+            "PolicyId": "ANPAXTORPWZ7IWMYS2VCT",
+            "Arn": "arn:aws:iam::522814731902:policy/aws-goat-instance-policy",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2025-02-26 16:20:29+00:00",
+            "UpdateDate": "2025-02-26 16:20:29+00:00"
+        },
+        {
+            "PolicyName": "read_gamemaster_bucket",
+            "PolicyId": "ANPAXTORPWZ7K2A7CQUHB",
+            "Arn": "arn:aws:iam::522814731902:policy/read_gamemaster_bucket",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2025-02-10 10:11:56+00:00",
+            "UpdateDate": "2025-02-10 10:11:56+00:00"
+        },
+        {
+            "PolicyName": "PassRole",
+            "PolicyId": "ANPAXTORPWZ7L54A7NELF",
+            "Arn": "arn:aws:iam::522814731902:policy/PassRole",
+            "Path": "/",
+            "DefaultVersionId": "v12",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2024-11-13 17:29:24+00:00",
+            "UpdateDate": "2024-11-13 18:34:39+00:00"
+        },
+        {
+            "PolicyName": "DevopsPolicy",
+            "PolicyId": "ANPAXTORPWZ7LGSX74WBE",
+            "Arn": "arn:aws:iam::522814731902:policy/DevopsPolicy",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2025-02-28 21:29:47+00:00",
+            "UpdateDate": "2025-02-28 21:29:47+00:00"
+        },
+        {
+            "PolicyName": "KinesisFirehoseServicePolicy-k8s-cloudwatch-us-east-1",
+            "PolicyId": "ANPAXTORPWZ7MVEDHIUI3",
+            "Arn": "arn:aws:iam::522814731902:policy/service-role/KinesisFirehoseServicePolicy-k8s-cloudwatch-us-east-1",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2024-12-08 21:14:34+00:00",
+            "UpdateDate": "2024-12-08 21:14:34+00:00"
+        },
+        {
+            "PolicyName": "DevopsMFASessionPolicy",
+            "PolicyId": "ANPAXTORPWZ7ONUY2X43P",
+            "Arn": "arn:aws:iam::522814731902:policy/DevopsMFASessionPolicy",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2025-02-28 21:29:48+00:00",
+            "UpdateDate": "2025-02-28 21:29:48+00:00"
+        },
+        {
+            "PolicyName": "AmazonSageMaker-ExecutionPolicy-20250218T125934",
+            "PolicyId": "ANPAXTORPWZ7PCZSHOEO3",
+            "Arn": "arn:aws:iam::522814731902:policy/service-role/AmazonSageMaker-ExecutionPolicy-20250218T125934",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2025-02-18 10:59:19+00:00",
+            "UpdateDate": "2025-02-18 10:59:19+00:00"
+        },
+        {
+            "PolicyName": "ec2DeployerAdmin-policy",
+            "PolicyId": "ANPAXTORPWZ7PJNQFUXTL",
+            "Arn": "arn:aws:iam::522814731902:policy/ec2DeployerAdmin-policy",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2025-02-26 16:20:29+00:00",
+            "UpdateDate": "2025-02-26 16:20:29+00:00"
+        },
+        {
+            "PolicyName": "aws-goat-instance-boundary-policy",
+            "PolicyId": "ANPAXTORPWZ7PQE7ZI4FH",
+            "Arn": "arn:aws:iam::522814731902:policy/aws-goat-instance-boundary-policy",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 0,
+            "PermissionsBoundaryUsageCount": 1,
+            "IsAttachable": true,
+            "CreateDate": "2025-02-26 16:20:29+00:00",
+            "UpdateDate": "2025-02-26 16:20:29+00:00"
+        },
+        {
+            "PolicyName": "DevopsMFASetupPolicy",
+            "PolicyId": "ANPAXTORPWZ7PXWO6Z2JG",
+            "Arn": "arn:aws:iam::522814731902:policy/DevopsMFASetupPolicy",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2025-02-28 21:29:48+00:00",
+            "UpdateDate": "2025-02-28 21:29:48+00:00"
+        }
+    ],
+    "IsTruncated": false,
+    "ResponseMetadata": {
+        "RequestId": "27765985-7c06-498c-b24f-bd13ade7ef2c",
+        "HTTPStatusCode": 200,
+        "HTTPHeaders": {
+            "date": "Fri, 28 Feb 2025 22:27:57 GMT",
+            "x-amzn-requestid": "27765985-7c06-498c-b24f-bd13ade7ef2c",
+            "content-type": "text/xml",
+            "content-length": "9390"
+        },
+        "RetryAttempts": 0
+    }
+}

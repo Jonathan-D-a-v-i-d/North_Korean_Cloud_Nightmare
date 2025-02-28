@@ -1,0 +1,206 @@
+{
+    "ResponseMetadata": {
+        "RequestId": "0PAWMXAY62PHEATV",
+        "HostId": "o5TKUOehO1+W2pG86H+EpSoZcx+aTMF0fNzjOO/F8ogqcr3dDB6WwUfPkFlYwZa85kSvIzbIMN2hPLqOJ9LbCaiEGRSn/VJc",
+        "HTTPStatusCode": 200,
+        "HTTPHeaders": {
+            "x-amz-id-2": "o5TKUOehO1+W2pG86H+EpSoZcx+aTMF0fNzjOO/F8ogqcr3dDB6WwUfPkFlYwZa85kSvIzbIMN2hPLqOJ9LbCaiEGRSn/VJc",
+            "x-amz-request-id": "0PAWMXAY62PHEATV",
+            "date": "Fri, 28 Feb 2025 22:27:58 GMT",
+            "content-type": "application/xml",
+            "transfer-encoding": "chunked",
+            "server": "AmazonS3"
+        },
+        "RetryAttempts": 0
+    },
+    "Buckets": [
+        {
+            "Name": "agnet-crtx-unified-agent",
+            "CreationDate": "2024-11-17 16:47:03+00:00"
+        },
+        {
+            "Name": "aigoat-state-files-522814731902",
+            "CreationDate": "2025-02-18 09:28:12+00:00"
+        },
+        {
+            "Name": "aws-cloudtrail-logs-522814731902-e070d736",
+            "CreationDate": "2024-11-13 13:59:27+00:00"
+        },
+        {
+            "Name": "aws-cloudtrail-logs-522814731902-efcc11dc",
+            "CreationDate": "2024-11-13 13:32:37+00:00"
+        },
+        {
+            "Name": "cf-templates-hmynlcgtpmqm-ap-southeast-2",
+            "CreationDate": "2025-02-10 09:54:18+00:00"
+        },
+        {
+            "Name": "cf-templates-hmynlcgtpmqm-eu-north-1",
+            "CreationDate": "2024-11-13 10:58:09+00:00"
+        },
+        {
+            "Name": "cf-templates-hmynlcgtpmqm-us-east-1",
+            "CreationDate": "2024-11-13 12:05:57+00:00"
+        },
+        {
+            "Name": "cf-templates-hmynlcgtpmqm-us-east-2",
+            "CreationDate": "2025-02-19 18:01:04+00:00"
+        },
+        {
+            "Name": "cf-templates-hmynlcgtpmqm-us-west-2",
+            "CreationDate": "2025-02-26 17:02:04+00:00"
+        },
+        {
+            "Name": "cnappgoat-http-bucket-ebd3c91",
+            "CreationDate": "2024-11-14 09:52:40+00:00"
+        },
+        {
+            "Name": "cnappgoat-public-bucket-958cf26",
+            "CreationDate": "2024-12-08 07:41:00+00:00"
+        },
+        {
+            "Name": "cnappgoat-public-bucket-c2f30dc",
+            "CreationDate": "2024-11-14 09:52:31+00:00"
+        },
+        {
+            "Name": "cnappgoatoverprivilegeduserbucket-2aa75f0",
+            "CreationDate": "2024-12-08 07:35:44+00:00"
+        },
+        {
+            "Name": "company-data-q1-2024-75a3f1d",
+            "CreationDate": "2025-02-28 21:29:51+00:00"
+        },
+        {
+            "Name": "company-data-q2-2024-6cf71c3",
+            "CreationDate": "2025-02-28 21:29:51+00:00"
+        },
+        {
+            "Name": "company-data-q3-2024-efc6689",
+            "CreationDate": "2025-02-28 21:29:52+00:00"
+        },
+        {
+            "Name": "company-data-q4-2024-6f7f97a",
+            "CreationDate": "2025-02-28 21:29:52+00:00"
+        },
+        {
+            "Name": "configuration-files-d9cc105",
+            "CreationDate": "2025-02-28 21:29:52+00:00"
+        },
+        {
+            "Name": "cortex-cloudtrail-logs-522814731902-m-a-3101170656178",
+            "CreationDate": "2025-02-25 14:15:49+00:00"
+        },
+        {
+            "Name": "cortex-cloudtrail-logs-522814731902-m-a-3104829275679",
+            "CreationDate": "2025-02-17 09:51:30+00:00"
+        },
+        {
+            "Name": "cortex-cloudtrail-logs-522814731902-m-a-3109671799143",
+            "CreationDate": "2025-02-26 14:21:06+00:00"
+        },
+        {
+            "Name": "cortex-cloudtrail-logs-522814731902-m-a-3604196771786",
+            "CreationDate": "2025-01-16 07:36:17+00:00"
+        },
+        {
+            "Name": "crtxbucket4platform",
+            "CreationDate": "2024-11-13 11:47:34+00:00"
+        },
+        {
+            "Name": "customer-data-36cb8b2",
+            "CreationDate": "2025-02-28 21:29:52+00:00"
+        },
+        {
+            "Name": "do-not-delete-awsgoat-state-files-522814731902",
+            "CreationDate": "2025-02-26 16:20:30+00:00"
+        },
+        {
+            "Name": "dspm-data-gen-1740317488",
+            "CreationDate": "2025-02-23 13:31:30+00:00"
+        },
+        {
+            "Name": "dspm-data-gen-1740317508",
+            "CreationDate": "2025-02-23 13:31:50+00:00"
+        },
+        {
+            "Name": "dspm-data-gen-1740318024",
+            "CreationDate": "2025-02-23 13:40:26+00:00"
+        },
+        {
+            "Name": "dspm-data-gen-1740319883",
+            "CreationDate": "2025-02-23 14:11:25+00:00"
+        },
+        {
+            "Name": "dspm-data-gen-1740319937",
+            "CreationDate": "2025-02-23 14:12:22+00:00"
+        },
+        {
+            "Name": "dspm-data-gen-1740320762",
+            "CreationDate": "2025-02-23 14:26:04+00:00"
+        },
+        {
+            "Name": "dspm-data-gen-1740321252",
+            "CreationDate": "2025-02-23 14:34:14+00:00"
+        },
+        {
+            "Name": "dspm-data-gen-1740322155",
+            "CreationDate": "2025-02-23 14:49:17+00:00"
+        },
+        {
+            "Name": "dspm-data-gen-1740322174",
+            "CreationDate": "2025-02-23 14:49:36+00:00"
+        },
+        {
+            "Name": "dspm-data-gen-1740323545",
+            "CreationDate": "2025-02-23 15:12:27+00:00"
+        },
+        {
+            "Name": "dspmchecker",
+            "CreationDate": "2025-02-19 12:42:13+00:00"
+        },
+        {
+            "Name": "gamemaster-htc-20250210101150078800000001",
+            "CreationDate": "2025-02-10 10:11:51+00:00"
+        },
+        {
+            "Name": "itidr-bucketathena8bd64ef0-qhep1do5dvx8",
+            "CreationDate": "2025-01-23 12:43:51+00:00"
+        },
+        {
+            "Name": "itidr-bucketlogs9c0dca97-71cacc055gum",
+            "CreationDate": "2025-01-23 12:43:51+00:00"
+        },
+        {
+            "Name": "payment-data-5b8d819",
+            "CreationDate": "2025-02-28 21:29:52+00:00"
+        },
+        {
+            "Name": "r53inlogs",
+            "CreationDate": "2024-11-26 10:09:05+00:00"
+        },
+        {
+            "Name": "r53toxdrlabs",
+            "CreationDate": "2024-11-26 10:18:23+00:00"
+        },
+        {
+            "Name": "sagemaker-comment-filter-bucket-bc7zuyxc",
+            "CreationDate": "2025-02-11 09:19:00+00:00"
+        },
+        {
+            "Name": "sagemaker-studio-522814731902-qhwts2q5ptq",
+            "CreationDate": "2025-02-18 10:59:25+00:00"
+        },
+        {
+            "Name": "sagemaker-us-east-1-522814731902",
+            "CreationDate": "2025-02-18 10:59:28+00:00"
+        },
+        {
+            "Name": "sagemaker-us-east-2-522814731902",
+            "CreationDate": "2025-02-11 09:26:20+00:00"
+        }
+    ],
+    "Owner": {
+        "DisplayName": "aws-admin-accounts+CLOUDOPS-8927-8",
+        "ID": "366f6956293f3128dbc01e15cccefe71c27ed83a6ddbb732d5b28d8e948d5713"
+    }
+}

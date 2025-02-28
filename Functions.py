@@ -119,3 +119,4 @@ def progress_bar(seconds):
     print("\n⏳ Waiting for AWS to propagate MFA registration...")
     for _ in tqdm.tqdm(range(seconds), desc="MFA Propagation", unit="s", ncols=80):
         time.sleep(1)
+

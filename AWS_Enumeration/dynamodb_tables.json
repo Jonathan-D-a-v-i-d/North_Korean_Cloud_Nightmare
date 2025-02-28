@@ -1,0 +1,21 @@
+{
+    "TableNames": [
+        "CustomerOrdersTable-d936c6f",
+        "CustomerSSNTable-54863cd",
+        "dspm-demo-dynamodb-table"
+    ],
+    "ResponseMetadata": {
+        "RequestId": "V89O65HK6J2BCS0K9798SVKVSRVV4KQNSO5AEMVJF66Q9ASUAAJG",
+        "HTTPStatusCode": 200,
+        "HTTPHeaders": {
+            "server": "Server",
+            "date": "Fri, 28 Feb 2025 22:27:57 GMT",
+            "content-type": "application/x-amz-json-1.0",
+            "content-length": "100",
+            "connection": "keep-alive",
+            "x-amzn-requestid": "V89O65HK6J2BCS0K9798SVKVSRVV4KQNSO5AEMVJF66Q9ASUAAJG",
+            "x-amz-crc32": "3270773123"
+        },
+        "RetryAttempts": 0
+    }
+}

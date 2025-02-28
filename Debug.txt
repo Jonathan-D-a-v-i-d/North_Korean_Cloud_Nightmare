@@ -1,0 +1,22 @@
+Remove Only devopsuser AWS Profile
+-----------------------------------
+sed -i '/\[devopsuser\]/,/^$/d' ~/.aws/credentials
+sed -i '/\[profile devopsuser\]/,/^$/d' ~/.aws/config
+
+Verify Removal of profile
+--------------------------
+aws configure list-profiles
+
+Verify Removal of credentials/config
+------------------------------------
+cat ~/.aws/credentials
+cat ~/.aws/config
+
+
+
+
+
+
+Debug Trace for profile error
+------------------------------
+AWS_PROFILE=devopsuser aws sts get-caller-identity --debug

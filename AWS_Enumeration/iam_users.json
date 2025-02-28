@@ -1,0 +1,149 @@
+{
+    "Users": [
+        {
+            "Path": "/",
+            "UserName": "AdminUser",
+            "UserId": "AIDAXTORPWZ7CK67USJE4",
+            "Arn": "arn:aws:iam::522814731902:user/AdminUser",
+            "CreateDate": "2025-02-28 21:29:47+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "aiGoat",
+            "UserId": "AIDAXTORPWZ7AMTMATZLZ",
+            "Arn": "arn:aws:iam::522814731902:user/aiGoat",
+            "CreateDate": "2025-02-18 09:16:59+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "aliciakeys",
+            "UserId": "AIDAXTORPWZ7JZZHG4CKY",
+            "Arn": "arn:aws:iam::522814731902:user/aliciakeys",
+            "CreateDate": "2024-11-13 13:17:53+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "aws_admin_automation_user",
+            "UserId": "AIDAXTORPWZ7G6JMANQAX",
+            "Arn": "arn:aws:iam::522814731902:user/aws_admin_automation_user",
+            "CreateDate": "2025-02-10 10:11:50+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "cli",
+            "UserId": "AIDAXTORPWZ7FNXIISNSE",
+            "Arn": "arn:aws:iam::522814731902:user/cli",
+            "CreateDate": "2024-11-17 16:22:25+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "cloudgoat",
+            "UserId": "AIDAXTORPWZ7GXJE4H4WO",
+            "Arn": "arn:aws:iam::522814731902:user/cloudgoat",
+            "CreateDate": "2024-11-17 14:33:05+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "DevopsUser",
+            "UserId": "AIDAXTORPWZ7FH77H6IF6",
+            "Arn": "arn:aws:iam::522814731902:user/DevopsUser",
+            "CreateDate": "2025-02-28 21:29:47+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "DevTeamDeveloper",
+            "UserId": "AIDAXTORPWZ7HHP6XBXV2",
+            "Arn": "arn:aws:iam::522814731902:user/DevTeamDeveloper",
+            "CreateDate": "2025-02-28 12:32:56+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "dspmchecker",
+            "UserId": "AIDAXTORPWZ7IRP3QLM4E",
+            "Arn": "arn:aws:iam::522814731902:user/dspmchecker",
+            "CreateDate": "2025-02-23 08:34:55+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "edror",
+            "UserId": "AIDAXTORPWZ7D37QPYYYW",
+            "Arn": "arn:aws:iam::522814731902:user/edror",
+            "CreateDate": "2025-01-15 15:42:43+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "hacker",
+            "UserId": "AIDAXTORPWZ7MPG7VDJRM",
+            "Arn": "arn:aws:iam::522814731902:user/hacker",
+            "CreateDate": "2025-02-26 17:03:01+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "JD",
+            "UserId": "AIDAXTORPWZ7J7RKL2RHE",
+            "Arn": "arn:aws:iam::522814731902:user/JD",
+            "CreateDate": "2025-02-18 00:53:51+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "jr-terraform",
+            "UserId": "AIDAXTORPWZ7HQ6PRGUJQ",
+            "Arn": "arn:aws:iam::522814731902:user/jr-terraform",
+            "CreateDate": "2025-02-03 13:06:56+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "key_maker",
+            "UserId": "AIDAXTORPWZ7MES5IUEPZ",
+            "Arn": "arn:aws:iam::522814731902:user/key_maker",
+            "CreateDate": "2024-11-18 12:18:14+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "kubik",
+            "UserId": "AIDAXTORPWZ7MPTBQH5FP",
+            "Arn": "arn:aws:iam::522814731902:user/kubik",
+            "CreateDate": "2024-11-14 16:40:36+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "nsimchon",
+            "UserId": "AIDAXTORPWZ7GMWKGR473",
+            "Arn": "arn:aws:iam::522814731902:user/nsimchon",
+            "CreateDate": "2025-01-28 16:42:23+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "us-workshop-admin",
+            "UserId": "AIDAXTORPWZ7G2DD5TAOD",
+            "Arn": "arn:aws:iam::522814731902:user/us-workshop-admin",
+            "CreateDate": "2025-02-19 18:11:04+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "WebGoat_actions",
+            "UserId": "AIDAXTORPWZ7IEU5AI2IX",
+            "Arn": "arn:aws:iam::522814731902:user/WebGoat_actions",
+            "CreateDate": "2024-11-13 13:10:38+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "xdr_labs_route53",
+            "UserId": "AIDAXTORPWZ7O4U6INZQA",
+            "Arn": "arn:aws:iam::522814731902:user/xdr_labs_route53",
+            "CreateDate": "2024-11-26 10:20:21+00:00"
+        }
+    ],
+    "IsTruncated": false,
+    "ResponseMetadata": {
+        "RequestId": "3387229f-f1b9-4aa4-8ad9-a1235a74000a",
+        "HTTPStatusCode": 200,
+        "HTTPHeaders": {
+            "date": "Fri, 28 Feb 2025 22:27:56 GMT",
+            "x-amzn-requestid": "3387229f-f1b9-4aa4-8ad9-a1235a74000a",
+            "content-type": "text/xml",
+            "content-length": "5173"
+        },
+        "RetryAttempts": 0
+    }
+}

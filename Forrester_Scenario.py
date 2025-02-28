@@ -7,12 +7,24 @@ from termcolor import colored
 import Functions
 from Helpers import loading_animation
 import pyqrcode
+from clean_up import full_cleanup
+import boto3
 from attack import Attack
-from clean_up import Cleanup
+from MFA import MFASetup
 
 
-cleanup = Cleanup()
-attack = Attack()
+# Initialize AWS Clients
+iam_client = boto3.client("iam")
+sts_client = boto3.client("sts")
+
+PULUMI_OUTPUT_PATH = "/workspaces/Pulumi/Infra/forrester-2025-output.json"
+
+# Define user and initial MFA ARN (this may be empty initially)
+user = "DevopsUser"
+mfa_arn = ""
+
+# Create MFASetup instance with required parameters
+mfa = MFASetup(user, mfa_arn, iam_client, sts_client, PULUMI_OUTPUT_PATH)
 
 
 def forrester_scenario_execute():
@@ -45,11 +57,17 @@ def forrester_scenario_execute():
     subprocess.call("pulumi stack -s dev output --json > /workspaces/Pulumi/Infra/forrester-2025-output.json", shell=True)
     print("📂 Pulumi output saved inside /workspaces/Pulumi/Infra/forrester-2025-output.json")
 
+
+
+
 def forrester_scenario_validate_rollout():
     """🔍 Validate that Pulumi successfully deployed all resources"""
 
     Functions.wait_for_output_file()
     Functions.validate_pulumi_outputs_after_rollout(pulumi_stack_output_file="/workspaces/Pulumi/Infra/forrester-2025-output.json")
+
+
+
 
 def forrester_scenario_validate_data():
     """🔍 Validate that Pulumi-created data exists in S3 and DynamoDB"""
@@ -95,76 +113,108 @@ def forrester_scenario_validate_data():
 
 
 
-def devops_user_MFA_Setup():
-    """🔐 Execute MFA Setup Step-by-Step"""
 
-    print("\n🚀 Initiating MFA Setup...")
 
-    attack.mfa.cleanup_old_mfa()  # ✅ Delete any stale MFA devices
-    attack.mfa.create_mfa_device()  # ✅ Create new virtual MFA device
-    attack.mfa.extract_mfa_secret()  # ✅ Extract the MFA seed
-    code1, code2 = attack.mfa.generate_mfa_codes()  # ✅ Generate TOTP MFA codes
-    attack.mfa.enable_mfa(code1, code2)  # ✅ Enable MFA on AWS IAM user
-    print("\n MFA Setup for DevopsUser Successfully Completed!")
+def ensure_pulumi_deployment():
+    """🚀 Ensures Pulumi infrastructure is deployed before Attack initialization"""
+    
+    print("🚀 Starting Infrastructure Deployment...")
+
+    print("\n🔍 Executing Pulumi Deployment...")
+    forrester_scenario_execute()
+
+    print("\n🔍 Validating Rollout...")
+    forrester_scenario_validate_rollout()
+
+    print("\n🔍 Validating Data...")
+    forrester_scenario_validate_data()
+
+    # ✅ Wait for the Pulumi output file to be generated
+    # timeout = 60  # Max 60 seconds
+    # elapsed = 0
+    # while not os.path.exists(PULUMI_OUTPUT_PATH) and elapsed < timeout:
+    #     time.sleep(3)
+    #     elapsed += 3
+
+    if not os.path.exists(PULUMI_OUTPUT_PATH):
+        raise RuntimeError(f"❌ ERROR: Pulumi output file '{PULUMI_OUTPUT_PATH}' still not found after deployment.")
+
+    print("\n✅ Pulumi Deployment Verified! Proceeding...\n")
+
+    # ✅ Let MFA fully register before trying to login
+    Functions.progress_bar(seconds=15)
+
+
 
 
 
 
 if __name__ == "__main__":
-    # Run Deployment
+    # print("Starting Infrastructure Deployment...")
+
+
+    # print("\n\n\n") 
+    # print("Executing Pulumi Deployment...")
+    # print("\n\n\n")
     # forrester_scenario_execute()
+
+    # print("\n\n\n") 
+    # print("Validating Rollout...")
+    # print("\n\n\n")
     # forrester_scenario_validate_rollout()
+
+    # print("\n\n\n") 
+    # print("Validating Data Population Within Infrastructure for EC2 & DynamoDB")
+    # print("\n\n\n")
     # forrester_scenario_validate_data()
-    # devops_user_MFA_Setup()
-
-    # # Letting MFA fully register before trying to login
-    # # w/ DevopsUser
-    # Functions.progress_bar(seconds=15)
-
-    # Logs in as Devops user, storing credentials in AWS config of host machine
-    attack.mfa.login_as_devops()
-    print("\n DevOpsUser Login Successfully Completed!") 
-
-    # Functions.attack_execution_duration(seconds=10)
 
 
-    # attack.session_hijack.extract_credentials()
-    # attack.session_hijack.assume_devops_identity()
-    # attack.session_hijack.enumerate_test()
+    # print("\n\n\n") 
+    # print("Setting up MFA for DevOpsUser and getting a session token")
+    # print("\n\n\n")
+    # mfa.setup_mfa_and_login()
 
 
-        #    _____ _                    _    _       
-        #   / ____| |                  | |  | |      
-        #  | |    | | ___  __ _ _ __   | |  | |_ __  
-        #  | |    | |/ _ \/ _` | '_ \  | |  | | '_ \ 
-        #  | |____| |  __/ (_| | | | | | |__| | |_) |
-        #   \_____|_|\___|\__,_|_| |_|  \____/| .__/ 
-        #                                     | |    
-        #                                     |_|        
-
-    """
-    Post attack clean up
-    Cleanes all boto3 Attack methods that can't be destroyed through Pulumi, 
-    since Pulumi didn't create them, and thus doesn't trace them in its stack
-    """
-    # devops_user_cleanup = Cleanup.CleanUser(user="DevopsUser")
-    # devops_user_cleanup.execute_cleanup()
-
-
- 
-    # #   _____            _                     _____        __           
-    # #  |  __ \          | |                   |_   _|      / _|          
-    # #  | |  | | ___  ___| |_ _ __ ___  _   _    | |  _ __ | |_ _ __ __ _ 
-    # #  | |  | |/ _ \/ __| __| '__/ _ \| | | |   | | | '_ \|  _| '__/ _` |
-    # #  | |__| |  __/\__ \ |_| | | (_) | |_| |  _| |_| | | | | | | | (_| |
-    # #  |_____/ \___||___/\__|_|  \___/ \__, | |_____|_| |_|_| |_|  \__,_|
-    # #                                   __/ |                            
-    # #                                  |___/                    
-  
-    # subprocess.call("cd /workspaces/Pulumi/Infra && pulumi destroy -s dev -y", shell=True)
+    print("\n\n\n") 
+    print("Enumerating on all AWS resoureces and saving to ./AWS_Emumeration")
+    print("\n\n\n") 
+    attack = Attack()
+    attack.enumeration.run_all_enumerations()
+    
 
 
 
+    #  
+    #################################
+    ### Boto3 Session with DevopsUser
+    #################################
+    print("\n\n\n") 
+    print(f"Initializing boto3 session with: {user}")
+    print("\n\n\n") 
+    user_session = boto3.Session(
+        aws_access_key_id=mfa.accesskey_ID,
+        aws_secret_access_key=mfa.secret_access_key,
+        aws_session_token=mfa.session_token,
+        region_name="us-east-1"
+    )
+
+    #####################################################
+    ### DevopsUser creating Ransomware user, access keys
+    ### &  attaching AWS s3/Dynamodb all access policies
+    #####################################################
+    attack_vector = attack.AWS_CreateUser_AttachPolicies(user_session)
+    attack_vector.run_pipeline(
+        username="run_while_u_can", 
+        policy_arns=[
+            "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
+            "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+        ])
+
+
+
+    ########################################
+    ### Boto3 Session with run_while_you_can
+    ########################################
 
 
 
@@ -174,3 +224,24 @@ if __name__ == "__main__":
     # 🚀 Proceed with Attack Scenario
     # print("\n🔥 MFA Phishing Simulated Successfully! Proceeding with Attack...")
     # Here, you will continue the attack scenario.
+
+
+
+
+
+
+
+
+
+# def devops_user_MFA_Setup():
+#     """🔐 Execute MFA Setup Step-by-Step"""
+
+#     print("\n🚀 Initiating MFA Setup...")
+
+#     attack.mfa.cleanup_old_mfa()  # ✅ Delete any stale MFA devices
+#     attack.mfa.create_mfa_device()  # ✅ Create new virtual MFA device
+#     attack.mfa.extract_mfa_secret()  # ✅ Extract the MFA seed
+#     code1, code2 = attack.mfa.generate_mfa_codes()  # ✅ Generate TOTP MFA codes
+#     attack.mfa.enable_mfa(code1, code2)  # ✅ Enable MFA on AWS IAM user
+#     print("\n MFA Setup for DevopsUser Successfully Completed!")
+
