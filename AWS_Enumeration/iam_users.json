@@ -3,9 +3,9 @@
         {
             "Path": "/",
             "UserName": "AdminUser",
-            "UserId": "AIDAXTORPWZ7CK67USJE4",
+            "UserId": "AIDAXTORPWZ7FEGYP3TCE",
             "Arn": "arn:aws:iam::522814731902:user/AdminUser",
-            "CreateDate": "2025-02-28 21:29:47+00:00"
+            "CreateDate": "2025-03-01 08:55:34+00:00"
         },
         {
             "Path": "/",
@@ -45,9 +45,9 @@
         {
             "Path": "/",
             "UserName": "DevopsUser",
-            "UserId": "AIDAXTORPWZ7FH77H6IF6",
+            "UserId": "AIDAXTORPWZ7BKPT4DDQ5",
             "Arn": "arn:aws:iam::522814731902:user/DevopsUser",
-            "CreateDate": "2025-02-28 21:29:47+00:00"
+            "CreateDate": "2025-03-01 08:55:34+00:00"
         },
         {
             "Path": "/",
@@ -136,11 +136,11 @@
     ],
     "IsTruncated": false,
     "ResponseMetadata": {
-        "RequestId": "3387229f-f1b9-4aa4-8ad9-a1235a74000a",
+        "RequestId": "0b132e3e-1f8f-4ed9-8f69-07b981b86c40",
         "HTTPStatusCode": 200,
         "HTTPHeaders": {
-            "date": "Fri, 28 Feb 2025 22:27:56 GMT",
-            "x-amzn-requestid": "3387229f-f1b9-4aa4-8ad9-a1235a74000a",
+            "date": "Sat, 01 Mar 2025 08:57:26 GMT",
+            "x-amzn-requestid": "0b132e3e-1f8f-4ed9-8f69-07b981b86c40",
             "content-type": "text/xml",
             "content-length": "5173"
         },

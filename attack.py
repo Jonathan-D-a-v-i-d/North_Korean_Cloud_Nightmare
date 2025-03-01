@@ -11,7 +11,7 @@ import configparser
 #### Referactor devopsuser hardcoding to be flexible in instanstiatign with any user input
 #### for modulatity
 class Attack:
-    """🔥 Main Attack Class Integrating AWS MFA Setup and User Session Management"""
+    """Main Attack Class Integrating AWS MFA Setup and User Session Management"""
 
     def __init__(self, region="us-east-1"):
         """Initialize AWS Clients and Fetch Pulumi Outputs"""
@@ -21,19 +21,19 @@ class Attack:
         self.pulumi_outputs = None  # Defer loading until needed
     
 
-        #  ✅ Force Boto3 to use the correct credentials & config file locations
+        #  Force Boto3 to use the correct credentials & config file locations
         os.environ["AWS_SHARED_CREDENTIALS_FILE"] = os.path.expanduser("~/.aws/credentials")
         os.environ["AWS_CONFIG_FILE"] = os.path.expanduser("~/.aws/config")
 
-        # ✅ Verify if AWS Profile exists before proceeding
+        # Verify if AWS Profile exists before proceeding
         session = boto3.Session()
         available_profiles = session.available_profiles  # List all profiles
         if "devopsuser" not in available_profiles:
-            raise RuntimeError(f"❌ ERROR: AWS Profile 'devopsuser' not found! Available profiles: {available_profiles}")
+            raise RuntimeError(f"ERROR: AWS Profile 'devopsuser' not found! Available profiles: {available_profiles}")
 
-        print(f"✅ AWS Profile 'devopsuser' found! Proceeding with Attack Initialization...")
+        print(f"AWS Profile 'devopsuser' found! Proceeding with Attack Initialization...")
 
-        # ✅ Load Pulumi outputs BEFORE using them
+        # Load Pulumi outputs BEFORE using them
         self.load_pulumi_outputs()
 
         self.devops_user = "DevopsUser"
@@ -55,15 +55,15 @@ class Attack:
         # For Class Enumeration & User Creation #
         # ------------------------------------- #
         self.credentials_path = os.path.expanduser("~/.aws/credentials")
-        self.enumeration = self.Enumeration(self)
+        #self.enumeration = self.Enumeration(self)
         self.aws_profile = "devopsuser"
         self.output_dir = "/workspaces/Pulumi/AWS_Enumeration"
         os.makedirs(self.output_dir, exist_ok=True)
 
-        # ✅ Load credentials from ~/.aws/credentials instead of relying on the profile
+        # Load credentials from ~/.aws/credentials instead of relying on the profile
         self.access_key, self.secret_key, self.session_token = self.load_credentials_from_file()
 
-        # ✅ Manually initialize boto3 session with the loaded credentials
+        # Manually initialize boto3 session with the loaded credentials
         self.session = boto3.Session(
             aws_access_key_id=self.access_key,
             aws_secret_access_key=self.secret_key,
@@ -76,6 +76,11 @@ class Attack:
         self.dynamodb_client = self.session.client("dynamodb")
         self.ec2_client = self.session.client("ec2")
 
+        # Initialize Enumeration automatically using the inherited session
+        self.enumeration = self.Enumeration(self)
+
+        # Initialize AWS_CreateUser_AttachPolicies using the inherited session
+        self.createuser_attatchpolicies = self.AWS_CreateUser_AttachPolicies(self)
 
 
     def load_pulumi_outputs(self):
@@ -86,20 +91,20 @@ class Attack:
            pulumi_output_path = "/workspaces/Pulumi/Infra/forrester-2025-output.json"
     
            if not os.path.exists(pulumi_output_path):
-               raise RuntimeError(f"❌ ERROR: Pulumi output file '{pulumi_output_path}' not found. Did you run 'pulumi up'?")
+               raise RuntimeError(f"ERROR: Pulumi output file '{pulumi_output_path}' not found. Did you run 'pulumi up'?")
     
            try:
                with open(pulumi_output_path, "r") as file:
                    self.pulumi_outputs = json.load(file)
     
                if not isinstance(self.pulumi_outputs, dict):
-                   raise RuntimeError("❌ ERROR: Pulumi output file is corrupted or not in JSON format.")
+                   raise RuntimeError("ERROR: Pulumi output file is corrupted or not in JSON format.")
     
            except json.JSONDecodeError:
-               raise RuntimeError(f"❌ ERROR: Pulumi output file '{pulumi_output_path}' contains invalid JSON. Check Pulumi execution.")
+               raise RuntimeError(f"ERROR: Pulumi output file '{pulumi_output_path}' contains invalid JSON. Check Pulumi execution.")
     
            except Exception as e:
-               raise RuntimeError(f"❌ ERROR: Failed to load Pulumi outputs: {str(e)}")
+               raise RuntimeError(f"ERROR: Failed to load Pulumi outputs: {str(e)}")
 
 
 
@@ -108,7 +113,7 @@ class Attack:
         if self.pulumi_outputs is None:
             self.load_pulumi_outputs()
 
-        return self.pulumi_outputs.get(key, f"❌ ERROR: {key} not found in Pulumi outputs.")
+        return self.pulumi_outputs.get(key, f"ERROR: {key} not found in Pulumi outputs.")
 
 
     def load_credentials_from_file(self):
@@ -117,7 +122,7 @@ class Attack:
         config.read(self.credentials_path)
 
         if self.aws_profile not in config:
-            print(f"❌ ERROR: Profile '{self.aws_profile}' not found in {self.credentials_path}.")
+            print(f"ERROR: Profile '{self.aws_profile}' not found in {self.credentials_path}.")
             exit(1)
 
         access_key = config[self.aws_profile].get("aws_access_key_id")
@@ -125,76 +130,86 @@ class Attack:
         session_token = config[self.aws_profile].get("aws_session_token")
 
         if not all([access_key, secret_key, session_token]):
-            print(f"❌ ERROR: Missing credentials for '{self.aws_profile}'. Ensure you have a valid session token.")
+            print(f"ERROR: Missing credentials for '{self.aws_profile}'. Ensure you have a valid session token.")
             exit(1)
 
-        print(f"✅ Loaded credentials from {self.credentials_path}: AccessKey={access_key[:5]}... SessionToken={session_token[:10]}...")
+        print(f"Loaded credentials from {self.credentials_path}: AccessKey={access_key[:5]}... SessionToken={session_token[:10]}...")
         return access_key, secret_key, session_token
 
 
     class Enumeration:
         """🔍 Handles Enumeration of AWS Resources"""
 
-        def __init__(self, attack_instance):
-            self.attack = attack_instance
+        def __init__(self, attack_instance):      
+            """Use DevOpsUser's AWS session"""
+            self.session = attack_instance.session
+            self.iam_client = self.session.client("iam")
+            self.s3_client = self.session.client("s3")
+            self.dynamodb_client = self.session.client("dynamodb")
+            self.ec2_client = self.session.client("ec2")
+            self.output_dir = "/workspaces/Pulumi/AWS_Enumeration"
+
+            os.makedirs(self.output_dir, exist_ok=True)
 
         def enumerate_users(self):
-            """🔍 Enumerates all IAM users"""
-            print("🔍 Enumerating IAM users...")
-            response = self.attack.iam_client.list_users()
+            """Enumerates all IAM users"""
+            print("Enumerating IAM users...")
+            response = self.iam_client.list_users()
             self.save_results("iam_users.json", response)
 
         def enumerate_ec2(self):
-            """🔍 Enumerates all EC2 instances"""
-            print("🔍 Enumerating EC2 instances...")
-            response = self.attack.ec2_client.describe_instances()
+            """Enumerates all EC2 instances"""
+            print("Enumerating EC2 instances...")
+            response = self.ec2_client.describe_instances()
             self.save_results("ec2_instances.json", response)
 
         def enumerate_policies(self):
-            """🔍 Enumerates all IAM policies"""
-            print("🔍 Enumerating IAM policies...")
-            response = self.attack.iam_client.list_policies(Scope="Local")
+            """Enumerates all IAM policies"""
+            print("Enumerating IAM policies...")
+            response = self.iam_client.list_policies(Scope="Local")
             self.save_results("iam_policies.json", response)
 
         def enumerate_s3(self):
-            """🔍 Enumerates all S3 buckets"""
-            print("🔍 Enumerating S3 buckets...")
-            response = self.attack.s3_client.list_buckets()
+            """Enumerates all S3 buckets"""
+            print("Enumerating S3 buckets...")
+            response = self.s3_client.list_buckets()
             self.save_results("s3_buckets.json", response)
 
         def enumerate_dynamodb(self):
-            """🔍 Enumerates all DynamoDB tables"""
-            print("🔍 Enumerating DynamoDB tables...")
-            response = self.attack.dynamodb_client.list_tables()
+            """Enumerates all DynamoDB tables"""
+            print("Enumerating DynamoDB tables...")
+            response = self.dynamodb_client.list_tables()
             self.save_results("dynamodb_tables.json", response)
 
         def save_results(self, filename, data):
-           """💾 Saves enumeration results to a file with proper serialization"""
-           filepath = os.path.join(self.attack.output_dir, filename)
+           """Saves enumeration results to a file with proper serialization"""
+           filepath = os.path.join(self.output_dir, filename)
            try:
                with open(filepath, "w") as f:
                    json.dump(data, f, indent=4, default=str)  # 🔥 Convert non-serializable types to string
-               print(f"✅ Saved results to {filepath}")
+               print(f"Saved results to {filepath}")
            except Exception as e:
-               print(f"❌ ERROR: Failed to save {filename}: {e}")
+               print(f"ERROR: Failed to save {filename}: {e}")
 
         def run_all_enumerations(self):
-            """🚀 Runs all enumeration functions"""
+            """Runs all enumeration functions"""
             self.enumerate_users()
             self.enumerate_ec2()
             self.enumerate_policies()
             self.enumerate_s3()
             self.enumerate_dynamodb()
-            print("✅ Enumeration Complete! Results saved.")
+            print("Enumeration Complete! Results saved.")
 
 
 
 
 
     class AWS_CreateUser_AttachPolicies:
-        def __init__(self, session):
+        def __init__(self, attack_instance):
             """Initialize with an authenticated session"""
-            self.iam_client = session.client('iam')
+            """Use DevOpsUser's AWS session"""
+            self.session = attack_instance.session
+            self.iam_client = self.session.client('iam')
 
         def create_user(self, username):
             """Creates an IAM user"""

@@ -29,9 +29,9 @@ class MFASetup:
         )
         self.mfa_arn = result.stdout.strip()
         if "arn:aws" in self.mfa_arn:
-            print(f"✅ MFA is already enabled: {self.mfa_arn}")
+            print(f"MFA is already enabled: {self.mfa_arn}")
             return True
-        print("❌ No MFA device found. Proceeding to create a new MFA device...")
+        print("No MFA device found. Proceeding to create a new MFA device...")
         return False
     
 
@@ -44,10 +44,10 @@ class MFASetup:
         )
         existing_mfa = existing_mfa_check.stdout.strip()
         if "arn:aws" in existing_mfa:
-            print(f"🗑️ Deleting old MFA device: {existing_mfa}")
+            print(f"Deleting old MFA device: {existing_mfa}")
             subprocess.run(f"aws iam delete-virtual-mfa-device --serial-number {existing_mfa}", shell=True)
         else:
-            print("✅ No stale MFA devices found.")
+            print("No stale MFA devices found.")
 
 
 
@@ -78,7 +78,7 @@ class MFASetup:
 
 
     def extract_mfa_secret(self):
-        """🔍 Extract MFA Secret from `mfa-seed.bin` (AWS Stores in Base32)"""
+        """Extract MFA Secret from `mfa-seed.bin` (AWS Stores in Base32)"""
         time.sleep(2)  # Give AWS time to sync
         print("\n\n\n") 
         print("Fetching MFA Secret...")
@@ -99,24 +99,24 @@ class MFASetup:
 
     
     def generate_mfa_codes(self):
-        """🔢 Generate MFA TOTP codes"""
-        print("⏳ Ensuring system clock is synchronized...")
+        """Generate MFA TOTP codes"""
+        print("Ensuring system clock is synchronized...")
         subprocess.run("sudo ntpdate -q time.google.com", shell=True)
         code1 = subprocess.run(f"oathtool --totp --base32 {self.mfa_secret}", shell=True, capture_output=True, text=True).stdout.strip()
         time.sleep(30)  # Wait for new OTP
         code2 = subprocess.run(f"oathtool --totp --base32 {self.mfa_secret}", shell=True, capture_output=True, text=True).stdout.strip()
-        print(f"🔢 Auto-Generated MFA Codes: {code1}, {code2}")
+        print(f"Auto-Generated MFA Codes: {code1}, {code2}")
         return code1, code2
     
     def enable_mfa(self, code1, code2):
-        """🔐 Enable MFA for DevopsUser"""
-        print("\n🔑 Enabling MFA for DevopsUser...")
+        """ Enable MFA for DevopsUser"""
+        print("\n Enabling MFA for DevopsUser...")
         enable_mfa_command = f"""
         aws iam enable-mfa-device --user-name {self.user} \
             --serial-number {self.mfa_arn} \
             --authentication-code1 {code1} --authentication-code2 {code2}
         """
-        print(f"🔍 Running: {enable_mfa_command}")
+        print(f"Running: {enable_mfa_command}")
         result = subprocess.run(enable_mfa_command, shell=True, capture_output=True, text=True)
         if result.returncode != 0:
             print(f"ERROR: MFA enablement failed!\n{result.stderr}")
@@ -140,16 +140,16 @@ class MFASetup:
             )
             return result.stdout.strip()
         except Exception as e:
-            print(f"❌ ERROR: Failed to retrieve Pulumi secret {secret_name}: {e}")
+            print(f"ERROR: Failed to retrieve Pulumi secret {secret_name}: {e}")
             exit(1)
     
     def login_as_devops(self):
         """🔐 Log in as DevOpsUser using Access Key + MFA"""
     
-        print("\n⏳ Waiting for AWS to fully associate MFA device...")
+        print("\nWaiting for AWS to fully associate MFA device...")
         time.sleep(10)
     
-        # ✅ Step 1: Verify MFA is linked before attempting login
+        # Step 1: Verify MFA is linked before attempting login
         validation = subprocess.run([
             "aws", "iam", "list-mfa-devices",
             "--user-name", self.user,
@@ -158,17 +158,17 @@ class MFASetup:
         ], capture_output=True, text=True)
     
         if "arn:aws" not in validation.stdout:
-            print("❌ ERROR: MFA device is NOT linked to DevOpsUser. Exiting...")
+            print("ERROR: MFA device is NOT linked to DevOpsUser. Exiting...")
             exit(1)
     
-        print("✅ MFA device is successfully linked. Proceeding with login.")
+        print("MFA device is successfully linked. Proceeding with login.")
     
         # ✅ Step 2: Load DevOpsUser's Access Key & Secret Key **Directly from Pulumi Secrets**
         devops_access_key = self.get_pulumi_secret("devops_access_key_id")
         devops_secret_key = self.get_pulumi_secret("devops_secret_access_key")
     
-        print(f"\n🔑 DevOps Access Key: {devops_access_key}")
-        print(f"🔑 DevOps Secret Key: {'*' * len(devops_secret_key)} (Hidden for security)")
+        print(f"\nDevOps Access Key: {devops_access_key}")
+        print(f" DevOps Secret Key: {'*' * len(devops_secret_key)} (Hidden for security)")
     
         if not devops_access_key or not devops_secret_key:
             print("❌ ERROR: DevOpsUser access key/secret key not found in Pulumi outputs.")
@@ -194,14 +194,14 @@ class MFASetup:
     
             # 🚀 Ensure response is not empty
             if not session_response.stdout.strip():
-                print(f"❌ ERROR: Empty response received from AWS STS. Possible MFA setup issue.")
+                print(f"ERROR: Empty response received from AWS STS. Possible MFA setup issue.")
                 exit(1)
     
             session_data = json.loads(session_response.stdout)
             creds = session_data.get("Credentials")
     
             if not creds:
-                print(f"❌ ERROR: AWS did not return credentials! Response: {session_data}")
+                print(f"ERROR: AWS did not return credentials! Response: {session_data}")
                 exit(1)
 
             self.session_token = creds['SessionToken']
@@ -223,18 +223,18 @@ class MFASetup:
             verify_output = subprocess.run("aws sts get-caller-identity --profile devopsuser", shell=True, capture_output=True, text=True)
     
             if "arn:aws" not in verify_output.stdout:
-                print(f"❌ ERROR: Profile verification failed! Response: {verify_output.stderr}")
+                print(f"ERROR: Profile verification failed! Response: {verify_output.stderr}")
                 exit(1)
     
             print(f"{self.user}'s AWS profile successfully authenticated with MFA!")
     
         except Exception as e:
-            print(f"❌ ERROR: MFA authentication failed: {e}")
+            print(f"ERROR: MFA authentication failed: {e}")
             exit(1)
 
             
     def setup_mfa_and_login(self):
-        """🚀 Full MFA Setup + Login"""
+        """Full MFA Setup + Login"""
         self.check_existing_mfa()
         self.cleanup_old_mfa()
         self.create_mfa_device()

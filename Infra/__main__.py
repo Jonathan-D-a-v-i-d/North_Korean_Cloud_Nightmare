@@ -62,53 +62,83 @@ Note: This attack vector leverages admin policy for unrestricted
         - DynamoDB 
       access, so these must not be part of Devops User's policy
 """ 
-# ✅ DevOps Policy - Allows user creation & policy attachment
-devops_policy = aws.iam.Policy("DevopsPolicy",
+# DevOps Policy - Allows user creation & policy attachment
+devops_policy = aws.iam.Policy(
+    "DevopsPolicy",
     name="DevopsPolicy",
     description="Extended permissions for DevOpsUser",
-    policy=json.dumps({
-        "Version": "2012-10-17",
-        "Statement": [
-            # ✅ Allow listing all EC2 instances
-            { 
-                "Effect": "Allow", 
-                "Action": ["ec2:DescribeInstances"], 
-                "Resource": "*" 
-            },
-            # ✅ Allow listing S3 buckets but no modifications
-            { 
-                "Effect": "Allow", 
-                "Action": ["s3:ListAllMyBuckets"], 
-                "Resource": "*" 
-            },
-            # ✅ Allow DevOpsUser to enumerate IAM users & policies
-            { 
-                "Effect": "Allow", 
-                "Action": ["iam:ListUsers", "iam:ListPolicies"], 
-                "Resource": "*" 
-            },
-            # ✅ Allow DevOpsUser to create and attach policies to 'run_while_you_can'
-            { 
-                "Effect": "Allow", 
-                "Action": ["iam:CreateUser", "iam:AttachUserPolicy"], 
-                "Resource": "arn:aws:iam::*:user/run_while_you_can" 
-                 },
-            # ✅ Allow full DynamoDB enumeration (LIST + READ actions)
-            {
-                "Effect": "Allow",
-                "Action": [
-                    "dynamodb:ListTables",         # Allows listing all tables
-                    "dynamodb:DescribeTable",       # Allows describing table metadata
-                    "dynamodb:Scan",                # Allows reading all items in a table
-                    "dynamodb:Query",               # Allows querying indexes
-                    "dynamodb:GetItem",             # Allows reading a single item
-                    "dynamodb:BatchGetItem"         # Allows batch reads
-                ],
-                "Resource": "*"
-            }
-        ]
-    })
+    policy=json.dumps(
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                # Allow listing all EC2 instances
+                {
+                    "Effect": "Allow",
+                    "Action": ["ec2:DescribeInstances"],
+                    "Resource": "*"
+                },
+                # Allow listing S3 buckets but no modifications
+                {
+                    "Effect": "Allow",
+                    "Action": ["s3:ListAllMyBuckets"],
+                    "Resource": "*"
+                },
+                # Allow DevOpsUser to enumerate IAM users & policies
+                {
+                    "Effect": "Allow",
+                    "Action": ["iam:ListUsers", "iam:ListPolicies"],
+                    "Resource": "*"
+                },
+                # Allow DevOpsUser to create users, attach policies, and pass roles
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "iam:CreateUser",
+                        "iam:AttachUserPolicy",
+                        "iam:PutUserPolicy",
+                        "iam:PassRole"
+                    ],
+                    "Resource": "arn:aws:iam::*:user/*"
+                },
+                # Allow DevOpsUser to create and manage access keys
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "iam:CreateAccessKey",
+                        "iam:UpdateAccessKey",
+                        "iam:DeleteAccessKey",
+                        "iam:ListAccessKeys"
+                    ],
+                    "Resource": "arn:aws:iam::*:user/*"
+                },
+                # Allow DevOpsUser to modify and delete created users
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "iam:DeleteUser",
+                        "iam:UpdateUser"
+                    ],
+                    "Resource": "arn:aws:iam::*:user/*"
+                },
+                # Allow full DynamoDB enumeration (LIST + READ actions)
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "dynamodb:ListTables",
+                        "dynamodb:DescribeTable",
+                        "dynamodb:Scan",
+                        "dynamodb:Query",
+                        "dynamodb:GetItem",
+                        "dynamodb:BatchGetItem"
+                    ],
+                    "Resource": "*"
+                }
+            ]
+        },
+        indent=4  # Formats JSON output with indentation for better readability
+    )
 )
+
 
 # --------------------------------------- #
 # Attaches the DevopsPolicy to DevopsUser #
@@ -143,13 +173,13 @@ devops_mfa_policy = aws.iam.Policy("DevopsMFASetupPolicy",
 )
 
 
-# ✅ Attach the MFA Management Policy to DevOps User
+# Attach the MFA Management Policy to DevOps User
 devops_user_mfa_attachment = aws.iam.UserPolicyAttachment("DevopsUserMFAAttachment",
     user=devops_user.name,
     policy_arn=devops_mfa_policy.arn
 )
 
-# ✅ S3/DynamoDB Attack Policies
+# S3/DynamoDB Attack Policies
 devops_s3_policy = aws.iam.Policy("DevopsS3Policy",
     name="DevopsS3Policy",
     description="Grants full access to all S3 buckets",
@@ -170,7 +200,7 @@ devops_dynamodb_policy = aws.iam.Policy("DevopsDynamoDBPolicy",
 
 
 
-# ✅ Define a new policy to allow session authentication with MFA
+# Define a new policy to allow session authentication with MFA
 devops_mfa_session_policy = aws.iam.Policy("DevopsMFASessionPolicy",
     name="DevopsMFASessionPolicy",
     description="Allows DevOpsUser to assume session token with MFA",
@@ -191,7 +221,7 @@ devops_mfa_session_policy = aws.iam.Policy("DevopsMFASessionPolicy",
     })
 )
 
-# ✅ Attach the policy to DevOpsUser
+# Attach the policy to DevOpsUser
 devops_user_mfa_session_attachment = aws.iam.UserPolicyAttachment("DevopsUserMFASessionAttachment",
     user=devops_user.name,
     policy_arn=devops_mfa_session_policy.arn
@@ -200,7 +230,7 @@ devops_user_mfa_session_attachment = aws.iam.UserPolicyAttachment("DevopsUserMFA
 
 
 
-# ✅ Create Virtual MFA Device for DevopsUser
+# Create Virtual MFA Device for DevopsUser
 devops_user_mfa = aws.iam.VirtualMfaDevice("DevopsUserMFA",
     virtual_mfa_device_name="DevopsUserMFA",
     tags={"Name": "DevopsUserMFA"}
@@ -315,7 +345,7 @@ fake_payment_data = [
     for i in range(1, 101)
 ]
 
-# ✅ Upload Data to S3 Using Pulumi
+# Upload Data to S3 Using Pulumi
 aws.s3.BucketObject("config-file",
     bucket=config_files_bucket.id,
     key="config.json",
@@ -334,7 +364,7 @@ aws.s3.BucketObject("payment-file",
     content=json.dumps(fake_payment_data, indent=4)
 )
 
-# ✅ Populate DynamoDB Tables Using Pulumi
+# Populate DynamoDB Tables Using Pulumi
 for i in range(1, 11):
     aws.dynamodb.TableItem(f"order-{i}",
         table_name=orders_table.name,

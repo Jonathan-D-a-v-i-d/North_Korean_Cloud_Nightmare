@@ -93,9 +93,9 @@ def forrester_scenario_validate_data():
         result = subprocess.run(validation_cmd, shell=True, capture_output=True, text=True)
 
         if result.stdout:
-            print(f"✅ S3 Validation Passed: Data exists in bucket {bucket}")
+            print(f"S3 Validation Passed: Data exists in bucket {bucket}")
         else:
-            print(f"❌ ERROR: No data found in {bucket}")
+            print(f"ERROR: No data found in {bucket}")
 
     # ✅ Validate DynamoDB Tables
     dynamodb_tables = ["CustomerOrdersTable", "CustomerSSNTable"]
@@ -105,28 +105,28 @@ def forrester_scenario_validate_data():
         result = subprocess.run(validation_cmd, shell=True, capture_output=True, text=True)
 
         if '"Items"' in result.stdout:
-            print(f"✅ DynamoDB Validation Passed: Records found in {outputs[table]}")
+            print(f"DynamoDB Validation Passed: Records found in {outputs[table]}")
         else:
-            print(f"❌ ERROR: No records found in {outputs[table]}")
+            print(f"ERROR: No records found in {outputs[table]}")
 
-    print("\n🚀 Post-Deployment Data Validation Complete!")
+    print("\nPost-Deployment Data Validation Complete!")
 
 
 
 
 
 def ensure_pulumi_deployment():
-    """🚀 Ensures Pulumi infrastructure is deployed before Attack initialization"""
+    """Ensures Pulumi infrastructure is deployed before Attack initialization"""
     
-    print("🚀 Starting Infrastructure Deployment...")
+    print("Starting Infrastructure Deployment...")
 
-    print("\n🔍 Executing Pulumi Deployment...")
+    print("\nExecuting Pulumi Deployment...")
     forrester_scenario_execute()
 
-    print("\n🔍 Validating Rollout...")
+    print("\nValidating Rollout...")
     forrester_scenario_validate_rollout()
 
-    print("\n🔍 Validating Data...")
+    print("\nValidating Data...")
     forrester_scenario_validate_data()
 
     # ✅ Wait for the Pulumi output file to be generated
@@ -137,9 +137,9 @@ def ensure_pulumi_deployment():
     #     elapsed += 3
 
     if not os.path.exists(PULUMI_OUTPUT_PATH):
-        raise RuntimeError(f"❌ ERROR: Pulumi output file '{PULUMI_OUTPUT_PATH}' still not found after deployment.")
+        raise RuntimeError(f"ERROR: Pulumi output file '{PULUMI_OUTPUT_PATH}' still not found after deployment.")
 
-    print("\n✅ Pulumi Deployment Verified! Proceeding...\n")
+    print("\nPulumi Deployment Verified! Proceeding...\n")
 
     # ✅ Let MFA fully register before trying to login
     Functions.progress_bar(seconds=15)
@@ -150,29 +150,29 @@ def ensure_pulumi_deployment():
 
 
 if __name__ == "__main__":
-    # print("Starting Infrastructure Deployment...")
+    print("Starting Infrastructure Deployment...")
 
 
-    # print("\n\n\n") 
-    # print("Executing Pulumi Deployment...")
-    # print("\n\n\n")
-    # forrester_scenario_execute()
+    print("\n\n\n") 
+    print("Executing Pulumi Deployment...")
+    print("\n\n\n")
+    forrester_scenario_execute()
 
-    # print("\n\n\n") 
-    # print("Validating Rollout...")
-    # print("\n\n\n")
-    # forrester_scenario_validate_rollout()
+    print("\n\n\n") 
+    print("Validating Rollout...")
+    print("\n\n\n")
+    forrester_scenario_validate_rollout()
 
-    # print("\n\n\n") 
-    # print("Validating Data Population Within Infrastructure for EC2 & DynamoDB")
-    # print("\n\n\n")
-    # forrester_scenario_validate_data()
+    print("\n\n\n") 
+    print("Validating Data Population Within Infrastructure for EC2 & DynamoDB")
+    print("\n\n\n")
+    forrester_scenario_validate_data()
 
 
-    # print("\n\n\n") 
-    # print("Setting up MFA for DevOpsUser and getting a session token")
-    # print("\n\n\n")
-    # mfa.setup_mfa_and_login()
+    print("\n\n\n") 
+    print("Setting up MFA for DevOpsUser and getting a session token")
+    print("\n\n\n")
+    mfa.setup_mfa_and_login()
 
 
     print("\n\n\n") 
@@ -184,31 +184,31 @@ if __name__ == "__main__":
 
 
 
-    #  
-    #################################
-    ### Boto3 Session with DevopsUser
-    #################################
-    print("\n\n\n") 
-    print(f"Initializing boto3 session with: {user}")
-    print("\n\n\n") 
-    user_session = boto3.Session(
-        aws_access_key_id=mfa.accesskey_ID,
-        aws_secret_access_key=mfa.secret_access_key,
-        aws_session_token=mfa.session_token,
-        region_name="us-east-1"
-    )
+    # #  
+    # #################################
+    # ### Boto3 Session with DevopsUser
+    # #################################
+    # print("\n\n\n") 
+    # print(f"Initializing boto3 session with: {user}")
+    # print("\n\n\n") 
+    # user_session = boto3.Session(
+    #     aws_access_key_id=mfa.accesskey_ID,
+    #     aws_secret_access_key=mfa.secret_access_key,
+    #     aws_session_token=mfa.session_token,
+    #     region_name="us-east-1"
+    # )
 
     #####################################################
     ### DevopsUser creating Ransomware user, access keys
     ### &  attaching AWS s3/Dynamodb all access policies
     #####################################################
-    attack_vector = attack.AWS_CreateUser_AttachPolicies(user_session)
-    attack_vector.run_pipeline(
+    attack.createuser_attatchpolicies.run_pipeline(
         username="run_while_u_can", 
         policy_arns=[
             "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
             "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-        ])
+        ]
+)
 
 
 

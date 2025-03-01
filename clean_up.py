@@ -40,7 +40,7 @@ class Cleanup:
                         SerialNumber=device["SerialNumber"]
                     )
             except Exception as e:
-                print(f"❌ ERROR: Failed to remove MFA devices: {e}")
+                print(f"ERROR: Failed to remove MFA devices: {e}")
 
         def delete_access_keys(self):
             """🔑 Delete all access keys for the user"""
@@ -52,29 +52,29 @@ class Cleanup:
                         UserName=self.user, AccessKeyId=key["AccessKeyId"]
                     )
             except Exception as e:
-                print(f"❌ ERROR: Failed to delete access keys: {e}")
+                print(f"ERROR: Failed to delete access keys: {e}")
 
         def delete_login_profile(self):
             """🗝️ Delete IAM Console Login Profile"""
             try:
-                print(f"🗑️ Deleting login profile for `{self.user}` (if exists)...")
+                print(f"Deleting login profile for `{self.user}` (if exists)...")
                 self.iam_client.delete_login_profile(UserName=self.user)
             except self.iam_client.exceptions.NoSuchEntityException:
-                print(f"✅ No login profile found for `{self.user}`.")
+                print(f"No login profile found for `{self.user}`.")
             except Exception as e:
-                print(f"❌ ERROR: Failed to delete login profile: {e}")
+                print(f"ERROR: Failed to delete login profile: {e}")
 
         def detach_policies(self):
             """📜 Detach all attached IAM policies from the user"""
             try:
                 response = self.iam_client.list_attached_user_policies(UserName=self.user)
                 for policy in response.get("AttachedPolicies", []):
-                    print(f"🗑️ Detaching policy: {policy['PolicyArn']}")
+                    print(f"Detaching policy: {policy['PolicyArn']}")
                     self.iam_client.detach_user_policy(
                         UserName=self.user, PolicyArn=policy["PolicyArn"]
                     )
             except Exception as e:
-                print(f"❌ ERROR: Failed to detach policies: {e}")
+                print(f"ERROR: Failed to detach policies: {e}")
 
         def remove_from_groups(self):
             """👥 Remove user from all IAM groups"""
@@ -86,34 +86,34 @@ class Cleanup:
                         UserName=self.user, GroupName=group["GroupName"]
                     )
             except Exception as e:
-                print(f"❌ ERROR: Failed to remove user from groups: {e}")
+                print(f"ERROR: Failed to remove user from groups: {e}")
 
         def delete_user(self):
-            """🔥 Final step: Delete IAM user"""
+            """Final step: Delete IAM user"""
             try:
-                print(f"\n🔥 Deleting IAM user: `{self.user}`...")
+                print(f"\nDeleting IAM user: `{self.user}`...")
                 self.iam_client.delete_user(UserName=self.user)
-                print(f"✅ `{self.user}` deleted successfully!")
+                print(f"`{self.user}` deleted successfully!")
             except Exception as e:
-                print(f"❌ ERROR: Failed to delete `{self.user}`: {e}")
+                print(f"ERROR: Failed to delete `{self.user}`: {e}")
 
         def execute_cleanup(self):
-            """🚀 Full cleanup workflow for the user"""
-            print(f"\n🔍 Starting cleanup for `{self.user}`...")
+            """Full cleanup workflow for the user"""
+            print(f"\nStarting cleanup for `{self.user}`...")
             self.remove_mfa_devices()
             self.delete_access_keys()
             self.delete_login_profile()
             self.detach_policies()
             self.remove_from_groups()
             self.delete_user()
-            print("\n✅ Cleanup completed successfully!")
+            print("\nCleanup completed successfully!")
 
     @staticmethod
     def delete_attack_results():
-        """🗑️ Delete the AWS_Enumeration folder"""
+        """Delete the AWS_Enumeration folder"""
         attack_results_dir = "/workspaces/Pulumi/AWS_Enumeration"
         if os.path.exists(attack_results_dir):
-            print(f"\n🗑️ Deleting {attack_results_dir} and all its contents...")
+            print(f"\nDeleting {attack_results_dir} and all its contents...")
             shutil.rmtree(attack_results_dir)
             print("AWS_Enumeration folder deleted successfully!")
         else:
@@ -127,17 +127,17 @@ class AWSProfileCleanup:
 
     @staticmethod
     def clear_env_vars():
-        """🚀 Unset AWS environment variables"""
+        """Unset AWS environment variables"""
         print("\n🧹 Clearing AWS environment variables...")
         for var in ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"]:
             os.environ.pop(var, None)
 
     @staticmethod
     def remove_aws_profiles():
-        """🗑️ Remove AWS CLI profiles from ~/.aws/credentials & ~/.aws/config"""
-        print("\n🗑️ Removing AWS CLI profiles...")
+        """Remove AWS CLI profiles from ~/.aws/credentials & ~/.aws/config"""
+        print("\nRemoving AWS CLI profiles...")
 
-        profiles = ["devopsuser", "run_while_you_can"]
+        profiles = ["devopsuser", "run_while_u_can"]
         for profile in profiles:
             print(f"🧹 Removing AWS profile: {profile}")
             subprocess.run(f"aws configure set aws_access_key_id '' --profile {profile}", shell=True)
@@ -148,35 +148,35 @@ class AWSProfileCleanup:
             subprocess.run(f"sed -i '/\\[{profile}\\]/,/^$/d' ~/.aws/credentials", shell=True)
             subprocess.run(f"sed -i '/\\[{profile}\\]/,/^$/d' ~/.aws/config", shell=True)
 
-        print("✅ AWS profiles removed.")
+        print("AWS profiles removed.")
 
     @staticmethod
     def clear_aws_cache():
-        """🗑️ Clear AWS CLI cache to prevent session conflicts"""
+        """Clear AWS CLI cache to prevent session conflicts"""
         print("\n🧹 Clearing AWS CLI cache...")
         aws_cache_dir = os.path.expanduser("~/.aws/cli/cache")
         if os.path.exists(aws_cache_dir):
             shutil.rmtree(aws_cache_dir)
-            print("✅ AWS CLI cache cleared.")
+            print("AWS CLI cache cleared.")
         else:
-            print("✅ No AWS CLI cache found.")
+            print("No AWS CLI cache found.")
 
     @staticmethod
     def verify_cleanup():
-        """🔍 Verify AWS cleanup"""
-        print("\n🔍 Verifying AWS cleanup...")
+        """Verify AWS cleanup"""
+        print("\nVerifying AWS cleanup...")
         subprocess.run("aws configure list", shell=True)
         subprocess.run("aws sts get-caller-identity", shell=True)
 
 
 
 class SystemCacheCleanup:
-    """🗑️ Purges Python & System Caches"""
+    """ Purges Python & System Caches"""
 
     @staticmethod
     def remove_python_cache():
-        """🗑️ Remove Python cache (`__pycache__` & compiled files)"""
-        print("\n🗑️ Removing Python cache...")
+        """Remove Python cache (`__pycache__` & compiled files)"""
+        print("\nRemoving Python cache...")
         for root, dirs, files in os.walk("/workspaces/Pulumi"):
             for dir_name in dirs:
                 if dir_name == "__pycache__":
@@ -185,15 +185,14 @@ class SystemCacheCleanup:
 
 
 def delete_attack_results():
-    """🗑️ Delete AttackResults folder"""
+    """Delete AttackResults folder"""
     attack_results_dir = "/workspaces/Pulumi/AttackResults"
     if os.path.exists(attack_results_dir):
-        print(f"\n🗑️ Deleting {attack_results_dir} and all its contents...")
+        print(f"\nDeleting {attack_results_dir} and all its contents...")
         shutil.rmtree(attack_results_dir)
-        print("✅ AttackResults folder deleted successfully!")
+        print("AttackResults folder deleted successfully!")
     else:
-        print("✅ No existing AttackResults folder found. Nothing to delete.")
-
+        print("No existing AttackResults folder found. Nothing to delete.")
 
 
 
@@ -218,7 +217,13 @@ def full_cleanup():
     print("Deleted all DevopsUser information")
     print("\n\n\n")
 
-    # ✅ Cleanup AWS credentials, profiles, and cache
+    clean_user = Cleanup.CleanUser(user="run_while_u_can")
+    clean_user.execute_cleanup()
+    print("\n\n\n")
+    print("Deleted all run_while_u_can information")
+    print("\n\n\n")
+
+    # Cleanup AWS credentials, profiles, and cache
     AWSProfileCleanup.clear_env_vars()
     AWSProfileCleanup.remove_aws_profiles()
     AWSProfileCleanup.clear_aws_cache()
@@ -226,13 +231,13 @@ def full_cleanup():
     print("Deleted AWS env_vars, profiles, & cache")
     print("\n\n\n")
 
-    # ✅ Delete attack results
+    # Delete attack results
     delete_attack_results()
     print("\n\n\n")
     print("Deleted Attack Results Folder")
     print("\n\n\n")
 
-    # ✅ Verify cleanup
+    # Verify cleanup
     AWSProfileCleanup.verify_cleanup()
     print("\n\n\n")
     print("Post Deploymenyt Cleanup verified successfully")
