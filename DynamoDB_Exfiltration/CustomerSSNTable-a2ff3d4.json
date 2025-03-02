@@ -1,0 +1,62 @@
+[
+    {
+        "ID": "2002",
+        "SSN": "261-26-9787",
+        "CreditCard": "4111-XXXX-XXXX-6417",
+        "CustomerName": "Thomas Navarro"
+    },
+    {
+        "ID": "2001",
+        "SSN": "712-17-3669",
+        "CreditCard": "4111-XXXX-XXXX-1231",
+        "CustomerName": "Michael Wade"
+    },
+    {
+        "ID": "2007",
+        "SSN": "532-76-3675",
+        "CreditCard": "5500-XXXX-XXXX-4259",
+        "CustomerName": "Jackie Stewart"
+    },
+    {
+        "ID": "2006",
+        "SSN": "537-36-8256",
+        "CreditCard": "5500-XXXX-XXXX-4474",
+        "CustomerName": "Keith Higgins MD"
+    },
+    {
+        "ID": "2004",
+        "SSN": "131-44-5491",
+        "CreditCard": "5500-XXXX-XXXX-4669",
+        "CustomerName": "Michael Moore"
+    },
+    {
+        "ID": "2003",
+        "SSN": "530-51-4449",
+        "CreditCard": "4111-XXXX-XXXX-5377",
+        "CustomerName": "Samuel Johns"
+    },
+    {
+        "ID": "2010",
+        "SSN": "501-58-5187",
+        "CreditCard": "4111-XXXX-XXXX-5492",
+        "CustomerName": "Christina Ramirez"
+    },
+    {
+        "ID": "2005",
+        "SSN": "999-19-9752",
+        "CreditCard": "5500-XXXX-XXXX-1540",
+        "CustomerName": "Robin Jennings"
+    },
+    {
+        "ID": "2008",
+        "SSN": "966-81-1055",
+        "CreditCard": "4111-XXXX-XXXX-4588",
+        "CustomerName": "Ronnie Wiley"
+    },
+    {
+        "ID": "2009",
+        "SSN": "574-94-9103",
+        "CreditCard": "4111-XXXX-XXXX-3713",
+        "CustomerName": "Kelly Harris"
+    }
+]

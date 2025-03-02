@@ -3,9 +3,9 @@
         {
             "Path": "/",
             "UserName": "AdminUser",
-            "UserId": "AIDAXTORPWZ7FEGYP3TCE",
+            "UserId": "AIDAXTORPWZ7CYPXOWL3J",
             "Arn": "arn:aws:iam::522814731902:user/AdminUser",
-            "CreateDate": "2025-03-01 08:55:34+00:00"
+            "CreateDate": "2025-03-02 07:06:19+00:00"
         },
         {
             "Path": "/",
@@ -45,16 +45,9 @@
         {
             "Path": "/",
             "UserName": "DevopsUser",
-            "UserId": "AIDAXTORPWZ7BKPT4DDQ5",
+            "UserId": "AIDAXTORPWZ7PU7RFL7DS",
             "Arn": "arn:aws:iam::522814731902:user/DevopsUser",
-            "CreateDate": "2025-03-01 08:55:34+00:00"
-        },
-        {
-            "Path": "/",
-            "UserName": "DevTeamDeveloper",
-            "UserId": "AIDAXTORPWZ7HHP6XBXV2",
-            "Arn": "arn:aws:iam::522814731902:user/DevTeamDeveloper",
-            "CreateDate": "2025-02-28 12:32:56+00:00"
+            "CreateDate": "2025-03-02 07:06:19+00:00"
         },
         {
             "Path": "/",
@@ -76,6 +69,13 @@
             "UserId": "AIDAXTORPWZ7MPG7VDJRM",
             "Arn": "arn:aws:iam::522814731902:user/hacker",
             "CreateDate": "2025-02-26 17:03:01+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "HRApp",
+            "UserId": "AIDAXTORPWZ7E3BXLCUA2",
+            "Arn": "arn:aws:iam::522814731902:user/HRApp",
+            "CreateDate": "2025-03-01 14:11:23+00:00"
         },
         {
             "Path": "/",
@@ -114,6 +114,13 @@
         },
         {
             "Path": "/",
+            "UserName": "run_while_you_can",
+            "UserId": "AIDAXTORPWZ7BO267SLOJ",
+            "Arn": "arn:aws:iam::522814731902:user/run_while_you_can",
+            "CreateDate": "2025-03-01 09:49:22+00:00"
+        },
+        {
+            "Path": "/",
             "UserName": "us-workshop-admin",
             "UserId": "AIDAXTORPWZ7G2DD5TAOD",
             "Arn": "arn:aws:iam::522814731902:user/us-workshop-admin",
@@ -136,13 +143,13 @@
     ],
     "IsTruncated": false,
     "ResponseMetadata": {
-        "RequestId": "0b132e3e-1f8f-4ed9-8f69-07b981b86c40",
+        "RequestId": "5b0d6454-b963-4cf3-941b-54199b39348b",
         "HTTPStatusCode": 200,
         "HTTPHeaders": {
-            "date": "Sat, 01 Mar 2025 08:57:26 GMT",
-            "x-amzn-requestid": "0b132e3e-1f8f-4ed9-8f69-07b981b86c40",
+            "date": "Sun, 02 Mar 2025 13:21:27 GMT",
+            "x-amzn-requestid": "5b0d6454-b963-4cf3-941b-54199b39348b",
             "content-type": "text/xml",
-            "content-length": "5173"
+            "content-length": "5421"
         },
         "RetryAttempts": 0
     }

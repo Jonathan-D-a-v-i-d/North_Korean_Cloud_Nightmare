@@ -1,20 +1,20 @@
 {
     "TableNames": [
-        "CustomerOrdersTable-05b7b08",
-        "CustomerSSNTable-6d9a1f2",
+        "CustomerOrdersTable-1fa11b1",
+        "CustomerSSNTable-a2ff3d4",
         "dspm-demo-dynamodb-table"
     ],
     "ResponseMetadata": {
-        "RequestId": "H276A854C2IA568V7MNB6BFIP3VV4KQNSO5AEMVJF66Q9ASUAAJG",
+        "RequestId": "TMJDO35RM7GENM1IOFRR6VO0ONVV4KQNSO5AEMVJF66Q9ASUAAJG",
         "HTTPStatusCode": 200,
         "HTTPHeaders": {
             "server": "Server",
-            "date": "Sat, 01 Mar 2025 08:57:28 GMT",
+            "date": "Sun, 02 Mar 2025 13:21:29 GMT",
             "content-type": "application/x-amz-json-1.0",
             "content-length": "100",
             "connection": "keep-alive",
-            "x-amzn-requestid": "H276A854C2IA568V7MNB6BFIP3VV4KQNSO5AEMVJF66Q9ASUAAJG",
-            "x-amz-crc32": "4125168541"
+            "x-amzn-requestid": "TMJDO35RM7GENM1IOFRR6VO0ONVV4KQNSO5AEMVJF66Q9ASUAAJG",
+            "x-amz-crc32": "1893816515"
         },
         "RetryAttempts": 0
     }

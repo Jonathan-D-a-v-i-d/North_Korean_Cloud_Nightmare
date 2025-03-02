@@ -485,159 +485,6 @@
             ]
         },
         {
-            "ReservationId": "r-08a0a4f3958eaf3a8",
-            "OwnerId": "522814731902",
-            "Groups": [],
-            "Instances": [
-                {
-                    "Architecture": "x86_64",
-                    "BlockDeviceMappings": [
-                        {
-                            "DeviceName": "/dev/xvda",
-                            "Ebs": {
-                                "AttachTime": "2025-02-26 17:00:13+00:00",
-                                "DeleteOnTermination": true,
-                                "Status": "attached",
-                                "VolumeId": "vol-03c21ef46367f932b"
-                            }
-                        }
-                    ],
-                    "ClientToken": "67ce4331-e845-481f-aa97-b30408b84e28",
-                    "EbsOptimized": false,
-                    "EnaSupport": true,
-                    "Hypervisor": "xen",
-                    "IamInstanceProfile": {
-                        "Arn": "arn:aws:iam::522814731902:instance-profile/ec2Deployer",
-                        "Id": "AIPAXTORPWZ7IGCWYWM42"
-                    },
-                    "NetworkInterfaces": [
-                        {
-                            "Association": {
-                                "IpOwnerId": "amazon",
-                                "PublicDnsName": "ec2-54-196-166-206.compute-1.amazonaws.com",
-                                "PublicIp": "54.196.166.206"
-                            },
-                            "Attachment": {
-                                "AttachTime": "2025-02-26 17:00:12+00:00",
-                                "AttachmentId": "eni-attach-08fb6ae76fe16e604",
-                                "DeleteOnTermination": true,
-                                "DeviceIndex": 0,
-                                "Status": "attached",
-                                "NetworkCardIndex": 0
-                            },
-                            "Description": "",
-                            "Groups": [
-                                {
-                                    "GroupId": "sg-0c38582227e53715b",
-                                    "GroupName": "web-secgrp-2343217"
-                                }
-                            ],
-                            "Ipv6Addresses": [],
-                            "MacAddress": "0a:ff:f7:8d:2d:71",
-                            "NetworkInterfaceId": "eni-05b87804316cac8a4",
-                            "OwnerId": "522814731902",
-                            "PrivateDnsName": "ip-172-31-30-235.ec2.internal",
-                            "PrivateIpAddress": "172.31.30.235",
-                            "PrivateIpAddresses": [
-                                {
-                                    "Association": {
-                                        "IpOwnerId": "amazon",
-                                        "PublicDnsName": "ec2-54-196-166-206.compute-1.amazonaws.com",
-                                        "PublicIp": "54.196.166.206"
-                                    },
-                                    "Primary": true,
-                                    "PrivateDnsName": "ip-172-31-30-235.ec2.internal",
-                                    "PrivateIpAddress": "172.31.30.235"
-                                }
-                            ],
-                            "SourceDestCheck": true,
-                            "Status": "in-use",
-                            "SubnetId": "subnet-0ab54282f7833ef55",
-                            "VpcId": "vpc-0e2b85c5a2275eca4",
-                            "InterfaceType": "interface",
-                            "Operator": {
-                                "Managed": false
-                            }
-                        }
-                    ],
-                    "RootDeviceName": "/dev/xvda",
-                    "RootDeviceType": "ebs",
-                    "SecurityGroups": [
-                        {
-                            "GroupId": "sg-0c38582227e53715b",
-                            "GroupName": "web-secgrp-2343217"
-                        }
-                    ],
-                    "SourceDestCheck": true,
-                    "VirtualizationType": "hvm",
-                    "CpuOptions": {
-                        "CoreCount": 1,
-                        "ThreadsPerCore": 1
-                    },
-                    "CapacityReservationSpecification": {
-                        "CapacityReservationPreference": "open"
-                    },
-                    "HibernationOptions": {
-                        "Configured": false
-                    },
-                    "MetadataOptions": {
-                        "State": "applied",
-                        "HttpTokens": "optional",
-                        "HttpPutResponseHopLimit": 1,
-                        "HttpEndpoint": "enabled",
-                        "HttpProtocolIpv6": "disabled",
-                        "InstanceMetadataTags": "disabled"
-                    },
-                    "EnclaveOptions": {
-                        "Enabled": false
-                    },
-                    "PlatformDetails": "Linux/UNIX",
-                    "UsageOperation": "RunInstances",
-                    "UsageOperationUpdateTime": "2025-02-26 17:00:12+00:00",
-                    "PrivateDnsNameOptions": {
-                        "HostnameType": "ip-name",
-                        "EnableResourceNameDnsARecord": false,
-                        "EnableResourceNameDnsAAAARecord": false
-                    },
-                    "MaintenanceOptions": {
-                        "AutoRecovery": "default"
-                    },
-                    "CurrentInstanceBootMode": "legacy-bios",
-                    "NetworkPerformanceOptions": {
-                        "BandwidthWeighting": "default"
-                    },
-                    "Operator": {
-                        "Managed": false
-                    },
-                    "InstanceId": "i-0008b22b242a75ee2",
-                    "ImageId": "ami-0ace34e9f53c91c5d",
-                    "State": {
-                        "Code": 16,
-                        "Name": "running"
-                    },
-                    "PrivateDnsName": "ip-172-31-30-235.ec2.internal",
-                    "PublicDnsName": "ec2-54-196-166-206.compute-1.amazonaws.com",
-                    "StateTransitionReason": "",
-                    "AmiLaunchIndex": 0,
-                    "ProductCodes": [],
-                    "InstanceType": "t2.micro",
-                    "LaunchTime": "2025-02-26 17:00:12+00:00",
-                    "Placement": {
-                        "GroupName": "",
-                        "Tenancy": "default",
-                        "AvailabilityZone": "us-east-1a"
-                    },
-                    "Monitoring": {
-                        "State": "disabled"
-                    },
-                    "SubnetId": "subnet-0ab54282f7833ef55",
-                    "VpcId": "vpc-0e2b85c5a2275eca4",
-                    "PrivateIpAddress": "172.31.30.235",
-                    "PublicIpAddress": "54.196.166.206"
-                }
-            ]
-        },
-        {
             "ReservationId": "r-01f5cfb6207cb8c1a",
             "OwnerId": "522814731902",
             "Groups": [],
@@ -1110,16 +957,16 @@
         }
     ],
     "ResponseMetadata": {
-        "RequestId": "d01e3275-d79e-4dc5-b3cd-640e90efd4e6",
+        "RequestId": "3a8e56a7-ce45-4e4e-a726-2951f7e2dce3",
         "HTTPStatusCode": 200,
         "HTTPHeaders": {
-            "x-amzn-requestid": "d01e3275-d79e-4dc5-b3cd-640e90efd4e6",
+            "x-amzn-requestid": "3a8e56a7-ce45-4e4e-a726-2951f7e2dce3",
             "cache-control": "no-cache, no-store",
             "strict-transport-security": "max-age=31536000; includeSubDomains",
             "vary": "accept-encoding",
             "content-type": "text/xml;charset=UTF-8",
             "transfer-encoding": "chunked",
-            "date": "Sat, 01 Mar 2025 08:57:27 GMT",
+            "date": "Sun, 02 Mar 2025 13:21:28 GMT",
             "server": "AmazonEC2"
         },
         "RetryAttempts": 0

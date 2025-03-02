@@ -64,6 +64,8 @@ class Cleanup:
             except Exception as e:
                 print(f"ERROR: Failed to delete login profile: {e}")
 
+
+
         def detach_policies(self):
             """📜 Detach all attached IAM policies from the user"""
             try:
@@ -75,6 +77,20 @@ class Cleanup:
                     )
             except Exception as e:
                 print(f"ERROR: Failed to detach policies: {e}")
+
+
+        def delete_inline_policies(self):
+            """🗑️ Delete all inline policies attached to the user"""
+            try:
+                response = self.iam_client.list_user_policies(UserName=self.user)
+                for policy_name in response.get("PolicyNames", []):
+                    print(f"🗑️ Deleting inline policy `{policy_name}` from `{self.user}`...")
+                    self.iam_client.delete_user_policy(UserName=self.user, PolicyName=policy_name)
+            except Exception as e:
+                print(f"ERROR: Failed to delete inline policies: {e}")
+
+
+
 
         def remove_from_groups(self):
             """👥 Remove user from all IAM groups"""
@@ -104,6 +120,7 @@ class Cleanup:
             self.delete_access_keys()
             self.delete_login_profile()
             self.detach_policies()
+            self.delete_inline_policies() 
             self.remove_from_groups()
             self.delete_user()
             print("\nCleanup completed successfully!")
@@ -184,15 +201,15 @@ class SystemCacheCleanup:
         print("✅ Python cache cleared.")
 
 
-def delete_attack_results():
-    """Delete AttackResults folder"""
-    attack_results_dir = "/workspaces/Pulumi/AttackResults"
-    if os.path.exists(attack_results_dir):
-        print(f"\nDeleting {attack_results_dir} and all its contents...")
-        shutil.rmtree(attack_results_dir)
-        print("AttackResults folder deleted successfully!")
+def delete_enum_folder():
+    """Delete AWS_Enumeration folder"""
+    enum_dir = "/workspaces/Pulumi/AWS_Enumeration"
+    if os.path.exists(enum_dir):
+        print(f"\nDeleting {enum_dir} and all its contents...")
+        shutil.rmtree(enum_dir)
+        print("AWS_Enumeration folder deleted successfully!")
     else:
-        print("No existing AttackResults folder found. Nothing to delete.")
+        print("No existing AWS_Enumeration folder found. Nothing to delete.")
 
 
 
@@ -232,7 +249,7 @@ def full_cleanup():
     print("\n\n\n")
 
     # Delete attack results
-    delete_attack_results()
+    delete_enum_folder()
     print("\n\n\n")
     print("Deleted Attack Results Folder")
     print("\n\n\n")
@@ -275,8 +292,11 @@ since Pulumi didn't create them, and thus doesn't trace them in its stack
 """
 #full_cleanup()
 
-
-
+clean_user = Cleanup.CleanUser(user="run_while_u_can")
+clean_user.execute_cleanup()
+print("\n\n\n")
+print("Deleted all run_while_u_can information")
+print("\n\n\n")
 
 
 # # Load Pulumi Stack Outputs

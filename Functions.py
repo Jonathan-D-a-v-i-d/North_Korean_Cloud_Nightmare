@@ -4,6 +4,7 @@ import os
 import tqdm
 from time import sleep
 import time
+import subprocess
 
 
 def validate_pulumi_outputs_after_rollout(pulumi_stack_output_file):
@@ -119,4 +120,34 @@ def progress_bar(seconds):
     print("\n⏳ Waiting for AWS to propagate MFA registration...")
     for _ in tqdm.tqdm(range(seconds), desc="MFA Propagation", unit="s", ncols=80):
         time.sleep(1)
+
+
+
+
+
+
+def validate_aws_keys(access_key, secret_key):
+    """Validates AWS keys using AWS CLI."""
+    print("\n🔍 Validating new AWS credentials...")
+
+    env_vars = {
+        "AWS_ACCESS_KEY_ID": access_key,
+        "AWS_SECRET_ACCESS_KEY": secret_key
+    }
+
+    try:
+        result = subprocess.run(
+            f'aws sts get-caller-identity',
+            shell=True,  # Enables execution as a full shell command
+            env=env_vars,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        print("✅ AWS keys are valid:", result.stdout)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"❌ ERROR: Could not validate AWS credentials: {e.stderr}")
+        return False
+
 

