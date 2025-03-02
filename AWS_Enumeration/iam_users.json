@@ -3,9 +3,9 @@
         {
             "Path": "/",
             "UserName": "AdminUser",
-            "UserId": "AIDAXTORPWZ7CYPXOWL3J",
+            "UserId": "AIDAXTORPWZ7E4JYE2CK4",
             "Arn": "arn:aws:iam::522814731902:user/AdminUser",
-            "CreateDate": "2025-03-02 07:06:19+00:00"
+            "CreateDate": "2025-03-02 21:44:40+00:00"
         },
         {
             "Path": "/",
@@ -45,9 +45,16 @@
         {
             "Path": "/",
             "UserName": "DevopsUser",
-            "UserId": "AIDAXTORPWZ7PU7RFL7DS",
+            "UserId": "AIDAXTORPWZ7LKSWLM2MB",
             "Arn": "arn:aws:iam::522814731902:user/DevopsUser",
-            "CreateDate": "2025-03-02 07:06:19+00:00"
+            "CreateDate": "2025-03-02 21:44:40+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "DevTeamDeveloper",
+            "UserId": "AIDAXTORPWZ7LSPSWNS7O",
+            "Arn": "arn:aws:iam::522814731902:user/DevTeamDeveloper",
+            "CreateDate": "2025-03-02 20:35:40+00:00"
         },
         {
             "Path": "/",
@@ -143,13 +150,13 @@
     ],
     "IsTruncated": false,
     "ResponseMetadata": {
-        "RequestId": "5b0d6454-b963-4cf3-941b-54199b39348b",
+        "RequestId": "df2d74b2-c330-402b-813d-a0edb37b550d",
         "HTTPStatusCode": 200,
         "HTTPHeaders": {
-            "date": "Sun, 02 Mar 2025 13:21:27 GMT",
-            "x-amzn-requestid": "5b0d6454-b963-4cf3-941b-54199b39348b",
+            "date": "Sun, 02 Mar 2025 21:46:21 GMT",
+            "x-amzn-requestid": "df2d74b2-c330-402b-813d-a0edb37b550d",
             "content-type": "text/xml",
-            "content-length": "5421"
+            "content-length": "5689"
         },
         "RetryAttempts": 0
     }

@@ -1,0 +1,62 @@
+[
+    {
+        "ID": "2002",
+        "SSN": "827-30-5051",
+        "CreditCard": "5500-XXXX-XXXX-2630",
+        "CustomerName": "Wayne Harris"
+    },
+    {
+        "ID": "2001",
+        "SSN": "750-97-9251",
+        "CreditCard": "5500-XXXX-XXXX-7835",
+        "CustomerName": "David Sanchez"
+    },
+    {
+        "ID": "2007",
+        "SSN": "783-83-2399",
+        "CreditCard": "4111-XXXX-XXXX-9160",
+        "CustomerName": "Margaret Hogan"
+    },
+    {
+        "ID": "2006",
+        "SSN": "764-75-1069",
+        "CreditCard": "5500-XXXX-XXXX-3841",
+        "CustomerName": "Albert Rodriguez"
+    },
+    {
+        "ID": "2004",
+        "SSN": "831-47-5071",
+        "CreditCard": "5500-XXXX-XXXX-9032",
+        "CustomerName": "Robert Cervantes"
+    },
+    {
+        "ID": "2003",
+        "SSN": "531-88-3503",
+        "CreditCard": "4111-XXXX-XXXX-1013",
+        "CustomerName": "Katherine Rangel"
+    },
+    {
+        "ID": "2010",
+        "SSN": "177-37-5806",
+        "CreditCard": "5500-XXXX-XXXX-3877",
+        "CustomerName": "Mrs. Alicia Wolfe"
+    },
+    {
+        "ID": "2005",
+        "SSN": "894-98-1025",
+        "CreditCard": "4111-XXXX-XXXX-2268",
+        "CustomerName": "Meredith Young"
+    },
+    {
+        "ID": "2008",
+        "SSN": "210-59-1268",
+        "CreditCard": "5500-XXXX-XXXX-7363",
+        "CustomerName": "Felicia Myers"
+    },
+    {
+        "ID": "2009",
+        "SSN": "642-91-5460",
+        "CreditCard": "5500-XXXX-XXXX-6198",
+        "CustomerName": "Desiree Williams"
+    }
+]

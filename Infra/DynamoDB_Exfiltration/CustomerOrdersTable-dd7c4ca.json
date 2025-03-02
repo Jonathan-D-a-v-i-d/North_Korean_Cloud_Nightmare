@@ -1,0 +1,62 @@
+[
+    {
+        "ID": "1010",
+        "ItemPurchased": "Keyboard",
+        "OrderDate": "2024-07-06",
+        "CustomerName": "Abigail Johnson"
+    },
+    {
+        "ID": "1004",
+        "ItemPurchased": "Headphones",
+        "OrderDate": "2025-01-02",
+        "CustomerName": "Tony Rodgers"
+    },
+    {
+        "ID": "1009",
+        "ItemPurchased": "Tablet",
+        "OrderDate": "2024-03-02",
+        "CustomerName": "Jeanne Gutierrez"
+    },
+    {
+        "ID": "1008",
+        "ItemPurchased": "Mouse",
+        "OrderDate": "2024-10-19",
+        "CustomerName": "Michael Chavez"
+    },
+    {
+        "ID": "1007",
+        "ItemPurchased": "Mouse",
+        "OrderDate": "2024-04-13",
+        "CustomerName": "Jason Pena"
+    },
+    {
+        "ID": "1002",
+        "ItemPurchased": "Charger",
+        "OrderDate": "2024-12-21",
+        "CustomerName": "Brandon Collins"
+    },
+    {
+        "ID": "1001",
+        "ItemPurchased": "Mouse",
+        "OrderDate": "2024-12-21",
+        "CustomerName": "Carlos Gutierrez"
+    },
+    {
+        "ID": "1003",
+        "ItemPurchased": "Mouse",
+        "OrderDate": "2024-03-03",
+        "CustomerName": "Andrea Jones"
+    },
+    {
+        "ID": "1005",
+        "ItemPurchased": "Charger",
+        "OrderDate": "2024-05-21",
+        "CustomerName": "Cody Dawson Jr."
+    },
+    {
+        "ID": "1006",
+        "ItemPurchased": "Keyboard",
+        "OrderDate": "2024-11-21",
+        "CustomerName": "Mr. Ethan Valencia"
+    }
+]

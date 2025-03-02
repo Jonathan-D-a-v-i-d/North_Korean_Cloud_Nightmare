@@ -1,12 +1,12 @@
 {
     "ResponseMetadata": {
-        "RequestId": "QD31VA4J8H15AYY7",
-        "HostId": "xcWnciqxUNxCKL++7ZC1IMTHpe4QL+aHJMu8Dk6cVqWxEuYZgk2AQgnRwtXftjGds+ncA3xfeZEC/cga8C1EfHVid82fdnN8",
+        "RequestId": "VXZN8C6T19EM0VPX",
+        "HostId": "ziEZ2xd29kt4jaJlZKrk8j+4wG1N14rmw4XPppe5NeGVRlhms6mYi+5NUD88idxv1NhEEOSdfAE=",
         "HTTPStatusCode": 200,
         "HTTPHeaders": {
-            "x-amz-id-2": "xcWnciqxUNxCKL++7ZC1IMTHpe4QL+aHJMu8Dk6cVqWxEuYZgk2AQgnRwtXftjGds+ncA3xfeZEC/cga8C1EfHVid82fdnN8",
-            "x-amz-request-id": "QD31VA4J8H15AYY7",
-            "date": "Sun, 02 Mar 2025 13:21:29 GMT",
+            "x-amz-id-2": "ziEZ2xd29kt4jaJlZKrk8j+4wG1N14rmw4XPppe5NeGVRlhms6mYi+5NUD88idxv1NhEEOSdfAE=",
+            "x-amz-request-id": "VXZN8C6T19EM0VPX",
+            "date": "Sun, 02 Mar 2025 21:46:23 GMT",
             "content-type": "application/xml",
             "transfer-encoding": "chunked",
             "server": "AmazonS3"
@@ -51,6 +51,10 @@
             "CreationDate": "2025-02-26 17:02:04+00:00"
         },
         {
+            "Name": "cloudtrail-log-bucket-a148453",
+            "CreationDate": "2025-03-02 21:44:47+00:00"
+        },
+        {
             "Name": "cnappgoat-http-bucket-ebd3c91",
             "CreationDate": "2024-11-14 09:52:40+00:00"
         },
@@ -67,24 +71,24 @@
             "CreationDate": "2024-12-08 07:35:44+00:00"
         },
         {
-            "Name": "company-data-q1-2024-a93fbf4",
-            "CreationDate": "2025-03-02 07:06:23+00:00"
+            "Name": "company-data-q1-2024-254d99c",
+            "CreationDate": "2025-03-02 21:44:43+00:00"
         },
         {
-            "Name": "company-data-q2-2024-e85c8a2",
-            "CreationDate": "2025-03-02 07:06:23+00:00"
+            "Name": "company-data-q2-2024-227a162",
+            "CreationDate": "2025-03-02 21:44:44+00:00"
         },
         {
-            "Name": "company-data-q3-2024-cbb8e0a",
-            "CreationDate": "2025-03-02 07:06:24+00:00"
+            "Name": "company-data-q3-2024-fa11535",
+            "CreationDate": "2025-03-02 21:44:44+00:00"
         },
         {
-            "Name": "company-data-q4-2024-fefbfa1",
-            "CreationDate": "2025-03-02 07:06:24+00:00"
+            "Name": "company-data-q4-2024-4d68bdc",
+            "CreationDate": "2025-03-02 21:44:44+00:00"
         },
         {
-            "Name": "configuration-files-832cfe9",
-            "CreationDate": "2025-03-02 07:06:24+00:00"
+            "Name": "configuration-files-184099e",
+            "CreationDate": "2025-03-02 21:44:45+00:00"
         },
         {
             "Name": "cortex-cloudtrail-logs-522814731902-m-a-3101170656178",
@@ -107,8 +111,8 @@
             "CreationDate": "2024-11-13 11:47:34+00:00"
         },
         {
-            "Name": "customer-data-81a56f4",
-            "CreationDate": "2025-03-02 07:06:24+00:00"
+            "Name": "customer-data-87c0d05",
+            "CreationDate": "2025-03-02 21:44:45+00:00"
         },
         {
             "Name": "do-not-delete-awsgoat-state-files-522814731902",
@@ -167,6 +171,26 @@
             "CreationDate": "2025-03-02 10:30:27+00:00"
         },
         {
+            "Name": "hr-portal-docker-temp-1740928045",
+            "CreationDate": "2025-03-02 15:07:27+00:00"
+        },
+        {
+            "Name": "hr-portal-docker-temp-1740929775",
+            "CreationDate": "2025-03-02 15:36:20+00:00"
+        },
+        {
+            "Name": "hr-portal-docker-temp-1740930816",
+            "CreationDate": "2025-03-02 15:53:41+00:00"
+        },
+        {
+            "Name": "hr-portal-docker-temp-1740931861",
+            "CreationDate": "2025-03-02 16:11:06+00:00"
+        },
+        {
+            "Name": "hr-portal-docker-temp-1740933459",
+            "CreationDate": "2025-03-02 16:37:41+00:00"
+        },
+        {
             "Name": "itidr-bucketathena8bd64ef0-qhep1do5dvx8",
             "CreationDate": "2025-01-23 12:43:51+00:00"
         },
@@ -175,8 +199,8 @@
             "CreationDate": "2025-01-23 12:43:51+00:00"
         },
         {
-            "Name": "payment-data-9bc5573",
-            "CreationDate": "2025-03-02 07:06:24+00:00"
+            "Name": "payment-data-e4be0bb",
+            "CreationDate": "2025-03-02 21:44:45+00:00"
         },
         {
             "Name": "r53inlogs",

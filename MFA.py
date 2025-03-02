@@ -6,7 +6,7 @@ import subprocess
 
 
 class MFASetup:
-    """🔐 Handles MFA Creation, Authentication & Validation"""
+    """ Handles MFA Creation, Authentication & Validation"""
     def __init__(self, user, mfa_arn, iam_client, sts_client, pulumi_outputs):
         self.user = user
         self.mfa_arn = mfa_arn
@@ -21,8 +21,8 @@ class MFASetup:
 
 
     def check_existing_mfa(self):
-        """🔍 Check if MFA is already enabled"""
-        print(f"\n🔍 Checking if MFA is enabled for `{self.user}`...")
+        """ Check if MFA is already enabled"""
+        print(f"\n Checking if MFA is enabled for `{self.user}`...")
         result = subprocess.run(
             f"aws iam list-mfa-devices --user-name {self.user} --query 'MFADevices[0].SerialNumber' --output text",
             shell=True, capture_output=True, text=True
@@ -37,7 +37,7 @@ class MFASetup:
 
 
     def cleanup_old_mfa(self):
-        """🗑️ Delete any stale virtual MFA devices"""
+        """ Delete any stale virtual MFA devices"""
         existing_mfa_check = subprocess.run(
             "aws iam list-virtual-mfa-devices --query 'VirtualMFADevices[*].SerialNumber' --output text",
             shell=True, capture_output=True, text=True
@@ -144,7 +144,7 @@ class MFASetup:
             exit(1)
     
     def login_as_devops(self):
-        """🔐 Log in as DevOpsUser using Access Key + MFA"""
+        """ Log in as DevOpsUser using Access Key + MFA"""
     
         print("\nWaiting for AWS to fully associate MFA device...")
         time.sleep(10)
@@ -163,7 +163,7 @@ class MFASetup:
     
         print("MFA device is successfully linked. Proceeding with login.")
     
-        # ✅ Step 2: Load DevOpsUser's Access Key & Secret Key **Directly from Pulumi Secrets**
+        #  Step 2: Load DevOpsUser's Access Key & Secret Key **Directly from Pulumi Secrets**
         devops_access_key = self.get_pulumi_secret("devops_access_key_id")
         devops_secret_key = self.get_pulumi_secret("devops_secret_access_key")
     
@@ -171,28 +171,28 @@ class MFASetup:
         print(f" DevOps Secret Key: {'*' * len(devops_secret_key)} (Hidden for security)")
     
         if not devops_access_key or not devops_secret_key:
-            print("❌ ERROR: DevOpsUser access key/secret key not found in Pulumi outputs.")
+            print(" ERROR: DevOpsUser access key/secret key not found in Pulumi outputs.")
             exit(1)
     
-        # ✅ Step 3: Configure AWS CLI Profile for DevOpsUser
+        #  Step 3: Configure AWS CLI Profile for DevOpsUser
         print("\n🔧 Configuring AWS CLI profile for DevOpsUser...")
         subprocess.run(f"aws configure set aws_access_key_id \"{devops_access_key}\" --profile devopsuser", shell=True)
         subprocess.run(f"aws configure set aws_secret_access_key \"{devops_secret_key}\" --profile devopsuser", shell=True)
         subprocess.run(f"aws configure set region us-east-1 --profile devopsuser", shell=True)
         subprocess.run(f"aws configure set output json --profile devopsuser", shell=True)
     
-        # ✅ Step 4: Generate MFA Code
-        print("\n🚀 Requesting session token for DevOpsUser...")
+        #  Step 4: Generate MFA Code
+        print("\n Requesting session token for DevOpsUser...")
         mfa_code = subprocess.run(f"oathtool --totp --base32 {self.mfa_secret}", shell=True, capture_output=True, text=True).stdout.strip()
     
-        # ✅ Step 5: Call `get_session_token` with MFA
+        #  Step 5: Call `get_session_token` with MFA
         try:
             session_response = subprocess.run(
                 f"aws sts get-session-token --serial-number {self.mfa_arn} --token-code {mfa_code} --profile devopsuser",
                 shell=True, capture_output=True, text=True
             )
     
-            # 🚀 Ensure response is not empty
+            #  Ensure response is not empty
             if not session_response.stdout.strip():
                 print(f"ERROR: Empty response received from AWS STS. Possible MFA setup issue.")
                 exit(1)
@@ -212,14 +212,14 @@ class MFASetup:
             print(f"{self.user} token retrieved!")
             print(f"Token: {creds['SessionToken']}")
             print("\n\n\n")
-            # ✅ Step 6: Export Temporary Session Credentials to AWS CLI Profile
-            print("\n✅ Storing temporary MFA session in AWS CLI profile...")
+            #  Step 6: Export Temporary Session Credentials to AWS CLI Profile
+            print("\n Storing temporary MFA session in AWS CLI profile...")
             subprocess.run(f"aws configure set aws_access_key_id \"{creds['AccessKeyId']}\" --profile devopsuser", shell=True)
             subprocess.run(f"aws configure set aws_secret_access_key \"{creds['SecretAccessKey']}\" --profile devopsuser", shell=True)
             subprocess.run(f"aws configure set aws_session_token \"{creds['SessionToken']}\" --profile devopsuser", shell=True)
     
-            # ✅ Step 7: Verify the AWS profile with MFA session
-            print("\n🔍 Verifying AWS profile with MFA session...")
+            #  Step 7: Verify the AWS profile with MFA session
+            print("\n Verifying AWS profile with MFA session...")
             verify_output = subprocess.run("aws sts get-caller-identity --profile devopsuser", shell=True, capture_output=True, text=True)
     
             if "arn:aws" not in verify_output.stdout:

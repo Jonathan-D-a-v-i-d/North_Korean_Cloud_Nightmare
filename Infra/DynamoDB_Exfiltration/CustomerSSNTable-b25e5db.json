@@ -1,0 +1,62 @@
+[
+    {
+        "ID": "2002",
+        "SSN": "103-67-3397",
+        "CreditCard": "4111-XXXX-XXXX-1740",
+        "CustomerName": "Aaron Brooks"
+    },
+    {
+        "ID": "2001",
+        "SSN": "925-28-1437",
+        "CreditCard": "4111-XXXX-XXXX-2162",
+        "CustomerName": "Sarah Roberts"
+    },
+    {
+        "ID": "2007",
+        "SSN": "410-87-1336",
+        "CreditCard": "5500-XXXX-XXXX-2929",
+        "CustomerName": "Dr. Nicholas Garcia DDS"
+    },
+    {
+        "ID": "2006",
+        "SSN": "549-49-8260",
+        "CreditCard": "5500-XXXX-XXXX-6785",
+        "CustomerName": "Kristi Love"
+    },
+    {
+        "ID": "2004",
+        "SSN": "258-50-7886",
+        "CreditCard": "4111-XXXX-XXXX-9981",
+        "CustomerName": "Christina Gonzalez"
+    },
+    {
+        "ID": "2003",
+        "SSN": "910-21-7897",
+        "CreditCard": "4111-XXXX-XXXX-3083",
+        "CustomerName": "Courtney Simmons"
+    },
+    {
+        "ID": "2010",
+        "SSN": "499-46-5019",
+        "CreditCard": "5500-XXXX-XXXX-3209",
+        "CustomerName": "Karen Davis"
+    },
+    {
+        "ID": "2005",
+        "SSN": "212-17-1089",
+        "CreditCard": "4111-XXXX-XXXX-1319",
+        "CustomerName": "Chelsea Simmons"
+    },
+    {
+        "ID": "2008",
+        "SSN": "554-86-7929",
+        "CreditCard": "4111-XXXX-XXXX-1587",
+        "CustomerName": "Lori Taylor"
+    },
+    {
+        "ID": "2009",
+        "SSN": "868-70-5350",
+        "CreditCard": "5500-XXXX-XXXX-3984",
+        "CustomerName": "Joel Cantrell"
+    }
+]

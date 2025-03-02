@@ -1,0 +1,62 @@
+[
+    {
+        "ID": "2002",
+        "SSN": "656-41-9518",
+        "CreditCard": "4111-XXXX-XXXX-6928",
+        "CustomerName": "Brittany Davidson"
+    },
+    {
+        "ID": "2001",
+        "SSN": "154-81-6255",
+        "CreditCard": "5500-XXXX-XXXX-7276",
+        "CustomerName": "Terry Francis"
+    },
+    {
+        "ID": "2007",
+        "SSN": "332-27-9113",
+        "CreditCard": "4111-XXXX-XXXX-8569",
+        "CustomerName": "Leah Durham"
+    },
+    {
+        "ID": "2006",
+        "SSN": "748-27-2606",
+        "CreditCard": "5500-XXXX-XXXX-6372",
+        "CustomerName": "Michelle Smith"
+    },
+    {
+        "ID": "2004",
+        "SSN": "437-70-5604",
+        "CreditCard": "5500-XXXX-XXXX-8199",
+        "CustomerName": "Heidi Gibson"
+    },
+    {
+        "ID": "2003",
+        "SSN": "345-50-3008",
+        "CreditCard": "5500-XXXX-XXXX-7739",
+        "CustomerName": "Tammy Coleman"
+    },
+    {
+        "ID": "2010",
+        "SSN": "982-37-5756",
+        "CreditCard": "4111-XXXX-XXXX-7825",
+        "CustomerName": "Jeffery Mcdonald"
+    },
+    {
+        "ID": "2005",
+        "SSN": "684-25-5377",
+        "CreditCard": "5500-XXXX-XXXX-8299",
+        "CustomerName": "Norman Hayes"
+    },
+    {
+        "ID": "2008",
+        "SSN": "616-41-1027",
+        "CreditCard": "4111-XXXX-XXXX-7076",
+        "CustomerName": "James Chapman"
+    },
+    {
+        "ID": "2009",
+        "SSN": "493-21-3248",
+        "CreditCard": "4111-XXXX-XXXX-4930",
+        "CustomerName": "Mason Green"
+    }
+]

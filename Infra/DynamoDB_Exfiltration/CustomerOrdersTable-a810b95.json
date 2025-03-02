@@ -1,0 +1,62 @@
+[
+    {
+        "ID": "1010",
+        "ItemPurchased": "Laptop",
+        "OrderDate": "2024-08-21",
+        "CustomerName": "Robert Ramirez"
+    },
+    {
+        "ID": "1004",
+        "ItemPurchased": "Monitor",
+        "OrderDate": "2024-07-04",
+        "CustomerName": "Mark Cummings"
+    },
+    {
+        "ID": "1009",
+        "ItemPurchased": "Monitor",
+        "OrderDate": "2025-01-18",
+        "CustomerName": "Ashley Padilla"
+    },
+    {
+        "ID": "1008",
+        "ItemPurchased": "Headphones",
+        "OrderDate": "2024-03-26",
+        "CustomerName": "Cody Russell"
+    },
+    {
+        "ID": "1007",
+        "ItemPurchased": "Keyboard",
+        "OrderDate": "2024-07-08",
+        "CustomerName": "Miss Kelly Cooley MD"
+    },
+    {
+        "ID": "1002",
+        "ItemPurchased": "Laptop",
+        "OrderDate": "2024-03-17",
+        "CustomerName": "Zachary Davis"
+    },
+    {
+        "ID": "1001",
+        "ItemPurchased": "Keyboard",
+        "OrderDate": "2024-06-30",
+        "CustomerName": "Kristin Kennedy"
+    },
+    {
+        "ID": "1003",
+        "ItemPurchased": "Phone",
+        "OrderDate": "2024-08-24",
+        "CustomerName": "Seth Robinson"
+    },
+    {
+        "ID": "1005",
+        "ItemPurchased": "Headphones",
+        "OrderDate": "2024-12-10",
+        "CustomerName": "Tristan Davenport"
+    },
+    {
+        "ID": "1006",
+        "ItemPurchased": "Laptop",
+        "OrderDate": "2025-03-01",
+        "CustomerName": "Russell Perry"
+    }
+]

@@ -1,0 +1,62 @@
+[
+    {
+        "ID": "1010",
+        "ItemPurchased": "Tablet",
+        "OrderDate": "2024-11-24",
+        "CustomerName": "Stephanie Williams"
+    },
+    {
+        "ID": "1004",
+        "ItemPurchased": "Monitor",
+        "OrderDate": "2025-01-02",
+        "CustomerName": "Danny Morris"
+    },
+    {
+        "ID": "1009",
+        "ItemPurchased": "Charger",
+        "OrderDate": "2024-09-14",
+        "CustomerName": "Mary Snow"
+    },
+    {
+        "ID": "1008",
+        "ItemPurchased": "Monitor",
+        "OrderDate": "2024-07-28",
+        "CustomerName": "Mary Martin"
+    },
+    {
+        "ID": "1007",
+        "ItemPurchased": "Mouse",
+        "OrderDate": "2025-01-19",
+        "CustomerName": "Ms. Patricia Walsh DDS"
+    },
+    {
+        "ID": "1002",
+        "ItemPurchased": "Keyboard",
+        "OrderDate": "2024-05-16",
+        "CustomerName": "Patricia Barrera"
+    },
+    {
+        "ID": "1001",
+        "ItemPurchased": "Phone",
+        "OrderDate": "2025-02-09",
+        "CustomerName": "Mark Cabrera"
+    },
+    {
+        "ID": "1003",
+        "ItemPurchased": "Mouse",
+        "OrderDate": "2024-06-20",
+        "CustomerName": "Jason Murphy"
+    },
+    {
+        "ID": "1005",
+        "ItemPurchased": "Monitor",
+        "OrderDate": "2024-09-15",
+        "CustomerName": "Kyle Mccormick"
+    },
+    {
+        "ID": "1006",
+        "ItemPurchased": "Monitor",
+        "OrderDate": "2024-12-27",
+        "CustomerName": "Jeffrey Johnston"
+    }
+]

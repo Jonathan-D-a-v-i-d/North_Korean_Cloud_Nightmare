@@ -1,0 +1,62 @@
+[
+    {
+        "ID": "2002",
+        "SSN": "550-46-5775",
+        "CreditCard": "5500-XXXX-XXXX-9035",
+        "CustomerName": "Dawn Lee"
+    },
+    {
+        "ID": "2001",
+        "SSN": "728-49-8390",
+        "CreditCard": "5500-XXXX-XXXX-5384",
+        "CustomerName": "Evelyn Alvarado"
+    },
+    {
+        "ID": "2007",
+        "SSN": "246-48-6135",
+        "CreditCard": "4111-XXXX-XXXX-2824",
+        "CustomerName": "Luis Smith"
+    },
+    {
+        "ID": "2006",
+        "SSN": "131-14-9239",
+        "CreditCard": "5500-XXXX-XXXX-4046",
+        "CustomerName": "Eric Carter"
+    },
+    {
+        "ID": "2004",
+        "SSN": "267-47-1385",
+        "CreditCard": "4111-XXXX-XXXX-9923",
+        "CustomerName": "Tyler Parks"
+    },
+    {
+        "ID": "2003",
+        "SSN": "453-69-2392",
+        "CreditCard": "5500-XXXX-XXXX-6857",
+        "CustomerName": "Bruce Valenzuela"
+    },
+    {
+        "ID": "2010",
+        "SSN": "690-31-4982",
+        "CreditCard": "5500-XXXX-XXXX-4931",
+        "CustomerName": "Beth Fleming"
+    },
+    {
+        "ID": "2005",
+        "SSN": "728-38-2112",
+        "CreditCard": "5500-XXXX-XXXX-3608",
+        "CustomerName": "Sara Fuller"
+    },
+    {
+        "ID": "2008",
+        "SSN": "712-49-5563",
+        "CreditCard": "5500-XXXX-XXXX-6083",
+        "CustomerName": "Michael Rojas"
+    },
+    {
+        "ID": "2009",
+        "SSN": "250-98-2016",
+        "CreditCard": "5500-XXXX-XXXX-6233",
+        "CustomerName": "John Gentry"
+    }
+]

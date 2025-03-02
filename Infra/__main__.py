@@ -9,7 +9,7 @@ from faker import Faker
 config = pulumi.Config()
 region = config.get("aws:region") or "us-east-1"
 
-# ✅ Initialize Faker
+#  Initialize Faker
 fake = Faker()
 
 
@@ -148,7 +148,7 @@ devops_user_policy_attachment = aws.iam.UserPolicyAttachment("DevopsUserPolicyAt
     policy_arn=devops_policy.arn
 )
 
-# ✅ Define MFA & Session Token Management Policy for DevOps User
+#  Define MFA & Session Token Management Policy for DevOps User
 devops_mfa_policy = aws.iam.Policy("DevopsMFASetupPolicy",
     name="DevopsMFASetupPolicy",
     description="Allows DevopsUser to manage their own MFA and obtain session tokens",
@@ -320,7 +320,7 @@ ssn_table = aws.dynamodb.Table("CustomerSSNTable",
 
 
 
-# ✅ Generate Fake Data
+#  Generate Fake Data
 fake_config_data = {
     "system": "Enterprise App",
     "config_version": "1.2.3",
@@ -412,7 +412,7 @@ gd_detector = aws.guardduty.Detector("gd_detector", enable=True)
 
 
 
-"""
+
 #    _____ _                 _ _______        _ _ 
 #   / ____| |               | |__   __|      (_) |
 #  | |    | | ___  _   _  __| |  | |_ __ __ _ _| |
@@ -424,6 +424,39 @@ gd_detector = aws.guardduty.Detector("gd_detector", enable=True)
 # Creating s3 Bucket for CloudTrail Logging #
 # ----------------------------------------- #  
 cloudtrail_log_bucket = aws.s3.Bucket("cloudtrail-log-bucket", force_destroy=True)
+# Fetch AWS Account ID dynamically
+aws_account_id = aws.get_caller_identity().account_id
+# -------------------------------------- #                                                
+# Define the CloudTrail S3 bucket policy #
+# -------------------------------------- # 
+cloudtrail_bucket_policy = aws.s3.BucketPolicy(
+    "cloudtrail-bucket-policy",
+    bucket=cloudtrail_log_bucket.id,  # Attach policy to this bucket
+    policy=pulumi.Output.all(cloudtrail_log_bucket.id, aws_account_id).apply(
+        lambda args: json.dumps({
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "AWSCloudTrailAclCheck20150319",
+                    "Effect": "Allow",
+                    "Principal": {"Service": "cloudtrail.amazonaws.com"},
+                    "Action": "s3:GetBucketAcl",
+                    "Resource": f"arn:aws:s3:::{args[0]}"  # ✅ Fix: Dynamically resolve bucket ARN
+                },
+                {
+                    "Sid": "AWSCloudTrailWrite20150319",
+                    "Effect": "Allow",
+                    "Principal": {"Service": "cloudtrail.amazonaws.com"},
+                    "Action": "s3:PutObject",
+                    "Resource": f"arn:aws:s3:::{args[0]}/AWSLogs/{args[1]}/*",  # ✅ Fix: Resolve AWS account ID dynamically
+                    "Condition": {
+                        "StringEquals": {"s3:x-amz-acl": "bucket-owner-full-control"}
+                    }
+                }
+            ]
+        })
+    )
+)
 # ---------------------------------------------- #                                                
 # Enable CloudTrail logging to track IAM changes #
 # ---------------------------------------------- # 
@@ -432,9 +465,10 @@ cloudtrail = aws.cloudtrail.Trail("cloudtrail",
     s3_bucket_name=cloudtrail_log_bucket.bucket,
     include_global_service_events=True,
     is_multi_region_trail=True,
-    enable_logging=True
+    enable_logging=True,
+    opts=pulumi.ResourceOptions(depends_on=[cloudtrail_bucket_policy])
 )
-"""
+
 
 
 
@@ -455,5 +489,6 @@ pulumi.export("CustomerSSNTable", ssn_table.name)
 pulumi.export("gd_detector_id", gd_detector.id)
 pulumi.export("devops_user_mfa_policy_arn", devops_mfa_policy.arn)
 pulumi.export("devops_user_mfa_arn", devops_user_mfa.arn)
-# pulumi.export("cloudtrail_id", cloudtrail.id)
+pulumi.export("cloudtrail_name", cloudtrail.name)
+pulumi.export("cloudtrail_log_bucket", cloudtrail_log_bucket.bucket)
 

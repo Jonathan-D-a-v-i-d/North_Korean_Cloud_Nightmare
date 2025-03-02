@@ -1,0 +1,62 @@
+[
+    {
+        "ID": "2002",
+        "SSN": "157-48-8879",
+        "CreditCard": "5500-XXXX-XXXX-8113",
+        "CustomerName": "Bryan Crosby"
+    },
+    {
+        "ID": "2001",
+        "SSN": "683-45-7672",
+        "CreditCard": "5500-XXXX-XXXX-4807",
+        "CustomerName": "Patrick Green"
+    },
+    {
+        "ID": "2007",
+        "SSN": "769-36-2828",
+        "CreditCard": "5500-XXXX-XXXX-1936",
+        "CustomerName": "John Garza"
+    },
+    {
+        "ID": "2006",
+        "SSN": "934-84-8312",
+        "CreditCard": "4111-XXXX-XXXX-8600",
+        "CustomerName": "Jessica Malone"
+    },
+    {
+        "ID": "2004",
+        "SSN": "341-14-9226",
+        "CreditCard": "5500-XXXX-XXXX-1817",
+        "CustomerName": "Darryl Benson"
+    },
+    {
+        "ID": "2003",
+        "SSN": "714-73-8801",
+        "CreditCard": "4111-XXXX-XXXX-9008",
+        "CustomerName": "Kyle Jordan"
+    },
+    {
+        "ID": "2010",
+        "SSN": "583-75-7169",
+        "CreditCard": "5500-XXXX-XXXX-6163",
+        "CustomerName": "Joshua Landry"
+    },
+    {
+        "ID": "2005",
+        "SSN": "426-80-5423",
+        "CreditCard": "5500-XXXX-XXXX-6095",
+        "CustomerName": "Sarah Love"
+    },
+    {
+        "ID": "2008",
+        "SSN": "461-44-5949",
+        "CreditCard": "4111-XXXX-XXXX-8063",
+        "CustomerName": "Jennifer Levy"
+    },
+    {
+        "ID": "2009",
+        "SSN": "731-68-3492",
+        "CreditCard": "5500-XXXX-XXXX-9807",
+        "CustomerName": "Rebecca Lewis"
+    }
+]

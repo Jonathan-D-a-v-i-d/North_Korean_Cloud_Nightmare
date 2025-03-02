@@ -4,10 +4,10 @@ import json
 import random
 from faker import Faker
 
-# ✅ Initialize Faker
+#  Initialize Faker
 fake = Faker()
 
-# ✅ Load Pulumi Stack Outputs
+#  Load Pulumi Stack Outputs
 stack_outputs = pulumi.StackReference("dev")
 
 config_bucket_id = stack_outputs.get_output("config_files_bucket")
@@ -16,7 +16,7 @@ payment_bucket_id = stack_outputs.get_output("payment_data_bucket")
 orders_table_name = stack_outputs.get_output("CustomerOrdersTable")
 ssn_table_name = stack_outputs.get_output("CustomerSSNTable")
 
-# ✅ Generate Fake Data
+#  Generate Fake Data
 fake_config_data = {
     "system": "Enterprise App",
     "config_version": "1.2.3",
@@ -41,7 +41,7 @@ fake_payment_data = [
     for i in range(1, 101)
 ]
 
-# ✅ Upload Data to S3 Using Pulumi
+#  Upload Data to S3 Using Pulumi
 aws.s3.BucketObject("config-file",
     bucket=config_bucket_id,
     key="config.json",
@@ -60,7 +60,7 @@ aws.s3.BucketObject("payment-file",
     content=json.dumps(fake_payment_data, indent=4)
 )
 
-# ✅ Populate DynamoDB Tables Using Pulumi
+#  Populate DynamoDB Tables Using Pulumi
 for i in range(1, 101):
     aws.dynamodb.TableItem(f"order-{i}",
         table_name=orders_table_name,
@@ -84,7 +84,7 @@ for i in range(1, 101):
         })
     )
 
-# ✅ Export Data-Managed Objects
+#  Export Data-Managed Objects
 pulumi.export("config_file", "config.json")
 pulumi.export("customer_file", "customers.json")
 pulumi.export("payment_file", "payments.json")
