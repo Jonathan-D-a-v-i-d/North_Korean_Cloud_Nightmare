@@ -1,0 +1,62 @@
+[
+    {
+        "ID": "2002",
+        "SSN": "300-51-8737",
+        "CreditCard": "4111-XXXX-XXXX-7238",
+        "CustomerName": "Brenda Parker"
+    },
+    {
+        "ID": "2001",
+        "SSN": "545-51-8049",
+        "CreditCard": "5500-XXXX-XXXX-4387",
+        "CustomerName": "Julie Jones"
+    },
+    {
+        "ID": "2007",
+        "SSN": "208-43-3577",
+        "CreditCard": "5500-XXXX-XXXX-6319",
+        "CustomerName": "Amanda Gross"
+    },
+    {
+        "ID": "2006",
+        "SSN": "303-33-8635",
+        "CreditCard": "4111-XXXX-XXXX-1683",
+        "CustomerName": "Catherine Davis"
+    },
+    {
+        "ID": "2004",
+        "SSN": "319-37-3135",
+        "CreditCard": "4111-XXXX-XXXX-1537",
+        "CustomerName": "Adam Jones"
+    },
+    {
+        "ID": "2003",
+        "SSN": "329-34-5324",
+        "CreditCard": "5500-XXXX-XXXX-1503",
+        "CustomerName": "Rachel Snyder"
+    },
+    {
+        "ID": "2010",
+        "SSN": "246-38-4349",
+        "CreditCard": "4111-XXXX-XXXX-9223",
+        "CustomerName": "Lisa Mercado"
+    },
+    {
+        "ID": "2005",
+        "SSN": "924-94-2795",
+        "CreditCard": "4111-XXXX-XXXX-2634",
+        "CustomerName": "Jacqueline Frazier"
+    },
+    {
+        "ID": "2008",
+        "SSN": "451-82-5824",
+        "CreditCard": "5500-XXXX-XXXX-6873",
+        "CustomerName": "Carmen Martinez"
+    },
+    {
+        "ID": "2009",
+        "SSN": "242-28-9608",
+        "CreditCard": "5500-XXXX-XXXX-4458",
+        "CustomerName": "Kathryn Mueller"
+    }
+]

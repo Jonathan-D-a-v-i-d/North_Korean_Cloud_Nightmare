@@ -34,6 +34,141 @@ admin_user_admin_access = aws.iam.UserPolicyAttachment("AdminUserAdminAccess",
 
 
 
+
+
+
+
+
+
+# #   _____                              _______                   
+# #  |  __ \                            |__   __|                  
+# #  | |  | | _____   _____  _ __  ___     | | ___  __ _ _ __ ___  
+# #  | |  | |/ _ \ \ / / _ \| '_ \/ __|    | |/ _ \/ _` | '_ ` _ \ 
+# #  | |__| |  __/\ V / (_) | |_) \__ \    | |  __/ (_| | | | | | |
+# #  |_____/ \___| \_/ \___/| .__/|___/    |_|\___|\__,_|_| |_| |_|
+# #                         | |                                    
+# #                         |_|                                    
+# # ------------------------------------------- #
+# #  Create DevOps Users for Larger Devops Team #
+# # ------------------------------------------- #
+# """
+# These users are the backdrop to the larger vector, in that user: DevopUser
+# is compromised via access-key purchase & MFA pfishing, then creates a user
+# and attaches an inline policy aloowing it to remove MFA device, and will 
+# remove the virtual MFA device of each of his team members to initialize 
+# MFA Tampering DDOS as part of the larger vector.
+# """
+
+# #devops_users = [aws.iam.User(_) for _ in ["DevopsDeploy", "DevopsAutomation", "DevopsMonitor", "DevopsPipeline"]]
+# devops_users = []
+# devops_mfa_devices = []
+
+# # 4 Users in addition to user:DevopsUser based on common Devops roles\functionalities
+# usernames = ["DevopsDeploy", "DevopsAutomation", "DevopsMonitor", "DevopsPipeline"]
+
+# for username in usernames:
+#     # Create user
+#     user = aws.iam.User(username)
+#     devops_users.append(user)
+#     # Create Access Key
+#     access_key = aws.iam.AccessKey(f"{username}-access-key", user=user.name)
+#     # Create Virtual MFA Device
+#     mfa_device = aws.iam.VirtualMfaDevice(f"{username}-mfa", virtual_mfa_device_name=user.name)
+#     devops_mfa_devices.append(mfa_device)
+#     # Attach MFA Policy (Allow ONLY sts:GetSessionToken with MFA)
+#     mfa_enforcement_policy = aws.iam.UserPolicy(
+#         f"{username}-mfa-policy",
+#         user=user.name,
+#         policy=pulumi.Output.all().apply(
+#             lambda _: json.dumps({
+#                 "Version": "2012-10-17",
+#                 "Statement": [
+#                     {
+#                         "Effect": "Deny",
+#                         "NotAction": "sts:GetSessionToken",
+#                         "Resource": "*",
+#                         "Condition": {
+#                             "BoolIfExists": {"aws:MultiFactorAuthPresent": "false"}
+#                         }
+#                     }
+#                 ]
+#             })
+#         )
+#     )
+
+
+# usernames = ["DevopsDeploy", "DevopsAutomation", "DevopsMonitor", "DevopsPipeline"]
+
+# for username in usernames:
+#     # Create IAM User
+#     user = aws.iam.User(username)
+
+#     # Export User ARN
+#     pulumi.export(f"{username}_arn", user.arn)
+
+#     # Create Access Key
+#     access_key = aws.iam.AccessKey(f"{username}-access-key", user=user.name)
+
+#     # Export Access Key ID & Secret
+#     pulumi.export(f"{username}_access_key_id", access_key.id)
+#     pulumi.export(f"{username}_secret_access_key", access_key.secret)
+
+#     # Create Virtual MFA Device
+#     mfa_device = aws.iam.VirtualMfaDevice(f"{username}-mfa", virtual_mfa_device_name=user.name)
+
+#     # Export MFA Device ARN
+#     pulumi.export(f"{username}_mfa_arn", mfa_device.arn)
+
+#     # Attach MFA Enforcement Policy (Deny actions if MFA is not used)
+#     mfa_enforcement_policy = aws.iam.UserPolicy(
+#         f"{username}-mfa-policy",
+#         user=user.name,
+#         policy=pulumi.Output.all().apply(
+#             lambda _: json.dumps({
+#                 "Version": "2012-10-17",
+#                 "Statement": [
+#                     {
+#                         "Effect": "Deny",
+#                         "NotAction": "sts:GetSessionToken",
+#                         "Resource": "*",
+#                         "Condition": {
+#                             "BoolIfExists": {"aws:MultiFactorAuthPresent": "false"}
+#                         }
+#                     }
+#                 ]
+#             })
+#         )
+#     )
+
+
+
+
+
+# devops_deploy = aws.iam.User("DevopsDeploy", name="DevopsDeploy")
+devops_deploy = aws.iam.User("DevopsDeploy")
+devops_deploy_mfa =  aws.iam.VirtualMfaDevice("DevopsDeploy",
+    virtual_mfa_device_name="DevopsDeploy",
+    tags={"Name": "DevopsDeploy"}    
+)
+# devops_automation = aws.iam.User("DevopsAutomation", name="DevopsAutomation")
+devops_automation = aws.iam.User("DevopsAutomation")
+devops_automation_mfa =  aws.iam.VirtualMfaDevice("DevopsAutomation",
+    virtual_mfa_device_name="DevopsAutomation",
+    tags={"Name": "DevopsAutomation"}    
+)
+# devops_monitor = aws.iam.User("DevopsMonitor", name="DevopsMonitor")
+devops_monitor = aws.iam.User("DevopsMonitor")
+devops_monitor_mfa =  aws.iam.VirtualMfaDevice("DevopsMonitor",
+    virtual_mfa_device_name="DevopsMonitor",
+    tags={"Name": "DevopsMonitor"}    
+)
+# devops_pipeline = aws.iam.User("DevopsPipeline", name="DevopsPipeline")
+devops_pipeline = aws.iam.User("DevopsPipeline")
+devops_pipeline_mfa =  aws.iam.VirtualMfaDevice("DevopsPipeline",
+    virtual_mfa_device_name="DevopsPipeline",
+    tags={"Name": "DevopsPipeline"}    
+)
+
 #   _____              ____              _    _               
 #  |  __ \            / __ \            | |  | |              
 #  | |  | | _____   _| |  | |_ __  ___  | |  | |___  ___ _ __ 
@@ -46,8 +181,8 @@ admin_user_admin_access = aws.iam.UserPolicyAttachment("AdminUserAdminAccess",
 # ------------------- #                                                                                        
 # Creates DevOps User #
 # ------------------- #   
-devops_user = aws.iam.User("DevopsUser", name="DevopsUser")
-
+# devops_user = aws.iam.User("DevopsUser", name="DevopsUser")
+devops_user = aws.iam.User("DevopsUser")
 # --------------------------------- #                                                                                        
 # Creates Access Key for DevopsUser #
 # --------------------------------- #  
@@ -231,10 +366,10 @@ devops_user_mfa_session_attachment = aws.iam.UserPolicyAttachment("DevopsUserMFA
 
 
 # Create Virtual MFA Device for DevopsUser
-devops_user_mfa = aws.iam.VirtualMfaDevice("DevopsUserMFA",
-    virtual_mfa_device_name="DevopsUserMFA",
-    tags={"Name": "DevopsUserMFA"}
-)
+# devops_user_mfa = aws.iam.VirtualMfaDevice("DevopsUserMFA",
+#     virtual_mfa_device_name="DevopsUserMFA",
+#     tags={"Name": "DevopsUserMFA"}
+# )
 
 
 
@@ -488,7 +623,22 @@ pulumi.export("CustomerOrdersTable", orders_table.name)
 pulumi.export("CustomerSSNTable", ssn_table.name)
 pulumi.export("gd_detector_id", gd_detector.id)
 pulumi.export("devops_user_mfa_policy_arn", devops_mfa_policy.arn)
-pulumi.export("devops_user_mfa_arn", devops_user_mfa.arn)
+#pulumi.export("DevopsUser_mfa_arn", devops_user_mfa.arn)
 pulumi.export("cloudtrail_name", cloudtrail.name)
 pulumi.export("cloudtrail_log_bucket", cloudtrail_log_bucket.bucket)
+
+
+pulumi.export("devops_deploy_arn", devops_deploy.arn)
+pulumi.export("DevopsDeploy_mfa_arn", devops_deploy_mfa.arn)
+
+
+pulumi.export("devops_automation_arn", devops_automation.arn)
+pulumi.export("DevopsAutomation_mfa_arn", devops_automation_mfa.arn)
+
+pulumi.export("devops_monitor_arn", devops_monitor.arn)
+pulumi.export("DevopsMonitor_mfa_arn", devops_monitor_mfa.arn)
+
+pulumi.export("devops_pipeline_arn", devops_pipeline.arn)
+pulumi.export("DevopsPipeline_mfa_arn", devops_pipeline_mfa.arn)
+
 

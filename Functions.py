@@ -99,13 +99,12 @@ def attack_execution_duration(minutes: float = 0, seconds: float = 0, descriptio
 
     print(f"\n {description} (Estimated time: {minutes}m {seconds}s)")
 
-    with tqdm.tqdm(total=total_seconds, desc="⏳ Attack Execution Progress", 
+    with tqdm.tqdm(total=total_seconds, desc="Attack Execution Progress", 
                    bar_format="{l_bar}{bar} [ {elapsed}/{remaining} ]") as pbar:
         for _ in range(int(total_seconds)):
             time.sleep(1)  # Sleep for 1 second
             pbar.update(1)  # Update progress bar
 
-    print("\n Attack execution time elapsed. Proceeding with cleanup...")
 
 # Example usages:
 # attack_execution_duration(minutes=1)      # Executes for 1 minute

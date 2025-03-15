@@ -485,6 +485,178 @@
             ]
         },
         {
+            "ReservationId": "r-0907e6b1b5a1b5efd",
+            "OwnerId": "522814731902",
+            "Groups": [],
+            "Instances": [
+                {
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2025-03-15 01:20:37+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-06ca529e8d5bfdba8"
+                            }
+                        }
+                    ],
+                    "ClientToken": "terraform-20250315012035498500000008",
+                    "EbsOptimized": false,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::522814731902:instance-profile/hrgoat-jenkins-instance-profile",
+                        "Id": "AIPAXTORPWZ7AGAPFJRPO"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Association": {
+                                "IpOwnerId": "amazon",
+                                "PublicDnsName": "ec2-3-90-29-240.compute-1.amazonaws.com",
+                                "PublicIp": "3.90.29.240"
+                            },
+                            "Attachment": {
+                                "AttachTime": "2025-03-15 01:20:36+00:00",
+                                "AttachmentId": "eni-attach-079a68283ff2db176",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupId": "sg-0989738d5b5393f6e",
+                                    "GroupName": "hrgoat-jenkins-sg"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "0a:ff:c4:8e:e2:b7",
+                            "NetworkInterfaceId": "eni-0c866d81d6f74865e",
+                            "OwnerId": "522814731902",
+                            "PrivateDnsName": "ip-10-0-1-63.ec2.internal",
+                            "PrivateIpAddress": "10.0.1.63",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Association": {
+                                        "IpOwnerId": "amazon",
+                                        "PublicDnsName": "ec2-3-90-29-240.compute-1.amazonaws.com",
+                                        "PublicIp": "3.90.29.240"
+                                    },
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-1-63.ec2.internal",
+                                    "PrivateIpAddress": "10.0.1.63"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-0ca93403c1d1b7754",
+                            "VpcId": "vpc-0690740a1e2d0e737",
+                            "InterfaceType": "interface",
+                            "Operator": {
+                                "Managed": false
+                            }
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupId": "sg-0989738d5b5393f6e",
+                            "GroupName": "hrgoat-jenkins-sg"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "hrgoat-jenkins-instance"
+                        },
+                        {
+                            "Key": "App",
+                            "Value": "HR-GOAT-APP"
+                        },
+                        {
+                            "Key": "Link",
+                            "Value": "https://github.com/SilentProcess87/cyber-lab-hr-simulator"
+                        },
+                        {
+                            "Key": "Note",
+                            "Value": "For security testing"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 1
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "BootMode": "uefi-preferred",
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2025-03-15 01:20:36+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios",
+                    "NetworkPerformanceOptions": {
+                        "BandwidthWeighting": "default"
+                    },
+                    "Operator": {
+                        "Managed": false
+                    },
+                    "InstanceId": "i-00367fcb5858a878e",
+                    "ImageId": "ami-0277155c3f0ab2930",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "PrivateDnsName": "ip-10-0-1-63.ec2.internal",
+                    "PublicDnsName": "ec2-3-90-29-240.compute-1.amazonaws.com",
+                    "StateTransitionReason": "",
+                    "AmiLaunchIndex": 0,
+                    "ProductCodes": [],
+                    "InstanceType": "t2.micro",
+                    "LaunchTime": "2025-03-15 01:20:36+00:00",
+                    "Placement": {
+                        "GroupName": "",
+                        "Tenancy": "default",
+                        "AvailabilityZone": "us-east-1a"
+                    },
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "SubnetId": "subnet-0ca93403c1d1b7754",
+                    "VpcId": "vpc-0690740a1e2d0e737",
+                    "PrivateIpAddress": "10.0.1.63",
+                    "PublicIpAddress": "3.90.29.240"
+                }
+            ]
+        },
+        {
             "ReservationId": "r-01f5cfb6207cb8c1a",
             "OwnerId": "522814731902",
             "Groups": [],
@@ -954,19 +1126,191 @@
                     "PublicIpAddress": "52.207.225.230"
                 }
             ]
+        },
+        {
+            "ReservationId": "r-07e1555f7fe946200",
+            "OwnerId": "522814731902",
+            "Groups": [],
+            "Instances": [
+                {
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2025-03-15 01:20:37+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-045f2aae6b168fbd5"
+                            }
+                        }
+                    ],
+                    "ClientToken": "terraform-20250315012035587200000009",
+                    "EbsOptimized": false,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::522814731902:instance-profile/hrgoat-ssm-instance-profile",
+                        "Id": "AIPAXTORPWZ7HON3I22RR"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Association": {
+                                "IpOwnerId": "amazon",
+                                "PublicDnsName": "ec2-34-207-147-162.compute-1.amazonaws.com",
+                                "PublicIp": "34.207.147.162"
+                            },
+                            "Attachment": {
+                                "AttachTime": "2025-03-15 01:20:36+00:00",
+                                "AttachmentId": "eni-attach-0b1c10815136a3083",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupId": "sg-0c623fa1a4beb3424",
+                                    "GroupName": "hrgoat-app-sg"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "0a:ff:e2:ef:35:bb",
+                            "NetworkInterfaceId": "eni-004a1b3d0f69a9d4f",
+                            "OwnerId": "522814731902",
+                            "PrivateDnsName": "ip-10-0-1-177.ec2.internal",
+                            "PrivateIpAddress": "10.0.1.177",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Association": {
+                                        "IpOwnerId": "amazon",
+                                        "PublicDnsName": "ec2-34-207-147-162.compute-1.amazonaws.com",
+                                        "PublicIp": "34.207.147.162"
+                                    },
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-1-177.ec2.internal",
+                                    "PrivateIpAddress": "10.0.1.177"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-0ca93403c1d1b7754",
+                            "VpcId": "vpc-0690740a1e2d0e737",
+                            "InterfaceType": "interface",
+                            "Operator": {
+                                "Managed": false
+                            }
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupId": "sg-0c623fa1a4beb3424",
+                            "GroupName": "hrgoat-app-sg"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "App",
+                            "Value": "HR-GOAT-APP"
+                        },
+                        {
+                            "Key": "Note",
+                            "Value": "For security testing"
+                        },
+                        {
+                            "Key": "Link",
+                            "Value": "https://github.com/SilentProcess87/cyber-lab-hr-simulator"
+                        },
+                        {
+                            "Key": "Name",
+                            "Value": "hrgoat-app-instance"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 1
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "BootMode": "uefi-preferred",
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2025-03-15 01:20:36+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios",
+                    "NetworkPerformanceOptions": {
+                        "BandwidthWeighting": "default"
+                    },
+                    "Operator": {
+                        "Managed": false
+                    },
+                    "InstanceId": "i-068f9cbe5e104be4b",
+                    "ImageId": "ami-0277155c3f0ab2930",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "PrivateDnsName": "ip-10-0-1-177.ec2.internal",
+                    "PublicDnsName": "ec2-34-207-147-162.compute-1.amazonaws.com",
+                    "StateTransitionReason": "",
+                    "AmiLaunchIndex": 0,
+                    "ProductCodes": [],
+                    "InstanceType": "t2.micro",
+                    "LaunchTime": "2025-03-15 01:20:36+00:00",
+                    "Placement": {
+                        "GroupName": "",
+                        "Tenancy": "default",
+                        "AvailabilityZone": "us-east-1a"
+                    },
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "SubnetId": "subnet-0ca93403c1d1b7754",
+                    "VpcId": "vpc-0690740a1e2d0e737",
+                    "PrivateIpAddress": "10.0.1.177",
+                    "PublicIpAddress": "34.207.147.162"
+                }
+            ]
         }
     ],
     "ResponseMetadata": {
-        "RequestId": "ef0fa02f-0491-4f19-9188-2480b55e33c8",
+        "RequestId": "24cfdc94-04e9-438a-a44c-7fd0ffd8e78d",
         "HTTPStatusCode": 200,
         "HTTPHeaders": {
-            "x-amzn-requestid": "ef0fa02f-0491-4f19-9188-2480b55e33c8",
+            "x-amzn-requestid": "24cfdc94-04e9-438a-a44c-7fd0ffd8e78d",
             "cache-control": "no-cache, no-store",
             "strict-transport-security": "max-age=31536000; includeSubDomains",
             "vary": "accept-encoding",
             "content-type": "text/xml;charset=UTF-8",
             "transfer-encoding": "chunked",
-            "date": "Sun, 02 Mar 2025 21:46:22 GMT",
+            "date": "Sat, 15 Mar 2025 09:21:20 GMT",
             "server": "AmazonEC2"
         },
         "RetryAttempts": 0

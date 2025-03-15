@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 import os
 import shutil
 import sys
-
+from Load_Pulumi_Outputs import get_pulumi_output
 
 # Initialize AWS clients
 iam_client = boto3.client("iam")
@@ -125,6 +125,35 @@ class Cleanup:
             self.delete_user()
             print("\nCleanup completed successfully!")
 
+        @classmethod
+        def list_matching_users(cls, prefix):
+            """Fetch all IAM users and return a list of users containing the prefix"""
+            iam_client = boto3.client("iam")
+            try:
+                users = iam_client.list_users()["Users"]
+                matching_users = [user["UserName"] for user in users if prefix in user["UserName"]]
+                return matching_users
+            except Exception as e:
+                print(f"ERROR: Unable to list users: {e}")
+                return []
+
+
+        # Cleanup users matching 'run_while_u_can'
+        def cleanup_dynamic_users(self):
+            matching_users = self.list_matching_users()
+            if not matching_users:
+                print("No users found matching the pattern 'run_while_u_can'.")
+                return
+
+            print(f"Found {len(matching_users)} users matching 'run_while_u_can'.")
+            for user in matching_users:
+                clean_user = Cleanup.CleanUser(user=user)
+                clean_user.execute_cleanup()
+                print("\n\n\n")
+                print(f"Deleted all information for `{user}`.")
+                print("\n\n\n")
+
+
 
 
 class AWSProfileCleanup:
@@ -187,7 +216,7 @@ class SystemCacheCleanup:
             for dir_name in dirs:
                 if dir_name == "__pycache__":
                     shutil.rmtree(os.path.join(root, dir_name))
-        print("✅ Python cache cleared.")
+        print("Python cache cleared.")
 
 
 def delete_enum_folder():
@@ -203,7 +232,7 @@ def delete_enum_folder():
 
 def delete_s3_exfil_folder():
     """Delete s3_Exfiltration folder"""
-    s3_exfil = "/workspaces/Pulumi/s3_Exfiltration"
+    s3_exfil = "/workspaces/Pulumi/Infra/s3_Exfiltration"
     if os.path.exists(s3_exfil):
         print(f"\nDeleting {s3_exfil} and all its contents...")
         shutil.rmtree(s3_exfil)
@@ -215,7 +244,7 @@ def delete_s3_exfil_folder():
 
 def delete_dynamo_exfil_folder():
     """Delete DynamoDB_Exfiltration folder"""
-    dynamo_exfil = "/workspaces/Pulumi/DynamoDB_Exfiltration"
+    dynamo_exfil = "/workspaces/Pulumi/Infra/DynamoDB_Exfiltration"
     if os.path.exists(dynamo_exfil):
         print(f"\nDeleting {dynamo_exfil} and all its contents...")
         shutil.rmtree(dynamo_exfil)
@@ -225,34 +254,195 @@ def delete_dynamo_exfil_folder():
 
 
 
+def delete_too_late_table():
+    """Deletes the 'too_late' DynamoDB table if it exists."""
+    table_name = "too_late"
+
+    try:
+        # Check if the table exists
+        response = dynamodb_client.describe_table(TableName=table_name)
+        print(f"Table '{table_name}' exists. Proceeding with deletion...")
+
+        # Delete the table
+        dynamodb_client.delete_table(TableName=table_name)
+        print(f"Deleting table: {table_name}...")
+
+        # Wait for the table to be fully deleted
+        while True:
+            try:
+                dynamodb_client.describe_table(TableName=table_name)
+                time.sleep(5)  # Wait and retry
+            except dynamodb_client.exceptions.ResourceNotFoundException:
+                print(f"Table '{table_name}' fully deleted.")
+                break
+    except dynamodb_client.exceptions.ResourceNotFoundException:
+        print(f"No table named '{table_name}' found. Skipping deletion.")
+
+
+
+
+
+# def full_cleanup():
+#     """ 
+#          Deploys cleanup opposote of run time sequence.
+#           First, attack python wrapper - boto3
+#           Then, all pulumi infra resource roll outs - pulumi
+#     """
+
+#     print("\n\n\n")
+#     print("Starting Full Attack & Deployment Cleanup\n")
+#     print("\n\n\n")
+
+
+#     ###
+#     ### Need to refractor to make user intake more clean & modular
+#     ###
+#     devops_user_user_arn = get_pulumi_output("devops_user_arn")
+#     devops_user = devops_user_user_arn.split("/")[-1]  # Extracts the username
+#     clean_user = Cleanup.CleanUser(user=devops_user)
+#     clean_user.execute_cleanup()
+#     print("\n\n\n")
+#     print("Deleted all DevopsUser information")
+#     print("\n\n\n")
+
+
+
+#     devops_monitor_user_arn = get_pulumi_output("devops_monitor_arn")
+#     devops_monitor = devops_monitor_user_arn.split("/")[-1]  # Extracts the username
+#     clean_user = Cleanup.CleanUser(user=devops_user)
+#     clean_user = Cleanup.CleanUser(user=devops_monitor)
+#     clean_user.execute_cleanup()
+#     print("\n\n\n")
+#     print("Deleted all DevopsMonitor information")
+#     print("\n\n\n")
+
+
+
+#     devops_automation_user_arn = get_pulumi_output("devops_automation_arn")
+#     devops_automation = devops_automation_user_arn.split("/")[-1]  # Extracts the username
+#     clean_user = Cleanup.CleanUser(user=devops_user)
+#     clean_user = Cleanup.CleanUser(user=devops_automation)
+#     clean_user.execute_cleanup()
+#     print("\n\n\n")
+#     print("Deleted all DevopsAutomation information")
+#     print("\n\n\n")
+
+
+
+#     devops_deploy_user_arn = get_pulumi_output("devops_deploy_arn")
+#     devops_deploy = devops_deploy_user_arn.split("/")[-1]  # Extracts the username
+#     clean_user = Cleanup.CleanUser(user=devops_user)
+#     clean_user = Cleanup.CleanUser(user=devops_deploy)
+#     clean_user.execute_cleanup()
+#     print("\n\n\n")
+#     print("Deleted all DevopsPipeline information")
+#     print("\n\n\n")
+
+
+#     devops_pipeline_user_arn = get_pulumi_output("devops_pipeline_arn")
+#     devops_pipeline = devops_pipeline_user_arn.split("/")[-1]  # Extracts the username
+#     clean_user = Cleanup.CleanUser(user=devops_user)
+#     clean_user = Cleanup.CleanUser(user=devops_pipeline)
+#     clean_user.execute_cleanup()
+#     print("\n\n\n")
+#     print("Deleted all DevopsDeploy information")
+#     print("\n\n\n")
+
+#     clean_user = Cleanup.CleanUser(user="run_while_u_can")
+#     clean_user.execute_cleanup()
+#     print("\n\n\n")
+#     print("Deleted all run_while_u_can information")
+#     print("\n\n\n")
+
+#     # Cleanup AWS credentials, profiles, and cache
+#     AWSProfileCleanup.clear_env_vars()
+#     AWSProfileCleanup.remove_aws_profiles()
+#     AWSProfileCleanup.clear_aws_cache()
+#     print("\n\n\n")
+#     print("Deleted AWS env_vars, profiles, & cache")
+#     print("\n\n\n")
+
+#     # Delete attack results
+#     delete_enum_folder()
+#     delete_s3_exfil_folder()
+#     delete_dynamo_exfil_folder
+#     print("\n\n\n")
+#     print("Deleted Attack Results Folder")
+#     print("\n\n\n")
+
+#     # Verify cleanup
+#     AWSProfileCleanup.verify_cleanup()
+#     print("\n\n\n")
+#     print("Post Deploymenyt Cleanup verified successfully")
+#     print("\n\n\n")
+
+#     # Entering 
+#     subprocess.call("cd /workspaces/Pulumi/Infra && pulumi refresh -s dev -y", shell=True)
+#     subprocess.call("cd /workspaces/Pulumi/Infra && pulumi destroy -s dev -y", shell=True)
+#     print("\n\n\n")
+#     print("Pulumi Deployment cleaned up successfully")
+#     print("\n\n\n")
+
+#     print("\n\n\n")
+#     print("And just like that the attack and deployment vanished :)")
+#     print("\n\n\n")
+
+#     print('Running: "pulumi stack output --json | jq" to make sure all Infra is destroyed')
+#     subprocess.call("cd /workspaces/Pulumi/Infra && pulumi stack output --json | jq", shell=True)
+
 def full_cleanup():
     """ 
-         Deploys cleanup opposote of run time sequence.
-          First, attack python wrapper - boto3
-          Then, all pulumi infra resource roll outs - pulumi
+    Deploys cleanup opposite of run time sequence.
+    First, attack python wrapper - boto3
+    Then, all pulumi infra resource rollouts - pulumi
     """
 
     print("\n\n\n")
     print("Starting Full Attack & Deployment Cleanup\n")
     print("\n\n\n")
 
-
-    ###
-    ### Need to refractor to make user intake more clean & modular
-    ###
-    clean_user = Cleanup.CleanUser(user="DevopsUser")
-    clean_user.execute_cleanup()
+    # Step 1: Delete the ransomware table ("too_late")
+    delete_too_late_table()
     print("\n\n\n")
-    print("Deleted all DevopsUser information")
+    print("Deleted 'too_late' table from DynamoDB")
     print("\n\n\n")
 
-    clean_user = Cleanup.CleanUser(user="run_while_u_can")
-    clean_user.execute_cleanup()
-    print("\n\n\n")
-    print("Deleted all run_while_u_can information")
-    print("\n\n\n")
+    # Step 2: Cleanup DevOps Users
+    users = [
+        "devops_user_arn",
+        "devops_monitor_arn",
+        "devops_automation_arn",
+        "devops_deploy_arn",
+        "devops_pipeline_arn"
+    ]
 
-    # Cleanup AWS credentials, profiles, and cache
+    for user_key in users:
+        user_arn = get_pulumi_output(user_key)
+        user = user_arn.split("/")[-1]  # Extracts the username
+        clean_user = Cleanup.CleanUser(user=user)
+        clean_user.execute_cleanup()
+        print(f"\n\n\nDeleted all {user} information\n\n\n")
+
+
+    # Step 3: Cleanup additional IAM user
+    # clean_user = Cleanup.CleanUser(user="run_while_u_can")
+    # clean_user.execute_cleanup()
+    # print("\n\n\n")
+    # print("Deleted all run_while_u_can information")
+    # print("\n\n\n")
+    #list_users = Cleanup.CleanUser.list_matching_users()
+    run_while_u_can = Cleanup.CleanUser.list_matching_users(prefix="run_while_u_can")
+    if run_while_u_can:
+        print(f"Found {len(run_while_u_can)} users matching 'run_while_u_can'.")
+        for user in run_while_u_can:
+            clean_user = Cleanup.CleanUser(user=user)
+            clean_user.execute_cleanup()
+            print(f"Deleted all information for `{user}`.")
+    else:
+        print("No users found matching 'run_while_u_can'.")
+
+
+    # Step 4: Cleanup AWS credentials, profiles, and cache
     AWSProfileCleanup.clear_env_vars()
     AWSProfileCleanup.remove_aws_profiles()
     AWSProfileCleanup.clear_aws_cache()
@@ -260,21 +450,21 @@ def full_cleanup():
     print("Deleted AWS env_vars, profiles, & cache")
     print("\n\n\n")
 
-    # Delete attack results
+    # Step 5: Delete Attack Artifacts
     delete_enum_folder()
     delete_s3_exfil_folder()
-    delete_dynamo_exfil_folder
+    delete_dynamo_exfil_folder()
     print("\n\n\n")
     print("Deleted Attack Results Folder")
     print("\n\n\n")
 
-    # Verify cleanup
+    # Step 6: Verify cleanup
     AWSProfileCleanup.verify_cleanup()
     print("\n\n\n")
-    print("Post Deploymenyt Cleanup verified successfully")
+    print("Post Deployment Cleanup verified successfully")
     print("\n\n\n")
 
-    # Entering 
+    # Step 7: Destroy Pulumi Deployment
     subprocess.call("cd /workspaces/Pulumi/Infra && pulumi refresh -s dev -y", shell=True)
     subprocess.call("cd /workspaces/Pulumi/Infra && pulumi destroy -s dev -y", shell=True)
     print("\n\n\n")
@@ -282,11 +472,14 @@ def full_cleanup():
     print("\n\n\n")
 
     print("\n\n\n")
-    print("And just like that the attack and deployment vanished :)")
+    print("And just like that, the attack and deployment vanished :)")
     print("\n\n\n")
 
+    print('Running: "pulumi stack output --json | jq" to make sure all Infra is destroyed')
+    subprocess.call("cd /workspaces/Pulumi/Infra && pulumi stack output --json | jq", shell=True)
 
 
 
 
-#full_cleanup()
+
+full_cleanup()

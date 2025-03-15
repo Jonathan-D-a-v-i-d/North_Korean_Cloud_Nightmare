@@ -3,9 +3,9 @@
         {
             "Path": "/",
             "UserName": "AdminUser",
-            "UserId": "AIDAXTORPWZ7E4JYE2CK4",
+            "UserId": "AIDAXTORPWZ7NOU2I5OFD",
             "Arn": "arn:aws:iam::522814731902:user/AdminUser",
-            "CreateDate": "2025-03-02 21:44:40+00:00"
+            "CreateDate": "2025-03-15 09:19:24+00:00"
         },
         {
             "Path": "/",
@@ -44,17 +44,38 @@
         },
         {
             "Path": "/",
-            "UserName": "DevopsUser",
-            "UserId": "AIDAXTORPWZ7LKSWLM2MB",
-            "Arn": "arn:aws:iam::522814731902:user/DevopsUser",
-            "CreateDate": "2025-03-02 21:44:40+00:00"
+            "UserName": "DevopsAutomation-7f7e2b3",
+            "UserId": "AIDAXTORPWZ7LLGQEWZK7",
+            "Arn": "arn:aws:iam::522814731902:user/DevopsAutomation-7f7e2b3",
+            "CreateDate": "2025-03-15 09:19:25+00:00"
         },
         {
             "Path": "/",
-            "UserName": "DevTeamDeveloper",
-            "UserId": "AIDAXTORPWZ7LSPSWNS7O",
-            "Arn": "arn:aws:iam::522814731902:user/DevTeamDeveloper",
-            "CreateDate": "2025-03-02 20:35:40+00:00"
+            "UserName": "DevopsDeploy-8f2607f",
+            "UserId": "AIDAXTORPWZ7AVYRHHYPW",
+            "Arn": "arn:aws:iam::522814731902:user/DevopsDeploy-8f2607f",
+            "CreateDate": "2025-03-15 09:19:25+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "DevopsMonitor-cc53790",
+            "UserId": "AIDAXTORPWZ7MIA33M4ZY",
+            "Arn": "arn:aws:iam::522814731902:user/DevopsMonitor-cc53790",
+            "CreateDate": "2025-03-15 09:19:25+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "DevopsPipeline-8d6a82d",
+            "UserId": "AIDAXTORPWZ7CR3ROR6UP",
+            "Arn": "arn:aws:iam::522814731902:user/DevopsPipeline-8d6a82d",
+            "CreateDate": "2025-03-15 09:19:26+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "DevopsUser-871957c",
+            "UserId": "AIDAXTORPWZ7MFQD5A4M6",
+            "Arn": "arn:aws:iam::522814731902:user/DevopsUser-871957c",
+            "CreateDate": "2025-03-15 09:19:28+00:00"
         },
         {
             "Path": "/",
@@ -146,17 +167,24 @@
             "UserId": "AIDAXTORPWZ7O4U6INZQA",
             "Arn": "arn:aws:iam::522814731902:user/xdr_labs_route53",
             "CreateDate": "2024-11-26 10:20:21+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "XSIAM-SE-Demo_Cloudtrail_Logging",
+            "UserId": "AIDAXTORPWZ7IL3NU66YJ",
+            "Arn": "arn:aws:iam::522814731902:user/XSIAM-SE-Demo_Cloudtrail_Logging",
+            "CreateDate": "2025-03-05 09:56:41+00:00"
         }
     ],
     "IsTruncated": false,
     "ResponseMetadata": {
-        "RequestId": "df2d74b2-c330-402b-813d-a0edb37b550d",
+        "RequestId": "7e182d14-f544-4c21-83cd-3bd10ed04315",
         "HTTPStatusCode": 200,
         "HTTPHeaders": {
-            "date": "Sun, 02 Mar 2025 21:46:21 GMT",
-            "x-amzn-requestid": "df2d74b2-c330-402b-813d-a0edb37b550d",
+            "date": "Sat, 15 Mar 2025 09:21:19 GMT",
+            "x-amzn-requestid": "7e182d14-f544-4c21-83cd-3bd10ed04315",
             "content-type": "text/xml",
-            "content-length": "5689"
+            "content-length": "6855"
         },
         "RetryAttempts": 0
     }
