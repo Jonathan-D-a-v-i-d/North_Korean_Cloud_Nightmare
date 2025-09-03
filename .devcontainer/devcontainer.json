@@ -1,0 +1,37 @@
+{
+  "name": "North Korean Cloud Nightmare",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "..",
+    "args": {
+      "VARIANT": "3.11"
+    }
+  },
+  "features": {
+    // Add common devcontainer features if you like, e.g. GitHub CLI
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  },
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "python.defaultInterpreterPath": "/usr/local/bin/python"
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "bash .devcontainer/post-start.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "hashicorp.terraform",
+        "ms-azuretools.vscode-docker",
+        "github.vscode-github-actions"
+      ]
+    }
+  },
+  "remoteUser": "vscode",
+  "updateContentCommand": "",
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb"
+  }
+}
