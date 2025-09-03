@@ -25,6 +25,12 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/aws
 RUN curl -fsSL https://get.pulumi.com | sh \
  && ln -s /root/.pulumi/bin/pulumi /usr/local/bin/pulumi
 
+# Pre-install Python dependencies (cached by Docker layer)
+WORKDIR /workspaces/nkcn
+COPY requirements.txt /tmp/requirements.txt
+RUN if [ -f /tmp/requirements.txt ]; then pip install --no-cache-dir -r /tmp/requirements.txt; fi
+
+
 # Python deps (install your repo’s requirements if present)
 # Copy just requirements first for better Docker layer caching
 WORKDIR /workspaces/nkcn
