@@ -1,23 +1,19 @@
-# Base: official devcontainers Python image (keeps things small & reliable)
+# Base: official devcontainers Python image (multi-arch)
 ARG VARIANT=3.11
 FROM mcr.microsoft.com/devcontainers/python:${VARIANT}
 
 ARG TARGETARCH
-# Avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
-# System deps + helpful tools
+# System deps + tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates apt-transport-https gnupg lsb-release \
     jq unzip zip make git bash-completion gnupg2 \
-    # oathtool (TOTP)
     oathtool \
-    # Node/npm in case you need small CLIs later
     nodejs npm \
     && rm -rf /var/lib/apt/lists/*
 
 # --- AWS CLI v2 (multi-arch) ---
-# Map devcontainers TARGETARCH -> AWS arch labels
 RUN case "${TARGETARCH}" in \
       "amd64") AWS_ARCH="x86_64" ;; \
       "arm64") AWS_ARCH="aarch64" ;; \
@@ -28,24 +24,19 @@ RUN case "${TARGETARCH}" in \
  && /tmp/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli \
  && rm -rf /tmp/aws /tmp/awscliv2.zip
 
-# Pulumi (latest stable)
+# Pulumi (installer auto-detects arch)
 RUN curl -fsSL https://get.pulumi.com | sh \
- && ln -s /root/.pulumi/bin/pulumi /usr/local/bin/pulumi
+ && ln -sf /root/.pulumi/bin/pulumi /usr/local/bin/pulumi
 
-# Pre-install Python dependencies (cached by Docker layer)
-WORKDIR /workspaces/nkcn
+# Optional: make aws completion resilient (v2 path can vary)
+RUN if command -v aws_completer >/dev/null 2>&1; then \
+      echo "complete -C '$(command -v aws_completer)' aws" >> /etc/bash.bashrc; \
+    fi
+
+# Pre-install Python deps for layer caching (copy only requirements to leverage cache)
+WORKDIR /tmp
 COPY requirements.txt /tmp/requirements.txt
 RUN if [ -f /tmp/requirements.txt ]; then pip install --no-cache-dir -r /tmp/requirements.txt; fi
 
-
-# Python deps (install your repo’s requirements if present)
-# Copy just requirements first for better Docker layer caching
-WORKDIR /workspaces/nkcn
-COPY requirements.txt /tmp/requirements.txt
-RUN if [ -f /tmp/requirements.txt ]; then pip install --no-cache-dir -r /tmp/requirements.txt; fi
-
-# Optional: AWS helper completions
-RUN echo "complete -C '/usr/local/bin/aws_completer' aws" >> /etc/bash.bashrc
-
-# Default back to repo workspace when Codespace attaches
-WORKDIR /workspaces/nkcn
+# Default workspace matches how Dev Containers mounts your repo
+WORKDIR /workspaces/North_Korean_Cloud_Nightmare
