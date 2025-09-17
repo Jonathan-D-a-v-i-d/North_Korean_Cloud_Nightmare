@@ -1,13 +1,15 @@
+# Make VARIANT visible to *all* FROM statements
+ARG VARIANT=3.11
+
 # ---- Stage 0: grab a Pulumi binary (multi-arch) ----------------------------
 FROM pulumi/pulumi:latest AS pulumi_src
-# (Binary is at /usr/local/bin/pulumi in this image)
 
-# Base: official devcontainers Python image (multi-arch)
-ARG VARIANT=3.11
+# ---- Stage 1: your devcontainer base ---------------------------------------
 FROM mcr.microsoft.com/devcontainers/python:${VARIANT}
 
 ARG TARGETARCH
 ENV DEBIAN_FRONTEND=noninteractive
+
 
 # System deps + tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
