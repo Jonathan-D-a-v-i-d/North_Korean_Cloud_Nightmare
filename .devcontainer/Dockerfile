@@ -24,11 +24,26 @@ RUN case "${TARGETARCH}" in \
  && /tmp/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli \
  && rm -rf /tmp/aws /tmp/awscliv2.zip
 
-# --- Pulumi (apt repo, multi-arch, system-wide) ---
+# --- Pulumi (APT first; fallback to tarball; system-wide) ---
 RUN curl -fsSL https://get.pulumi.com/apt/pubkey.gpg | gpg --dearmor -o /usr/share/keyrings/pulumi-archive-keyring.gpg \
  && echo "deb [signed-by=/usr/share/keyrings/pulumi-archive-keyring.gpg] https://get.pulumi.com/apt stable main" > /etc/apt/sources.list.d/pulumi.list \
- && apt-get update && apt-get install -y pulumi \
- && rm -rf /var/lib/apt/lists/*
+ && apt-get update && apt-get install -y pulumi || true
+
+ARG TARGETARCH
+RUN if ! command -v pulumi >/dev/null 2>&1; then \
+      case "${TARGETARCH}" in \
+        "amd64") P_ARCH="x64" ;; \
+        "arm64") P_ARCH="arm64" ;; \
+        *) echo "Unsupported TARGETARCH: ${TARGETARCH}" && exit 1 ;; \
+      esac ; \
+      P_VER="$(curl -s https://www.pulumi.com/latest-version)"; \
+      curl -L "https://get.pulumi.com/releases/sdk/pulumi-v${P_VER}-linux-${P_ARCH}.tar.gz" -o /tmp/pulumi.tgz; \
+      tar -xzf /tmp/pulumi.tgz -C /opt; \
+      ln -sf /opt/pulumi/pulumi /usr/local/bin/pulumi; \
+      rm -f /tmp/pulumi.tgz; \
+    fi \
+ && pulumi version
+
 
 
 # Optional: make aws completion resilient (v2 path can vary)
