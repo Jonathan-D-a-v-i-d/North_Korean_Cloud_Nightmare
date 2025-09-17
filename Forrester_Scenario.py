@@ -164,7 +164,7 @@ def ensure_pulumi_deployment():
 if __name__ == "__main__":
     # print("Starting Infrastructure Deployment...")
 
-    time.sleep(300)
+    #time.sleep(300)
 
     print("\n\n\n") 
     print("Executing Pulumi Deployment...")
