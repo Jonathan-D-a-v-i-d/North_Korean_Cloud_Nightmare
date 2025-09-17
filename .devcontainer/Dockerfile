@@ -2,6 +2,7 @@
 ARG VARIANT=3.11
 FROM mcr.microsoft.com/devcontainers/python:${VARIANT}
 
+ARG TARGETARCH
 # Avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -15,10 +16,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nodejs npm \
     && rm -rf /var/lib/apt/lists/*
 
-# AWS CLI v2 (official)
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip" \
+# --- AWS CLI v2 (multi-arch) ---
+# Map devcontainers TARGETARCH -> AWS arch labels
+RUN case "${TARGETARCH}" in \
+      "amd64") AWS_ARCH="x86_64" ;; \
+      "arm64") AWS_ARCH="aarch64" ;; \
+      *) echo "Unsupported TARGETARCH: ${TARGETARCH}" && exit 1 ;; \
+    esac \
+ && curl -L "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" -o "/tmp/awscliv2.zip" \
  && unzip /tmp/awscliv2.zip -d /tmp \
- && /tmp/aws/install \
+ && /tmp/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli \
  && rm -rf /tmp/aws /tmp/awscliv2.zip
 
 # Pulumi (latest stable)
