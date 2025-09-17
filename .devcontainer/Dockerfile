@@ -1,3 +1,7 @@
+# ---- Stage 0: grab a Pulumi binary (multi-arch) ----------------------------
+FROM pulumi/pulumi:latest AS pulumi_src
+# (Binary is at /usr/local/bin/pulumi in this image)
+
 # Base: official devcontainers Python image (multi-arch)
 ARG VARIANT=3.11
 FROM mcr.microsoft.com/devcontainers/python:${VARIANT}
@@ -24,32 +28,10 @@ RUN case "${TARGETARCH}" in \
  && /tmp/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli \
  && rm -rf /tmp/aws /tmp/awscliv2.zip
 
-# Make sure any extra certs provided by Dev Containers are activated before we curl anything.
-# (Harmless if none are present.)
-RUN update-ca-certificates || true
 
-# --- Pulumi (APT first; fallback to tarball; system-wide) ---
-# APT repo (multi-arch)
-RUN curl -fsSL https://get.pulumi.com/apt/pubkey.gpg | gpg --dearmor -o /usr/share/keyrings/pulumi-archive-keyring.gpg \
- && echo "deb [signed-by=/usr/share/keyrings/pulumi-archive-keyring.gpg] https://get.pulumi.com/apt stable main" > /etc/apt/sources.list.d/pulumi.list \
- && apt-get update && apt-get install -y pulumi || true
-
-# Fallback if apt didn’t land (handles SSL hiccups / repo issues)
-ARG TARGETARCH
-RUN if ! command -v pulumi >/dev/null 2>&1; then \
-      case "${TARGETARCH}" in \
-        "amd64") P_ARCH="x64" ;; \
-        "arm64") P_ARCH="arm64" ;; \
-        *) echo "Unsupported TARGETARCH: ${TARGETARCH}" && exit 1 ;; \
-      esac ; \
-      P_VER="$(curl -fsSL https://www.pulumi.com/latest-version)"; \
-      curl -fsSL --retry 5 --retry-connrefused --show-error \
-        "https://get.pulumi.com/releases/sdk/pulumi-v${P_VER}-linux-${P_ARCH}.tar.gz" -o /tmp/pulumi.tgz; \
-      tar -xzf /tmp/pulumi.tgz -C /opt; \
-      ln -sf /opt/pulumi/pulumi /usr/local/bin/pulumi; \
-      rm -f /tmp/pulumi.tgz; \
-    fi \
- && pulumi version
+# ✅ Pulumi: copy from the pulumi/pulumi image (no curl, no apt)
+COPY --from=pulumi_src /usr/local/bin/pulumi /usr/local/bin/pulumi
+RUN chmod 0755 /usr/local/bin/pulumi && pulumi version
 
 
 
