@@ -24,9 +24,12 @@ RUN case "${TARGETARCH}" in \
  && /tmp/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli \
  && rm -rf /tmp/aws /tmp/awscliv2.zip
 
-# Pulumi (installer auto-detects arch)
-RUN curl -fsSL https://get.pulumi.com | sh \
- && ln -sf /root/.pulumi/bin/pulumi /usr/local/bin/pulumi
+# --- Pulumi (apt repo, multi-arch, system-wide) ---
+RUN curl -fsSL https://get.pulumi.com/apt/pubkey.gpg | gpg --dearmor -o /usr/share/keyrings/pulumi-archive-keyring.gpg \
+ && echo "deb [signed-by=/usr/share/keyrings/pulumi-archive-keyring.gpg] https://get.pulumi.com/apt stable main" > /etc/apt/sources.list.d/pulumi.list \
+ && apt-get update && apt-get install -y pulumi \
+ && rm -rf /var/lib/apt/lists/*
+
 
 # Optional: make aws completion resilient (v2 path can vary)
 RUN if command -v aws_completer >/dev/null 2>&1; then \
