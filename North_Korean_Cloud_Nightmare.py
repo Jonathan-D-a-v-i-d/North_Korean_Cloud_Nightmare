@@ -571,12 +571,42 @@ def forrester_scenario_validate_data():
     print("\nPost-Deployment Data Validation Complete!")
 
 
+def print_banner():
+    """Print the North Korean flag banner"""
+    flag = """
+    ⭐    ████████████████████████████████████████
+         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+         ████████████████████████████████████████
+         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+         ████████████████████████████████████████
+    """
+
+    print(colored("═" * 70, "red"))
+    print(colored("    NORTH KOREAN CLOUD NIGHTMARE", "red", attrs=["bold"]))
+    print(colored(flag, "red"))
+    print(colored("  Advanced Persistent Threat Simulation Platform", "white", attrs=["bold"]))
+    print(colored("═" * 70, "red"))
+
+
+class CustomHelpFormatter(argparse.RawDescriptionHelpFormatter):
+    """Custom help formatter with improved layout"""
+    pass
+
+
 def main():
     """Main function with argument parsing"""
     parser = argparse.ArgumentParser(
-        description="North Korean Cloud Nightmare - Infrastructure Deployment and Attack Simulation",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="Infrastructure Deployment and Attack Simulation",
+        formatter_class=CustomHelpFormatter,
         epilog="""
+Commands:
+  setup                   - Validate environment and configure credentials
+  deploy_infrastructure   - Deploy AWS infrastructure for the scenario
+  launch_attack          - Execute the attack simulation (requires infrastructure)
+  execute_full_scenario  - Deploy infrastructure then launch attack
+  clean_up              - Remove all deployed infrastructure and artifacts
+  show_deployed_resources - Display current Pulumi stack outputs in JSON format
+
 Examples:
   python North_Korean_Cloud_Nightmare.py setup
   python North_Korean_Cloud_Nightmare.py deploy_infrastructure
@@ -601,26 +631,19 @@ For more information, see the README.md file.
         help="Enable verbose output"
     )
 
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit(1)
+    # Check if help is requested or no arguments
+    if len(sys.argv) == 1 or any(arg in ['-h', '--help'] for arg in sys.argv):
+        print_banner()
+        print()
+        if len(sys.argv) == 1:
+            parser.print_help()
+            sys.exit(1)
 
     args = parser.parse_args()
 
-    # Print banner with North Korean flag ASCII art
-    flag = """
-    ⭐    ████████████████████████████████████████
-         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-         ████████████████████████████████████████
-         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-         ████████████████████████████████████████
-    """
-
-    print(colored("═" * 70, "red"))
-    print(colored("    NORTH KOREAN CLOUD NIGHTMARE", "red", attrs=["bold"]))
-    print(colored(flag, "red"))
-    print(colored("  Advanced Persistent Threat Simulation Platform", "white", attrs=["bold"]))
-    print(colored("═" * 70, "red"))
+    # Print banner for actual commands (help already handled above)
+    if not any(arg in ['-h', '--help'] for arg in sys.argv):
+        print_banner()
 
     # Execute the requested command
     success = False
