@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import os
 import shutil
 import sys
+from termcolor import colored
 from Load_Pulumi_Outputs import get_infrastructure_output
 
 # Initialize AWS clients
@@ -32,7 +33,7 @@ class Cleanup:
             try:
                 response = self.iam_client.list_mfa_devices(UserName=self.user)
                 for device in response.get("MFADevices", []):
-                    print(f" Deactivating and deleting MFA device: {device['SerialNumber']}")
+                    print(colored(f"  [CLEANUP] Deactivating and deleting MFA device: {device['SerialNumber']}", "yellow"))
                     self.iam_client.deactivate_mfa_device(
                         UserName=self.user, SerialNumber=device["SerialNumber"]
                     )
@@ -40,29 +41,29 @@ class Cleanup:
                         SerialNumber=device["SerialNumber"]
                     )
             except Exception as e:
-                print(f"ERROR: Failed to remove MFA devices: {e}")
+                print(colored(f"[ERROR] Failed to remove MFA devices: {e}", "red"))
 
         def delete_access_keys(self):
             """ Delete all access keys for the user"""
             try:
                 response = self.iam_client.list_access_keys(UserName=self.user)
                 for key in response.get("AccessKeyMetadata", []):
-                    print(f" Deleting access key: {key['AccessKeyId']}")
+                    print(colored(f"  [CLEANUP] Deleting access key: {key['AccessKeyId']}", "yellow"))
                     self.iam_client.delete_access_key(
                         UserName=self.user, AccessKeyId=key["AccessKeyId"]
                     )
             except Exception as e:
-                print(f"ERROR: Failed to delete access keys: {e}")
+                print(colored(f"[ERROR] Failed to delete access keys: {e}", "red"))
 
         def delete_login_profile(self):
             """ Delete IAM Console Login Profile"""
             try:
-                print(f"Deleting login profile for `{self.user}` (if exists)...")
+                print(colored(f"  [CLEANUP] Deleting login profile for `{self.user}` (if exists)...", "yellow"))
                 self.iam_client.delete_login_profile(UserName=self.user)
             except self.iam_client.exceptions.NoSuchEntityException:
-                print(f"No login profile found for `{self.user}`.")
+                print(colored(f"  [INFO] No login profile found for `{self.user}`.", "cyan"))
             except Exception as e:
-                print(f"ERROR: Failed to delete login profile: {e}")
+                print(colored(f"[ERROR] Failed to delete login profile: {e}", "red"))
 
 
 
@@ -71,12 +72,12 @@ class Cleanup:
             try:
                 response = self.iam_client.list_attached_user_policies(UserName=self.user)
                 for policy in response.get("AttachedPolicies", []):
-                    print(f"Detaching policy: {policy['PolicyArn']}")
+                    print(colored(f"  [CLEANUP] Detaching policy: {policy['PolicyArn']}", "yellow"))
                     self.iam_client.detach_user_policy(
                         UserName=self.user, PolicyArn=policy["PolicyArn"]
                     )
             except Exception as e:
-                print(f"ERROR: Failed to detach policies: {e}")
+                print(colored(f"[ERROR] Failed to detach policies: {e}", "red"))
 
 
         def delete_inline_policies(self):
@@ -84,10 +85,10 @@ class Cleanup:
             try:
                 response = self.iam_client.list_user_policies(UserName=self.user)
                 for policy_name in response.get("PolicyNames", []):
-                    print(f" Deleting inline policy `{policy_name}` from `{self.user}`...")
+                    print(colored(f"  [CLEANUP] Deleting inline policy `{policy_name}` from `{self.user}`...", "yellow"))
                     self.iam_client.delete_user_policy(UserName=self.user, PolicyName=policy_name)
             except Exception as e:
-                print(f"ERROR: Failed to delete inline policies: {e}")
+                print(colored(f"[ERROR] Failed to delete inline policies: {e}", "red"))
 
 
 
@@ -97,33 +98,33 @@ class Cleanup:
             try:
                 response = self.iam_client.list_groups_for_user(UserName=self.user)
                 for group in response.get("Groups", []):
-                    print(f" Removing `{self.user}` from group: {group['GroupName']}")
+                    print(colored(f"  [CLEANUP] Removing `{self.user}` from group: {group['GroupName']}", "yellow"))
                     self.iam_client.remove_user_from_group(
                         UserName=self.user, GroupName=group["GroupName"]
                     )
             except Exception as e:
-                print(f"ERROR: Failed to remove user from groups: {e}")
+                print(colored(f"[ERROR] Failed to remove user from groups: {e}", "red"))
 
         def delete_user(self):
             """Final step: Delete IAM user"""
             try:
-                print(f"\nDeleting IAM user: `{self.user}`...")
+                print(colored(f"\n  [CLEANUP] Deleting IAM user: `{self.user}`...", "yellow"))
                 self.iam_client.delete_user(UserName=self.user)
-                print(f"`{self.user}` deleted successfully!")
+                print(colored(f"  [SUCCESS] `{self.user}` deleted successfully!", "green"))
             except Exception as e:
-                print(f"ERROR: Failed to delete `{self.user}`: {e}")
+                print(colored(f"[ERROR] Failed to delete `{self.user}`: {e}", "red"))
 
         def execute_cleanup(self):
             """Full cleanup workflow for the user"""
-            print(f"\nStarting cleanup for `{self.user}`...")
+            print(colored(f"\n[PHASE] Starting cleanup for `{self.user}`...", "cyan", attrs=["bold"]))
             self.remove_mfa_devices()
             self.delete_access_keys()
             self.delete_login_profile()
             self.detach_policies()
-            self.delete_inline_policies() 
+            self.delete_inline_policies()
             self.remove_from_groups()
             self.delete_user()
-            print("\nCleanup completed successfully!")
+            print(colored("\n[SUCCESS] Cleanup completed successfully!", "green", attrs=["bold"]))
 
         @classmethod
         def list_matching_users(cls, prefix):
@@ -134,7 +135,7 @@ class Cleanup:
                 matching_users = [user["UserName"] for user in users if prefix in user["UserName"]]
                 return matching_users
             except Exception as e:
-                print(f"ERROR: Unable to list users: {e}")
+                print(colored(f"[ERROR] Unable to list users: {e}", "red"))
                 return []
 
 
@@ -142,16 +143,14 @@ class Cleanup:
         def cleanup_dynamic_users(self):
             matching_users = self.list_matching_users()
             if not matching_users:
-                print("No users found matching the pattern 'run_while_u_can'.")
+                print(colored("[INFO] No users found matching the pattern 'run_while_u_can'.", "cyan"))
                 return
 
-            print(f"Found {len(matching_users)} users matching 'run_while_u_can'.")
+            print(colored(f"[INFO] Found {len(matching_users)} users matching 'run_while_u_can'.", "cyan"))
             for user in matching_users:
                 clean_user = Cleanup.CleanUser(user=user)
                 clean_user.execute_cleanup()
-                print("\n\n\n")
-                print(f"Deleted all information for `{user}`.")
-                print("\n\n\n")
+                print(colored(f"\n[SUCCESS] Deleted all information for `{user}`.", "green", attrs=["bold"]))
 
 
 
@@ -163,18 +162,18 @@ class AWSProfileCleanup:
     @staticmethod
     def clear_env_vars():
         """Unset AWS environment variables"""
-        print("\n🧹 Clearing AWS environment variables...")
+        print(colored("\n[PHASE] Clearing AWS environment variables...", "cyan", attrs=["bold"]))
         for var in ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"]:
             os.environ.pop(var, None)
 
     @staticmethod
     def remove_aws_profiles():
         """Remove AWS CLI profiles from ~/.aws/credentials & ~/.aws/config"""
-        print("\nRemoving AWS CLI profiles...")
+        print(colored("\n[PHASE] Removing AWS CLI profiles...", "cyan", attrs=["bold"]))
 
         profiles = ["devopsuser", "run_while_u_can"]
         for profile in profiles:
-            print(f" Removing AWS profile: {profile}")
+            print(colored(f"  [CLEANUP] Removing AWS profile: {profile}", "yellow"))
             subprocess.run(f"aws configure set aws_access_key_id '' --profile {profile}", shell=True)
             subprocess.run(f"aws configure set aws_secret_access_key '' --profile {profile}", shell=True)
             subprocess.run(f"aws configure set aws_session_token '' --profile {profile}", shell=True)
@@ -183,23 +182,23 @@ class AWSProfileCleanup:
             subprocess.run(f"sed -i '/\\[{profile}\\]/,/^$/d' ~/.aws/credentials", shell=True)
             subprocess.run(f"sed -i '/\\[{profile}\\]/,/^$/d' ~/.aws/config", shell=True)
 
-        print("AWS profiles removed.")
+        print(colored("[SUCCESS] AWS profiles removed.", "green"))
 
     @staticmethod
     def clear_aws_cache():
         """Clear AWS CLI cache to prevent session conflicts"""
-        print("\n🧹 Clearing AWS CLI cache...")
+        print(colored("\n[PHASE] Clearing AWS CLI cache...", "cyan", attrs=["bold"]))
         aws_cache_dir = os.path.expanduser("~/.aws/cli/cache")
         if os.path.exists(aws_cache_dir):
             shutil.rmtree(aws_cache_dir)
-            print("AWS CLI cache cleared.")
+            print(colored("[SUCCESS] AWS CLI cache cleared.", "green"))
         else:
-            print("No AWS CLI cache found.")
+            print(colored("[INFO] No AWS CLI cache found.", "cyan"))
 
     @staticmethod
     def verify_cleanup():
         """Verify AWS cleanup"""
-        print("\nVerifying AWS cleanup...")
+        print(colored("\n[VERIFICATION] Verifying AWS cleanup...", "magenta", attrs=["bold"]))
         subprocess.run("aws configure list", shell=True)
         subprocess.run("aws sts get-caller-identity", shell=True)
 
@@ -211,34 +210,34 @@ class SystemCacheCleanup:
     @staticmethod
     def remove_python_cache():
         """Remove Python cache (`__pycache__` & compiled files)"""
-        print("\nRemoving Python cache...")
+        print(colored("\n[CLEANUP] Removing Python cache...", "yellow"))
         for root, dirs, files in os.walk("/workspaces/North_Korean_Cloud_Nightmare"):
             for dir_name in dirs:
                 if dir_name == "__pycache__":
                     shutil.rmtree(os.path.join(root, dir_name))
-        print("Python cache cleared.")
+        print(colored("[SUCCESS] Python cache cleared.", "green"))
 
 
 def delete_enum_folder():
     """Delete AWS_Enumeration folder"""
     enum_dir = "/workspaces/North_Korean_Cloud_Nightmare/AWS_Enumeration"
     if os.path.exists(enum_dir):
-        print(f"\nDeleting {enum_dir} and all its contents...")
+        print(colored(f"\n[CLEANUP] Deleting {enum_dir} and all its contents...", "yellow"))
         shutil.rmtree(enum_dir)
-        print("AWS_Enumeration folder deleted successfully!")
+        print(colored("[SUCCESS] AWS_Enumeration folder deleted successfully!", "green"))
     else:
-        print("No existing AWS_Enumeration folder found. Nothing to delete.")
+        print(colored("[INFO] No existing AWS_Enumeration folder found. Nothing to delete.", "cyan"))
 
 
 def delete_s3_exfil_folder():
     """Delete s3_Exfiltration folder"""
     s3_exfil = "/workspaces/North_Korean_Cloud_Nightmare/Infra/s3_Exfiltration"
     if os.path.exists(s3_exfil):
-        print(f"\nDeleting {s3_exfil} and all its contents...")
+        print(colored(f"\n[CLEANUP] Deleting {s3_exfil} and all its contents...", "yellow"))
         shutil.rmtree(s3_exfil)
-        print("s3_Exfiltration folder deleted successfully!")
+        print(colored("[SUCCESS] s3_Exfiltration folder deleted successfully!", "green"))
     else:
-        print("No existing s3_Exfiltration folder found. Nothing to delete.")
+        print(colored("[INFO] No existing s3_Exfiltration folder found. Nothing to delete.", "cyan"))
 
 
 
@@ -246,11 +245,11 @@ def delete_dynamo_exfil_folder():
     """Delete DynamoDB_Exfiltration folder"""
     dynamo_exfil = "/workspaces/North_Korean_Cloud_Nightmare/Infra/DynamoDB_Exfiltration"
     if os.path.exists(dynamo_exfil):
-        print(f"\nDeleting {dynamo_exfil} and all its contents...")
+        print(colored(f"\n[CLEANUP] Deleting {dynamo_exfil} and all its contents...", "yellow"))
         shutil.rmtree(dynamo_exfil)
-        print("DynamoDB_Exfiltration deleted successfully!")
+        print(colored("[SUCCESS] DynamoDB_Exfiltration deleted successfully!", "green"))
     else:
-        print("No existing DynamoDB_Exfiltration found. Nothing to delete.")
+        print(colored("[INFO] No existing DynamoDB_Exfiltration found. Nothing to delete.", "cyan"))
 
 
 
@@ -261,11 +260,11 @@ def delete_too_late_table():
     try:
         # Check if the table exists
         response = dynamodb_client.describe_table(TableName=table_name)
-        print(f"Table '{table_name}' exists. Proceeding with deletion...")
+        print(colored(f"[INFO] Table '{table_name}' exists. Proceeding with deletion...", "cyan"))
 
         # Delete the table
         dynamodb_client.delete_table(TableName=table_name)
-        print(f"Deleting table: {table_name}...")
+        print(colored(f"[CLEANUP] Deleting table: {table_name}...", "yellow"))
 
         # Wait for the table to be fully deleted
         while True:
@@ -273,10 +272,10 @@ def delete_too_late_table():
                 dynamodb_client.describe_table(TableName=table_name)
                 time.sleep(5)  # Wait and retry
             except dynamodb_client.exceptions.ResourceNotFoundException:
-                print(f"Table '{table_name}' fully deleted.")
+                print(colored(f"[SUCCESS] Table '{table_name}' fully deleted.", "green"))
                 break
     except dynamodb_client.exceptions.ResourceNotFoundException:
-        print(f"No table named '{table_name}' found. Skipping deletion.")
+        print(colored(f"[INFO] No table named '{table_name}' found. Skipping deletion.", "cyan"))
 
 
 
@@ -391,23 +390,25 @@ def delete_too_late_table():
 #     subprocess.call("cd /workspaces/North_Korean_Cloud_Nightmare/Infra && pulumi stack output --json | jq", shell=True)
 
 def full_cleanup():
-    """ 
+    """
     Deploys cleanup opposite of run time sequence.
     First, attack python wrapper - boto3
     Then, all infrastructure resource rollouts
     """
 
-    print("\n\n\n")
-    print("Starting Full Attack & Deployment Cleanup\n")
-    print("\n\n\n")
+    print(colored("═" * 60, "red"))
+    print(colored("      FULL ATTACK & DEPLOYMENT CLEANUP", "red", attrs=["bold"]))
+    print(colored("═" * 60, "red"))
 
     # Step 1: Delete the ransomware table ("too_late")
+    print(colored("\n[STEP 1] DynamoDB Ransomware Table Cleanup", "magenta", attrs=["bold"]))
+    print(colored("-" * 50, "magenta"))
     delete_too_late_table()
-    print("\n\n\n")
-    print("Deleted 'too_late' table from DynamoDB")
-    print("\n\n\n")
+    print(colored("\n[SUCCESS] Deleted 'too_late' table from DynamoDB\n", "green", attrs=["bold"]))
 
     # Step 2: Cleanup DevOps Users
+    print(colored("\n[STEP 2] DevOps User Cleanup", "magenta", attrs=["bold"]))
+    print(colored("-" * 50, "magenta"))
     users = [
         "devops_user_arn",
         "devops_monitor_arn",
@@ -421,61 +422,59 @@ def full_cleanup():
         user = user_arn.split("/")[-1]  # Extracts the username
         clean_user = Cleanup.CleanUser(user=user)
         clean_user.execute_cleanup()
-        print(f"\n\n\nDeleted all {user} information\n\n\n")
+        print(colored(f"\n[SUCCESS] Deleted all {user} information\n", "green", attrs=["bold"]))
 
 
     # Step 3: Cleanup additional IAM user
-    # clean_user = Cleanup.CleanUser(user="run_while_u_can")
-    # clean_user.execute_cleanup()
-    # print("\n\n\n")
-    # print("Deleted all run_while_u_can information")
-    # print("\n\n\n")
-    #list_users = Cleanup.CleanUser.list_matching_users()
+    print(colored("\n[STEP 3] Malicious User Cleanup", "magenta", attrs=["bold"]))
+    print(colored("-" * 50, "magenta"))
     run_while_u_can = Cleanup.CleanUser.list_matching_users(prefix="run_while_u_can")
     if run_while_u_can:
-        print(f"Found {len(run_while_u_can)} users matching 'run_while_u_can'.")
+        print(colored(f"[INFO] Found {len(run_while_u_can)} users matching 'run_while_u_can'.", "cyan"))
         for user in run_while_u_can:
             clean_user = Cleanup.CleanUser(user=user)
             clean_user.execute_cleanup()
-            print(f"Deleted all information for `{user}`.")
+            print(colored(f"[SUCCESS] Deleted all information for `{user}`.", "green", attrs=["bold"]))
     else:
-        print("No users found matching 'run_while_u_can'.")
+        print(colored("[INFO] No users found matching 'run_while_u_can'.", "cyan"))
 
 
     # Step 4: Cleanup AWS credentials, profiles, and cache
+    print(colored("\n[STEP 4] AWS Credentials & Profile Cleanup", "magenta", attrs=["bold"]))
+    print(colored("-" * 50, "magenta"))
     AWSProfileCleanup.clear_env_vars()
     AWSProfileCleanup.remove_aws_profiles()
     AWSProfileCleanup.clear_aws_cache()
-    print("\n\n\n")
-    print("Deleted AWS env_vars, profiles, & cache")
-    print("\n\n\n")
+    print(colored("\n[SUCCESS] Deleted AWS env_vars, profiles, & cache\n", "green", attrs=["bold"]))
 
     # Step 5: Delete Attack Artifacts
+    print(colored("\n[STEP 5] Attack Artifacts Cleanup", "magenta", attrs=["bold"]))
+    print(colored("-" * 50, "magenta"))
     delete_enum_folder()
     delete_s3_exfil_folder()
     delete_dynamo_exfil_folder()
-    print("\n\n\n")
-    print("Deleted Attack Results Folder")
-    print("\n\n\n")
+    print(colored("\n[SUCCESS] Deleted Attack Results Folders\n", "green", attrs=["bold"]))
 
     # Step 6: Verify cleanup
+    print(colored("\n[STEP 6] Post-Cleanup Verification", "magenta", attrs=["bold"]))
+    print(colored("-" * 50, "magenta"))
     AWSProfileCleanup.verify_cleanup()
-    print("\n\n\n")
-    print("Post Deployment Cleanup verified successfully")
-    print("\n\n\n")
+    print(colored("\n[SUCCESS] Post Deployment Cleanup verified successfully\n", "green", attrs=["bold"]))
 
     # Step 7: Destroy Infrastructure Deployment
+    print(colored("\n[STEP 7] Infrastructure Destruction", "magenta", attrs=["bold"]))
+    print(colored("-" * 50, "magenta"))
+    print(colored("[INFO] Refreshing Pulumi state...", "cyan"))
     subprocess.call("cd /workspaces/North_Korean_Cloud_Nightmare/Infra && pulumi refresh -s dev -y", shell=True)
+    print(colored("\n[INFO] Destroying infrastructure...", "cyan"))
     subprocess.call("cd /workspaces/North_Korean_Cloud_Nightmare/Infra && pulumi destroy -s dev -y", shell=True)
-    print("\n\n\n")
-    print("Infrastructure Deployment cleaned up successfully")
-    print("\n\n\n")
+    print(colored("\n[SUCCESS] Infrastructure Deployment cleaned up successfully\n", "green", attrs=["bold"]))
 
-    print("\n\n\n")
-    print("And just like that, the attack and deployment vanished :)")
-    print("\n\n\n")
+    print(colored("═" * 60, "green"))
+    print(colored("    CLEANUP COMPLETE - ATTACK VANISHED!", "green", attrs=["bold"]))
+    print(colored("═" * 60, "green"))
 
-    print('Running: "pulumi stack output --json | jq" to make sure all Infra is destroyed')
+    print(colored('\n[VERIFICATION] Running: "pulumi stack output --json | jq" to verify destruction', "magenta"))
     subprocess.call("cd /workspaces/North_Korean_Cloud_Nightmare/Infra && pulumi stack output --json | jq", shell=True)
 
 

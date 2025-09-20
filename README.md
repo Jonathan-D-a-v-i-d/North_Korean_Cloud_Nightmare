@@ -26,59 +26,16 @@ you can run this repo locally with **VS Code Dev Containers**:
 
 3. When prompted, click **"Reopen in Container"** to build the dev environment.
 
-## ⚙️ Configuration Setup
-
-Before running any scenarios, you need to configure your environment:
-
-### 1. AWS Configuration
-Set up your AWS credentials and region:
-
-```bash
-# Configure AWS CLI
-aws configure
-
-# Or set environment variables
-export AWS_ACCESS_KEY_ID=your_access_key
-export AWS_SECRET_ACCESS_KEY=your_secret_key
-export AWS_DEFAULT_REGION=us-east-1
-```
-
-### 2. Pulumi Configuration
-
-**Option A: Environment Variable (Recommended for CI/CD)**
-```bash
-# Get your token from https://app.pulumi.com/account/tokens
-export PULUMI_ACCESS_TOKEN=your_pulumi_token_here
-```
-
-**Option B: Interactive Login (Recommended for Development)**
-```bash
-# Login from the Infra directory
-cd Infra
-pulumi login
-cd ..
-```
-
-**Option C: Use Environment Setup Script (Recommended for Sales Engineers)**
-```bash
-# Interactive script that prompts for credentials and sets them up
-source setup-env.sh
-```
-
-**Option D: Use Built-in Setup Command (For validation)**
-```bash
-# This will guide you through the setup process
-python North_Korean_Cloud_Nightmare.py setup
-```
-
 ## ⚡ Quick Start for Sales Engineers
 
 1. **Set up credentials** (one-time setup):
    ```bash
    source setup-env.sh
    ```
+   This interactive script is built on top of `aws configure` and `pulumi login`.
+   You can also run those commands individually if preferred.
 
-2. **Validate environment**:
+   After credential setup, verify everything works:
    ```bash
    python North_Korean_Cloud_Nightmare.py setup
    ```
@@ -106,6 +63,7 @@ python North_Korean_Cloud_Nightmare.py <command>
 Available commands:
 - `setup` - Check and validate environment configuration (run this first!)
 - `deploy_infrastructure` - Deploy AWS infrastructure only
+- `show_deployed_resources` - Display current infrastructure resources in JSON format
 - `launch_attack` - Execute attack simulation (requires infrastructure)
 - `execute_full_scenario` - Deploy infrastructure and launch attack in sequence
 - `clean_up` - Remove all deployed infrastructure and artifacts
@@ -133,6 +91,12 @@ For demonstrations where you want to show the infrastructure first:
 
 ```bash
 python North_Korean_Cloud_Nightmare.py deploy_infrastructure
+```
+
+After deployment, view the created resources:
+
+```bash
+python North_Korean_Cloud_Nightmare.py show_deployed_resources
 ```
 
 This command:
@@ -233,7 +197,10 @@ python North_Korean_Cloud_Nightmare.py setup
 
 **"Infrastructure not found" error:**
 ```bash
-# Ensure infrastructure is deployed first
+# Check if infrastructure exists
+python North_Korean_Cloud_Nightmare.py show_deployed_resources
+
+# If no resources found, deploy infrastructure first
 python North_Korean_Cloud_Nightmare.py deploy_infrastructure
 ```
 

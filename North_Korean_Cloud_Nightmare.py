@@ -603,18 +603,18 @@ def main():
 Commands:
   setup                   - Validate environment and configure credentials
   deploy_infrastructure   - Deploy AWS infrastructure for the scenario
+  show_deployed_resources - Display current Pulumi stack outputs in JSON format
   launch_attack          - Execute the attack simulation (requires infrastructure)
   execute_full_scenario  - Deploy infrastructure then launch attack
   clean_up              - Remove all deployed infrastructure and artifacts
-  show_deployed_resources - Display current Pulumi stack outputs in JSON format
 
 Examples:
   python North_Korean_Cloud_Nightmare.py setup
   python North_Korean_Cloud_Nightmare.py deploy_infrastructure
+  python North_Korean_Cloud_Nightmare.py show_deployed_resources
   python North_Korean_Cloud_Nightmare.py launch_attack
   python North_Korean_Cloud_Nightmare.py execute_full_scenario
   python North_Korean_Cloud_Nightmare.py clean_up
-  python North_Korean_Cloud_Nightmare.py show_deployed_resources
 
 For more information, see the README.md file.
         """
@@ -665,6 +665,15 @@ For more information, see the README.md file.
     # Exit with appropriate code
     if success:
         print(colored(f"\n[SUCCESS] Command '{args.command}' completed successfully!", "green", attrs=["bold"]))
+
+        # Add context for deploy_infrastructure command
+        if args.command == "deploy_infrastructure":
+            print(colored("\nNext steps:", "yellow", attrs=["bold"]))
+            print(colored("  • To view your newly deployed AWS resources, enter:", "white"))
+            print(colored("    python North_Korean_Cloud_Nightmare.py show_deployed_resources", "cyan"))
+            print(colored("  • To begin the attack scenario on your deployed resources, enter:", "white"))
+            print(colored("    python North_Korean_Cloud_Nightmare.py launch_attack", "cyan"))
+
         sys.exit(0)
     else:
         print(colored(f"\n[ERROR] Command '{args.command}' failed!", "red", attrs=["bold"]))
