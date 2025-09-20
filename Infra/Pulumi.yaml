@@ -1,5 +1,5 @@
 name: Forrester-Attack-Demo
-description: an AWS Python Pulumi program for deploying IaC for Kimusky/APT29 Model attacks as the base for a Forrester Demo
+description: an AWS Python program for deploying IaC for Kimusky/APT29 Model attacks as the base for a Forrester Demo - North Korean Cloud Nightmare
 runtime:
   name: python
   options:
@@ -8,4 +8,4 @@ runtime:
 config:
   pulumi:tags:
     value:
-      pulumi:template: aws-python
+      project: north-korean-cloud-nightmare

@@ -1,4 +1,4 @@
-"""An AWS Python Pulumi program"""
+"""An AWS Python program for North Korean Cloud Nightmare demo"""
 
 import pulumi
 import pulumi_aws as aws
@@ -480,7 +480,7 @@ fake_payment_data = [
     for i in range(1, 101)
 ]
 
-# Upload Data to S3 Using Pulumi
+# Upload Data to S3
 aws.s3.BucketObject("config-file",
     bucket=config_files_bucket.id,
     key="config.json",
@@ -499,7 +499,7 @@ aws.s3.BucketObject("payment-file",
     content=json.dumps(fake_payment_data, indent=4)
 )
 
-# Populate DynamoDB Tables Using Pulumi
+# Populate DynamoDB Tables
 for i in range(1, 11):
     aws.dynamodb.TableItem(f"order-{i}",
         table_name=orders_table.name,

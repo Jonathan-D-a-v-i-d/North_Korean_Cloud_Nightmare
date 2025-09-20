@@ -7,13 +7,13 @@ import subprocess
 
 class MFASetup:
     """ Handles MFA Creation, Authentication & Validation"""
-    def __init__(self, user, mfa_arn, iam_client, sts_client, pulumi_outputs):
+    def __init__(self, user, mfa_arn, iam_client, sts_client, infrastructure_outputs):
         self.user = user
         self.mfa_arn = mfa_arn
         self.iam_client = iam_client
         self.sts_client = sts_client
-        self.pulumi_outputs = pulumi_outputs 
-        self.mfa_seed_bin_file_path = "/workspaces/Pulumi/Infra/mfa-seed.bin"
+        self.infrastructure_outputs = infrastructure_outputs 
+        self.mfa_seed_bin_file_path = "/workspaces/North_Korean_Cloud_Nightmare/Infra/mfa-seed.bin"
         self.mfa_secret = self.extract_mfa_secret()
         self.session_token = None
         self.accesskey_ID = None
@@ -222,8 +222,8 @@ class MFASetup:
             exit(1)
 
 
-    def get_pulumi_secret(self,secret_name):
-        """Fetch Pulumi secret with --show-secrets"""
+    def get_infrastructure_secret(self,secret_name):
+        """Fetch infrastructure secret with --show-secrets"""
         try:
             result = subprocess.run(
                 f"pulumi stack output {secret_name} --show-secrets",
@@ -231,7 +231,7 @@ class MFASetup:
             )
             return result.stdout.strip()
         except Exception as e:
-            print(f"ERROR: Failed to retrieve Pulumi secret {secret_name}: {e}")
+            print(f"ERROR: Failed to retrieve infrastructure secret {secret_name}: {e}")
             exit(1)
     
 
@@ -255,15 +255,15 @@ class MFASetup:
     
         print("MFA device is successfully linked. Proceeding with login.")
     
-        #  Step 2: Load DevOpsUser's Access Key & Secret Key **Directly from Pulumi Secrets**
-        devops_access_key = self.get_pulumi_secret("devops_access_key_id")
-        devops_secret_key = self.get_pulumi_secret("devops_secret_access_key")
+        #  Step 2: Load DevOpsUser's Access Key & Secret Key **Directly from Infrastructure Secrets**
+        devops_access_key = self.get_infrastructure_secret("devops_access_key_id")
+        devops_secret_key = self.get_infrastructure_secret("devops_secret_access_key")
     
         print(f"\nDevOps Access Key: {devops_access_key}")
         print(f" DevOps Secret Key: {'*' * len(devops_secret_key)} (Hidden for security)")
     
         if not devops_access_key or not devops_secret_key:
-            print(" ERROR: DevOpsUser access key/secret key not found in Pulumi outputs.")
+            print(" ERROR: DevOpsUser access key/secret key not found in infrastructure outputs.")
             exit(1)
     
         #  Step 3: Configure AWS CLI Profile for DevOpsUser

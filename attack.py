@@ -15,11 +15,11 @@ class Attack:
     """Main Attack Class Integrating AWS MFA Setup and User Session Management"""
 
     def __init__(self, region="us-east-1"):
-        """Initialize AWS Clients and Fetch Pulumi Outputs"""
+        """Initialize AWS Clients and Fetch Infrastructure Outputs"""
         self.iam_client = boto3.client("iam", region_name=region)
         self.sts_client = boto3.client("sts", region_name=region)
         self.region = region
-        self.pulumi_outputs = None  # Defer loading until needed
+        self.infrastructure_outputs = None  # Defer loading until needed
     
 
         #  Force Boto3 to use the correct credentials & config file locations
@@ -34,17 +34,17 @@ class Attack:
 
         print(f"AWS Profile 'devopsuser' found! Proceeding with Attack Initialization...")
 
-        # Load Pulumi outputs BEFORE using them
-        self.load_pulumi_outputs()
+        # Load Infrastructure outputs BEFORE using them
+        self.load_infrastructure_outputs()
 
         self.devops_user = "DevopsUser"
-        self.mfa_arn = self.pulumi_outputs.get("devops_user_mfa_arn")
+        self.mfa_arn = self.infrastructure_outputs.get("devops_user_mfa_arn")
 
         # ----------- #
         # Access Keys #
         # ----------- #
-        self.access_key_id = self.pulumi_outputs.get("devops_access_key_id")
-        self.secret_access_key = self.pulumi_outputs.get("devops_secret_access_key")
+        self.access_key_id = self.infrastructure_outputs.get("devops_access_key_id")
+        self.secret_access_key = self.infrastructure_outputs.get("devops_secret_access_key")
 
         # --------------------- #
         # Initialize Subclasses #
@@ -58,7 +58,7 @@ class Attack:
         self.credentials_path = os.path.expanduser("~/.aws/credentials")
         #self.enumeration = self.Enumeration(self)
         self.aws_profile = "devopsuser"
-        self.output_dir = "/workspaces/Pulumi/AWS_Enumeration"
+        self.output_dir = "/workspaces/North_Korean_Cloud_Nightmare/AWS_Enumeration"
         os.makedirs(self.output_dir, exist_ok=True)
 
         # Load credentials from ~/.aws/credentials instead of relying on the profile
@@ -84,37 +84,37 @@ class Attack:
         self.createuser_attatchpolicies = self.AWS_CreateUser_AttachPolicies(self)
 
 
-    def load_pulumi_outputs(self):
-           """🔍 Load Pulumi outputs only when needed"""
-           if self.pulumi_outputs is not None:
+    def load_infrastructure_outputs(self):
+           """🔍 Load Infrastructure outputs only when needed"""
+           if self.infrastructure_outputs is not None:
                return  # Already loaded
     
-           pulumi_output_path = "/workspaces/Pulumi/Infra/forrester-2025-output.json"
+           output_path = "/workspaces/North_Korean_Cloud_Nightmare/Infra/forrester-2025-output.json"
     
-           if not os.path.exists(pulumi_output_path):
-               raise RuntimeError(f"ERROR: Pulumi output file '{pulumi_output_path}' not found. Did you run 'pulumi up'?")
+           if not os.path.exists(output_path):
+               raise RuntimeError(f"ERROR: Output file '{output_path}' not found. Did you run infrastructure deployment?")
     
            try:
-               with open(pulumi_output_path, "r") as file:
-                   self.pulumi_outputs = json.load(file)
+               with open(output_path, "r") as file:
+                   self.infrastructure_outputs = json.load(file)
     
-               if not isinstance(self.pulumi_outputs, dict):
-                   raise RuntimeError("ERROR: Pulumi output file is corrupted or not in JSON format.")
+               if not isinstance(self.infrastructure_outputs, dict):
+                   raise RuntimeError("ERROR: Output file is corrupted or not in JSON format.")
     
            except json.JSONDecodeError:
-               raise RuntimeError(f"ERROR: Pulumi output file '{pulumi_output_path}' contains invalid JSON. Check Pulumi execution.")
+               raise RuntimeError(f"ERROR: Output file '{output_path}' contains invalid JSON. Check infrastructure execution.")
     
            except Exception as e:
-               raise RuntimeError(f"ERROR: Failed to load Pulumi outputs: {str(e)}")
+               raise RuntimeError(f"ERROR: Failed to load infrastructure outputs: {str(e)}")
 
 
 
-    def get_pulumi_output(self, key):
-        """🔍 Retrieve a specific value from Pulumi outputs"""
-        if self.pulumi_outputs is None:
-            self.load_pulumi_outputs()
+    def get_infrastructure_output(self, key):
+        """🔍 Retrieve a specific value from infrastructure outputs"""
+        if self.infrastructure_outputs is None:
+            self.load_infrastructure_outputs()
 
-        return self.pulumi_outputs.get(key, f"ERROR: {key} not found in Pulumi outputs.")
+        return self.infrastructure_outputs.get(key, f"ERROR: {key} not found in infrastructure outputs.")
 
 
 
@@ -153,7 +153,7 @@ class Attack:
             self.s3_client = self.session.client("s3")
             self.dynamodb_client = self.session.client("dynamodb")
             self.ec2_client = self.session.client("ec2")
-            self.output_dir = "/workspaces/Pulumi/AWS_Enumeration"
+            self.output_dir = "/workspaces/North_Korean_Cloud_Nightmare/AWS_Enumeration"
 
             os.makedirs(self.output_dir, exist_ok=True)
 

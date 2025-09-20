@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 import os
 import shutil
 import sys
-from Load_Pulumi_Outputs import get_pulumi_output
+from Load_Pulumi_Outputs import get_infrastructure_output
 
 # Initialize AWS clients
 iam_client = boto3.client("iam")
@@ -212,7 +212,7 @@ class SystemCacheCleanup:
     def remove_python_cache():
         """Remove Python cache (`__pycache__` & compiled files)"""
         print("\nRemoving Python cache...")
-        for root, dirs, files in os.walk("/workspaces/Pulumi"):
+        for root, dirs, files in os.walk("/workspaces/North_Korean_Cloud_Nightmare"):
             for dir_name in dirs:
                 if dir_name == "__pycache__":
                     shutil.rmtree(os.path.join(root, dir_name))
@@ -221,7 +221,7 @@ class SystemCacheCleanup:
 
 def delete_enum_folder():
     """Delete AWS_Enumeration folder"""
-    enum_dir = "/workspaces/Pulumi/AWS_Enumeration"
+    enum_dir = "/workspaces/North_Korean_Cloud_Nightmare/AWS_Enumeration"
     if os.path.exists(enum_dir):
         print(f"\nDeleting {enum_dir} and all its contents...")
         shutil.rmtree(enum_dir)
@@ -232,7 +232,7 @@ def delete_enum_folder():
 
 def delete_s3_exfil_folder():
     """Delete s3_Exfiltration folder"""
-    s3_exfil = "/workspaces/Pulumi/Infra/s3_Exfiltration"
+    s3_exfil = "/workspaces/North_Korean_Cloud_Nightmare/Infra/s3_Exfiltration"
     if os.path.exists(s3_exfil):
         print(f"\nDeleting {s3_exfil} and all its contents...")
         shutil.rmtree(s3_exfil)
@@ -244,7 +244,7 @@ def delete_s3_exfil_folder():
 
 def delete_dynamo_exfil_folder():
     """Delete DynamoDB_Exfiltration folder"""
-    dynamo_exfil = "/workspaces/Pulumi/Infra/DynamoDB_Exfiltration"
+    dynamo_exfil = "/workspaces/North_Korean_Cloud_Nightmare/Infra/DynamoDB_Exfiltration"
     if os.path.exists(dynamo_exfil):
         print(f"\nDeleting {dynamo_exfil} and all its contents...")
         shutil.rmtree(dynamo_exfil)
@@ -297,7 +297,7 @@ def delete_too_late_table():
 #     ###
 #     ### Need to refractor to make user intake more clean & modular
 #     ###
-#     devops_user_user_arn = get_pulumi_output("devops_user_arn")
+#     devops_user_user_arn = get_infrastructure_output("devops_user_arn")
 #     devops_user = devops_user_user_arn.split("/")[-1]  # Extracts the username
 #     clean_user = Cleanup.CleanUser(user=devops_user)
 #     clean_user.execute_cleanup()
@@ -307,7 +307,7 @@ def delete_too_late_table():
 
 
 
-#     devops_monitor_user_arn = get_pulumi_output("devops_monitor_arn")
+#     devops_monitor_user_arn = get_infrastructure_output("devops_monitor_arn")
 #     devops_monitor = devops_monitor_user_arn.split("/")[-1]  # Extracts the username
 #     clean_user = Cleanup.CleanUser(user=devops_user)
 #     clean_user = Cleanup.CleanUser(user=devops_monitor)
@@ -318,7 +318,7 @@ def delete_too_late_table():
 
 
 
-#     devops_automation_user_arn = get_pulumi_output("devops_automation_arn")
+#     devops_automation_user_arn = get_infrastructure_output("devops_automation_arn")
 #     devops_automation = devops_automation_user_arn.split("/")[-1]  # Extracts the username
 #     clean_user = Cleanup.CleanUser(user=devops_user)
 #     clean_user = Cleanup.CleanUser(user=devops_automation)
@@ -329,7 +329,7 @@ def delete_too_late_table():
 
 
 
-#     devops_deploy_user_arn = get_pulumi_output("devops_deploy_arn")
+#     devops_deploy_user_arn = get_infrastructure_output("devops_deploy_arn")
 #     devops_deploy = devops_deploy_user_arn.split("/")[-1]  # Extracts the username
 #     clean_user = Cleanup.CleanUser(user=devops_user)
 #     clean_user = Cleanup.CleanUser(user=devops_deploy)
@@ -339,7 +339,7 @@ def delete_too_late_table():
 #     print("\n\n\n")
 
 
-#     devops_pipeline_user_arn = get_pulumi_output("devops_pipeline_arn")
+#     devops_pipeline_user_arn = get_infrastructure_output("devops_pipeline_arn")
 #     devops_pipeline = devops_pipeline_user_arn.split("/")[-1]  # Extracts the username
 #     clean_user = Cleanup.CleanUser(user=devops_user)
 #     clean_user = Cleanup.CleanUser(user=devops_pipeline)
@@ -377,10 +377,10 @@ def delete_too_late_table():
 #     print("\n\n\n")
 
 #     # Entering 
-#     subprocess.call("cd /workspaces/Pulumi/Infra && pulumi refresh -s dev -y", shell=True)
-#     subprocess.call("cd /workspaces/Pulumi/Infra && pulumi destroy -s dev -y", shell=True)
+#     subprocess.call("cd /workspaces/North_Korean_Cloud_Nightmare/Infra && pulumi refresh -s dev -y", shell=True)
+#     subprocess.call("cd /workspaces/North_Korean_Cloud_Nightmare/Infra && pulumi destroy -s dev -y", shell=True)
 #     print("\n\n\n")
-#     print("Pulumi Deployment cleaned up successfully")
+#     print("Infrastructure Deployment cleaned up successfully")
 #     print("\n\n\n")
 
 #     print("\n\n\n")
@@ -388,13 +388,13 @@ def delete_too_late_table():
 #     print("\n\n\n")
 
 #     print('Running: "pulumi stack output --json | jq" to make sure all Infra is destroyed')
-#     subprocess.call("cd /workspaces/Pulumi/Infra && pulumi stack output --json | jq", shell=True)
+#     subprocess.call("cd /workspaces/North_Korean_Cloud_Nightmare/Infra && pulumi stack output --json | jq", shell=True)
 
 def full_cleanup():
     """ 
     Deploys cleanup opposite of run time sequence.
     First, attack python wrapper - boto3
-    Then, all pulumi infra resource rollouts - pulumi
+    Then, all infrastructure resource rollouts
     """
 
     print("\n\n\n")
@@ -417,7 +417,7 @@ def full_cleanup():
     ]
 
     for user_key in users:
-        user_arn = get_pulumi_output(user_key)
+        user_arn = get_infrastructure_output(user_key)
         user = user_arn.split("/")[-1]  # Extracts the username
         clean_user = Cleanup.CleanUser(user=user)
         clean_user.execute_cleanup()
@@ -464,11 +464,11 @@ def full_cleanup():
     print("Post Deployment Cleanup verified successfully")
     print("\n\n\n")
 
-    # Step 7: Destroy Pulumi Deployment
-    subprocess.call("cd /workspaces/Pulumi/Infra && pulumi refresh -s dev -y", shell=True)
-    subprocess.call("cd /workspaces/Pulumi/Infra && pulumi destroy -s dev -y", shell=True)
+    # Step 7: Destroy Infrastructure Deployment
+    subprocess.call("cd /workspaces/North_Korean_Cloud_Nightmare/Infra && pulumi refresh -s dev -y", shell=True)
+    subprocess.call("cd /workspaces/North_Korean_Cloud_Nightmare/Infra && pulumi destroy -s dev -y", shell=True)
     print("\n\n\n")
-    print("Pulumi Deployment cleaned up successfully")
+    print("Infrastructure Deployment cleaned up successfully")
     print("\n\n\n")
 
     print("\n\n\n")
@@ -476,7 +476,7 @@ def full_cleanup():
     print("\n\n\n")
 
     print('Running: "pulumi stack output --json | jq" to make sure all Infra is destroyed')
-    subprocess.call("cd /workspaces/Pulumi/Infra && pulumi stack output --json | jq", shell=True)
+    subprocess.call("cd /workspaces/North_Korean_Cloud_Nightmare/Infra && pulumi stack output --json | jq", shell=True)
 
 
 

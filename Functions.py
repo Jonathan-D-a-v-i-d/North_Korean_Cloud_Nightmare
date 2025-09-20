@@ -7,8 +7,8 @@ import time
 import subprocess
 
 
-def validate_pulumi_outputs_after_rollout(pulumi_stack_output_file):
-    #  Required Pulumi Outputs
+def validate_infrastructure_outputs_after_rollout(infrastructure_stack_output_file):
+    #  Required Infrastructure Outputs
     REQUIRED_KEYS = [
         "CustomerOrdersTable",
         "CustomerSSNTable",
@@ -22,26 +22,26 @@ def validate_pulumi_outputs_after_rollout(pulumi_stack_output_file):
     ]
 
     try:
-        with open(pulumi_stack_output_file, "r") as file:
+        with open(infrastructure_stack_output_file, "r") as file:
             outputs = json.load(file)
 
         #  Check for missing keys
         missing_keys = [key for key in REQUIRED_KEYS if key not in outputs]
         if missing_keys:
-            print(f" ERROR: Missing Pulumi outputs: {missing_keys}")
+            print(f" ERROR: Missing infrastructure outputs: {missing_keys}")
             sys.exit(1)
 
-        print(" Pulumi deployment validated successfully. Proceeding to data population...")
+        print(" Infrastructure deployment validated successfully. Proceeding to data population...")
         return True
 
     except FileNotFoundError:
-        print(f" ERROR: {pulumi_stack_output_file} not found. Did Pulumi fail?")
+        print(f" ERROR: {infrastructure_stack_output_file} not found. Did infrastructure deployment fail?")
         sys.exit(1)
 
 
 
 # if __name__ == "__main__":
-#     if validate_pulumi_outputs_after_rollout(pulumi_stack_output_file="forrester-2025-output.json"):
+#     if validate_infrastructure_outputs_after_rollout(infrastructure_stack_output_file="forrester-2025-output.json"):
 #         print(" Validation passed! Moving to the next stage...")
 
 
@@ -53,7 +53,7 @@ def validate_pulumi_outputs_after_rollout(pulumi_stack_output_file):
 
 def wait_for_output_file():
     sleep_duration = 5
-    output_file = "/workspaces/Pulumi/Infra/forrester-2025-output.json"  # FIXED PATH
+    output_file = "/workspaces/North_Korean_Cloud_Nightmare/Infra/forrester-2025-output.json"  # FIXED PATH
 
     with tqdm.tqdm(total=sleep_duration, desc="Validating Deployment") as pbar:
         while sleep_duration > 0:

