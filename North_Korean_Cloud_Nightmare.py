@@ -187,6 +187,7 @@ def setup():
     print(colored("  - launch_attack", "cyan"))
     print(colored("  - execute_full_scenario", "cyan"))
     print(colored("  - clean_up", "cyan"))
+    print(colored("  - show_deployed_resources", "cyan"))
     return True
 
 
