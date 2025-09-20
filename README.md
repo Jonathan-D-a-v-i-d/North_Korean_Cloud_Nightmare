@@ -1,6 +1,6 @@
 # 🇰🇵 North Korean Cloud Nightmare
 
-<img src="./logo.png" alt="North Korean Cloud Nightmare" width="400"/>
+<img src="./North_Korean_Cloud_Nightmare.png" alt="North Korean Cloud Nightmare" width="400"/>
 
 
 **Advanced Persistent Threat Simulation Platform**
