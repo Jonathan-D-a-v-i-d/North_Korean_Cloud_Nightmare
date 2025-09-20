@@ -45,16 +45,16 @@ OUTPUT_PATH = "/workspaces/North_Korean_Cloud_Nightmare/Infra/forrester-2025-out
 
 def check_and_setup_environment():
     """Check and setup required environment (AWS and Pulumi)"""
-    print(colored("🔧 Checking Environment Setup...", "cyan"))
+    print(colored("Checking Environment Setup...", "cyan"))
 
     # Check AWS credentials
     try:
         import boto3
         sts = boto3.client('sts')
         identity = sts.get_caller_identity()
-        print(colored(f"✅ AWS credentials found - Account: {identity['Account']}", "green"))
+        print(colored(f"[SUCCESS] AWS credentials found - Account: {identity['Account']}", "green"))
     except Exception as e:
-        print(colored("❌ AWS credentials not configured!", "red"))
+        print(colored("[ERROR] AWS credentials not configured!", "red"))
         print(colored("Please run: aws configure", "yellow"))
         return False
 
@@ -65,17 +65,17 @@ def check_and_setup_environment():
                               cwd="/workspaces/North_Korean_Cloud_Nightmare/Infra")
         if result.returncode == 0:
             username = result.stdout.strip()
-            print(colored(f"✅ Pulumi logged in as: {username}", "green"))
+            print(colored(f"[SUCCESS] Pulumi logged in as: {username}", "green"))
             return True
         else:
             raise Exception("Not logged in")
     except:
-        print(colored("❌ Pulumi not logged in!", "red"))
+        print(colored("[ERROR] Pulumi not logged in!", "red"))
         print(colored("Setting up Pulumi login...", "yellow"))
 
         # Try to get token from environment first
         if os.environ.get('PULUMI_ACCESS_TOKEN'):
-            print(colored("✅ Found PULUMI_ACCESS_TOKEN environment variable", "green"))
+            print(colored("[SUCCESS] Found PULUMI_ACCESS_TOKEN environment variable", "green"))
             return True
 
         print(colored("Please choose one of the following options:", "cyan"))
@@ -93,7 +93,7 @@ def check_and_setup_environment():
 
 def ensure_pulumi_stack():
     """Ensure Pulumi stack exists and is properly configured"""
-    print(colored("🔧 Setting up Pulumi stack...", "cyan"))
+    print(colored("Setting up Pulumi stack...", "cyan"))
 
     # Change to Infra directory
     original_dir = os.getcwd()
@@ -116,9 +116,9 @@ def ensure_pulumi_stack():
         try:
             subprocess.run(["pulumi", "plugin", "install", "resource", "aws"],
                          capture_output=True, check=True)
-            print(colored("✅ AWS plugin installed", "green"))
+            print(colored("[SUCCESS] AWS plugin installed", "green"))
         except subprocess.CalledProcessError:
-            print(colored("⚠️ AWS plugin installation failed, but continuing...", "yellow"))
+            print(colored("[WARNING] AWS plugin installation failed, but continuing...", "yellow"))
 
         # Check for Python language plugin issue and attempt to fix it
         try:
@@ -127,7 +127,7 @@ def ensure_pulumi_stack():
                                        capture_output=True, text=True)
 
             if "failed to load language plugin python" in test_result.stderr:
-                print(colored("⚠️ Python language plugin issue detected, attempting fix...", "yellow"))
+                print(colored("[WARNING] Python language plugin issue detected, attempting fix...", "yellow"))
 
                 # Attempt to force plugin initialization by creating test project
                 import tempfile
@@ -149,18 +149,18 @@ def ensure_pulumi_stack():
                     # Test if it works now
                     os.chdir("/workspaces/North_Korean_Cloud_Nightmare/Infra")
 
-                print(colored("✅ Python language plugin fix attempted", "green"))
+                print(colored("[SUCCESS] Python language plugin fix attempted", "green"))
         except Exception as e:
-            print(colored(f"⚠️ Python plugin check failed: {e}, but continuing...", "yellow"))
+            print(colored(f"[WARNING] Python plugin check failed: {e}, but continuing...", "yellow"))
 
-        print(colored("✅ Pulumi stack 'dev' ready", "green"))
+        print(colored("[SUCCESS] Pulumi stack 'dev' ready", "green"))
         return True
 
     except subprocess.CalledProcessError as e:
-        print(colored(f"❌ Failed to setup Pulumi stack: {e}", "red"))
+        print(colored(f"[ERROR] Failed to setup Pulumi stack: {e}", "red"))
         return False
     except Exception as e:
-        print(colored(f"❌ Unexpected error: {e}", "red"))
+        print(colored(f"[ERROR] Unexpected error: {e}", "red"))
         return False
     finally:
         os.chdir(original_dir)
@@ -168,32 +168,33 @@ def ensure_pulumi_stack():
 
 def setup():
     """Setup and validate environment for North Korean Cloud Nightmare"""
-    print(colored("🔧 Setting up North Korean Cloud Nightmare Environment", "cyan", attrs=["bold"]))
+    print(colored("Setting up North Korean Cloud Nightmare Environment", "cyan", attrs=["bold"]))
     print("=" * 60)
 
     # Check environment
     if not check_and_setup_environment():
-        print(colored("❌ Environment setup failed!", "red", attrs=["bold"]))
+        print(colored("[ERROR] Environment setup failed!", "red", attrs=["bold"]))
         return False
 
     # Setup Pulumi stack
     if not ensure_pulumi_stack():
-        print(colored("❌ Pulumi stack setup failed!", "red", attrs=["bold"]))
+        print(colored("[ERROR] Pulumi stack setup failed!", "red", attrs=["bold"]))
         return False
 
-    print("\n" + colored("🎉 Environment setup completed successfully!", "green", attrs=["bold"]))
+    print("\n" + colored("[SUCCESS] Environment setup completed successfully!", "green", attrs=["bold"]))
     print(colored("You can now run the other commands:", "white"))
-    print(colored("  • deploy_infrastructure", "cyan"))
-    print(colored("  • launch_attack", "cyan"))
-    print(colored("  • execute_full_scenario", "cyan"))
-    print(colored("  • clean_up", "cyan"))
+    print(colored("  - deploy_infrastructure", "cyan"))
+    print(colored("  - launch_attack", "cyan"))
+    print(colored("  - execute_full_scenario", "cyan"))
+    print(colored("  - clean_up", "cyan"))
     return True
 
 
 def deploy_infrastructure():
     """Deploy AWS infrastructure for the North Korean Cloud Nightmare scenario"""
-    print(colored("🚀 Starting Infrastructure Deployment...", "cyan", attrs=["bold"]))
-    print("-" * 50)
+    print(colored("═" * 60, "cyan"))
+    print(colored("      INFRASTRUCTURE DEPLOYMENT", "cyan", attrs=["bold"]))
+    print(colored("═" * 60, "cyan"))
 
     # Check environment setup first
     if not check_and_setup_environment():
@@ -207,14 +208,16 @@ def deploy_infrastructure():
     forrester_scenario_execute()
 
     # Validate rollout
-    print("\n" + colored("✅ Validating Infrastructure Rollout...", "yellow"))
+    print("\n" + colored("[INFO] Validating Infrastructure Rollout...", "yellow"))
     forrester_scenario_validate_rollout()
 
     # Validate data
-    print("\n" + colored("📊 Validating Data Population...", "yellow"))
+    print("\n" + colored("[INFO] Validating Data Population...", "yellow"))
     forrester_scenario_validate_data()
 
-    print("\n" + colored("🎉 Infrastructure deployment completed successfully!", "green", attrs=["bold"]))
+    print("\n" + colored("═" * 60, "green"))
+    print(colored("   INFRASTRUCTURE DEPLOYMENT COMPLETE!", "green", attrs=["bold"]))
+    print(colored("═" * 60, "green"))
     return True
 
 
@@ -228,12 +231,13 @@ def launch_attack():
     if sts_client is None:
         sts_client = boto3.client("sts")
 
-    print(colored("⚔️  Launching Attack Simulation...", "red", attrs=["bold"]))
-    print("-" * 50)
+    print(colored("═" * 60, "red"))
+    print(colored("         ATTACK SIMULATION", "red", attrs=["bold"]))
+    print(colored("═" * 60, "red"))
 
     # Check if infrastructure is deployed
     if not os.path.exists(OUTPUT_PATH):
-        print(colored("❌ ERROR: Infrastructure not found! Please run 'deploy_infrastructure' first.", "red"))
+        print(colored("[ERROR] Infrastructure not found! Please run 'deploy_infrastructure' first.", "red"))
         return False
 
     try:
@@ -243,14 +247,14 @@ def launch_attack():
         if not outputs:
             raise ValueError("Empty infrastructure outputs")
     except (json.JSONDecodeError, FileNotFoundError, ValueError) as e:
-        print(colored(f"❌ ERROR: Invalid infrastructure state: {e}", "red"))
+        print(colored(f"[ERROR] Invalid infrastructure state: {e}", "red"))
         print(colored("Please run 'deploy_infrastructure' first.", "yellow"))
         return False
 
-    print(colored("✅ Infrastructure found. Proceeding with attack simulation...", "green"))
+    print(colored("[SUCCESS] Infrastructure found. Proceeding with attack simulation...", "green"))
 
     # Setup MFA for DevOpsUser
-    print("\n" + colored("🔐 Setting up MFA for DevOpsUser...", "cyan"))
+    print("\n" + colored("[PHASE 1] Setting up MFA for DevOpsUser...", "cyan"))
     user_arn = get_infrastructure_output("devops_user_arn")
     user = user_arn.split("/")[-1]  # Extracts the username
     print(f"DEBUG: Extracted IAM Username: {user}")
@@ -260,12 +264,12 @@ def launch_attack():
     mfa.setup_mfa_and_login()
 
     # Begin attack enumeration
-    print("\n" + colored("🔍 Enumerating AWS resources...", "cyan"))
+    print("\n" + colored("[PHASE 2] Enumerating AWS resources...", "cyan"))
     attack = Attack()
     attack.enumeration.run_all_enumerations()
 
     # Create malicious user
-    print("\n" + colored("👤 DevopsUser creating malicious user...", "red"))
+    print("\n" + colored("[PHASE 3] DevopsUser creating malicious user...", "red"))
     user_name = generate_unique_username()
     ransomware_access_keys = attack.createuser_attatchpolicies.run_pipeline(
         username=user_name,
@@ -276,20 +280,20 @@ def launch_attack():
     )
 
     access_key, secret_key = ransomware_access_keys[0][0], ransomware_access_keys[1][0]
-    print(f"🔑 {user_name} Access Key: {access_key}")
-    print(f"🔑 {user_name} Secret Key: {secret_key}")
+    print(f"[CREDENTIALS] {user_name} Access Key: {access_key}")
+    print(f"[CREDENTIALS] {user_name} Secret Key: {secret_key}")
 
     # Initialize ransomware attack
-    print("\n" + colored("💀 Initializing Ransomware Attack...", "red", attrs=["bold"]))
+    print("\n" + colored("[PHASE 4] Initializing Ransomware Attack...", "red", attrs=["bold"]))
     ransomware = Ransomware(access_key, secret_key)
     ransomware.session_test()
 
     # Execute attack phases
-    print("\n" + colored("🎯 Phase 1: MFA DDOS on DevOps Team", "red"))
+    print("\n" + colored("[ATTACK 1] MFA DDOS on DevOps Team", "red"))
     ransomware.devops_team_MFA_DDOS()
     Functions.attack_execution_duration(seconds=30, description="MFA DDOS complete, waiting 30 seconds")
 
-    print("\n" + colored("🛡️  Phase 2: Disabling Security Controls", "red"))
+    print("\n" + colored("[ATTACK 2] Disabling Security Controls", "red"))
     ransomware.disable_guardduty()
     ransomware.delete_guardduty()
     Functions.attack_execution_duration(seconds=30, description="GuardDuty disabled, waiting 30 seconds")
@@ -298,7 +302,7 @@ def launch_attack():
     ransomware.delete_cloudtrail()
     Functions.attack_execution_duration(seconds=30, description="CloudTrail disabled, waiting 30 seconds")
 
-    print("\n" + colored("💾 Phase 3: S3 Data Exfiltration & Destruction", "red"))
+    print("\n" + colored("[ATTACK 3] S3 Data Exfiltration & Destruction", "red"))
     ransomware.s3_drain.exfiltrate()
     Functions.attack_execution_duration(seconds=15, description="S3 exfiltration complete, waiting 15 seconds")
 
@@ -308,7 +312,7 @@ def launch_attack():
     ransomware.s3_drain.place_ransom_note()
     Functions.attack_execution_duration(seconds=30, description="S3 attack complete, waiting 30 seconds before DynamoDB phase")
 
-    print("\n" + colored("🗃️  Phase 4: DynamoDB Data Exfiltration & Destruction", "red"))
+    print("\n" + colored("[ATTACK 4] DynamoDB Data Exfiltration & Destruction", "red"))
     ransomware.dynamodb_drain.exfiltrate()
     Functions.attack_execution_duration(seconds=15, description="DynamoDB exfiltration complete, waiting 15 seconds")
 
@@ -320,39 +324,45 @@ def launch_attack():
 
     ransomware.dynamodb_drain.insert_ransom_note()
 
-    print("\n" + colored("💀 Attack Simulation Completed Successfully!", "red", attrs=["bold"]))
-    print(colored("🔍 Check ./AWS_Enumeration, ./Infra/s3_Exfiltration, and ./Infra/DynamoDB_Exfiltration for attack artifacts", "yellow"))
+    print("\n" + colored("═" * 60, "red"))
+    print(colored("    ATTACK SIMULATION COMPLETE!", "red", attrs=["bold"]))
+    print(colored("═" * 60, "red"))
+    print(colored("[INFO] Check ./AWS_Enumeration, ./Infra/s3_Exfiltration, and ./Infra/DynamoDB_Exfiltration for attack artifacts", "yellow"))
     return True
 
 
 def execute_full_scenario():
     """Execute the complete scenario: deploy infrastructure and launch attack"""
-    print(colored("🌊 Executing Full North Korean Cloud Nightmare Scenario", "magenta", attrs=["bold"]))
-    print("=" * 60)
+    print(colored("═" * 60, "magenta"))
+    print(colored("   FULL SCENARIO EXECUTION", "magenta", attrs=["bold"]))
+    print(colored("═" * 60, "magenta"))
 
     # Deploy infrastructure
     if not deploy_infrastructure():
-        print(colored("❌ Infrastructure deployment failed. Aborting.", "red"))
+        print(colored("[ERROR] Infrastructure deployment failed. Aborting.", "red"))
         return False
 
-    print("\n" + "=" * 60)
-    print(colored("🔄 Transitioning to Attack Phase...", "yellow"))
+    print("\n" + colored("═" * 60, "yellow"))
+    print(colored("    TRANSITIONING TO ATTACK PHASE", "yellow", attrs=["bold"]))
+    print(colored("═" * 60, "yellow"))
     Functions.progress_bar(seconds=15)  # Brief pause between phases
 
     # Launch attack
     if not launch_attack():
-        print(colored("❌ Attack simulation failed.", "red"))
+        print(colored("[ERROR] Attack simulation failed.", "red"))
         return False
 
-    print("\n" + "=" * 60)
-    print(colored("🎉 Full North Korean Cloud Nightmare Scenario Completed!", "green", attrs=["bold"]))
+    print("\n" + colored("═" * 60, "green"))
+    print(colored("  FULL SCENARIO EXECUTION COMPLETE!", "green", attrs=["bold"]))
+    print(colored("═" * 60, "green"))
     return True
 
 
 def clean_up():
     """Clean up all deployed infrastructure and artifacts"""
-    print(colored("🧹 Starting Clean Up Process...", "yellow", attrs=["bold"]))
-    print("-" * 50)
+    print(colored("═" * 60, "yellow"))
+    print(colored("         CLEANUP PROCESS", "yellow", attrs=["bold"]))
+    print(colored("═" * 60, "yellow"))
 
     # Check environment setup first
     if not check_and_setup_environment():
@@ -366,11 +376,76 @@ def clean_up():
         # Import clean_up module only when needed
         from clean_up import full_cleanup
         full_cleanup()
-        print(colored("✅ Clean up completed successfully!", "green", attrs=["bold"]))
+        print(colored("═" * 60, "green"))
+        print(colored("      CLEANUP COMPLETE!", "green", attrs=["bold"]))
+        print(colored("═" * 60, "green"))
         return True
     except Exception as e:
-        print(colored(f"❌ Clean up failed: {str(e)}", "red"))
+        print(colored(f"[ERROR] Clean up failed: {str(e)}", "red"))
         return False
+
+
+def show_deployed_resources():
+    """Show deployed resources from Pulumi stack output in JSON format"""
+    print(colored("═" * 60, "cyan"))
+    print(colored("      DEPLOYED RESOURCES", "cyan", attrs=["bold"]))
+    print(colored("═" * 60, "cyan"))
+
+    # Check environment setup first
+    if not check_and_setup_environment():
+        return False
+
+    # Setup Pulumi stack
+    if not ensure_pulumi_stack():
+        return False
+
+    # Change to Infra directory
+    original_dir = os.getcwd()
+    try:
+        os.chdir("/workspaces/North_Korean_Cloud_Nightmare/Infra")
+
+        print(colored("[INFO] Retrieving Pulumi stack outputs...", "cyan"))
+
+        # Run pulumi stack output --json
+        result = subprocess.run(
+            ["pulumi", "stack", "output", "--json"],
+            capture_output=True,
+            text=True
+        )
+
+        if result.returncode != 0:
+            print(colored(f"[ERROR] Failed to retrieve stack outputs: {result.stderr}", "red"))
+            return False
+
+        if not result.stdout.strip():
+            print(colored("[WARNING] No resources found. Infrastructure may not be deployed.", "yellow"))
+            print(colored("Run 'deploy_infrastructure' first to deploy resources.", "yellow"))
+            return False
+
+        # Parse and pretty print JSON
+        try:
+            import json
+            outputs = json.loads(result.stdout)
+            formatted_json = json.dumps(outputs, indent=2)
+
+            print(colored("\n[SUCCESS] Deployed resources:", "green"))
+            print(colored("-" * 50, "white"))
+            print(formatted_json)
+            print(colored("-" * 50, "white"))
+
+            # Show summary
+            print(colored(f"\n[INFO] Total outputs: {len(outputs)}", "cyan"))
+            return True
+
+        except json.JSONDecodeError as e:
+            print(colored(f"[ERROR] Failed to parse JSON output: {e}", "red"))
+            return False
+
+    except Exception as e:
+        print(colored(f"[ERROR] Unexpected error: {e}", "red"))
+        return False
+    finally:
+        os.chdir(original_dir)
 
 
 def generate_unique_username(base_name="run_while_u_can", length=6):
@@ -405,38 +480,40 @@ def forrester_scenario_execute():
     # Change current working directory to 'Infra'
     os.chdir("/workspaces/North_Korean_Cloud_Nightmare/Infra/")
 
-    print(colored("🚀 Deploying AWS Infrastructure...", "cyan"))
+    print(colored("[INFO] Deploying AWS Infrastructure...", "cyan"))
     print(colored("This may take 5-10 minutes. Please wait...", "yellow"))
 
-    # Run pulumi up with error filtering to hide plugin warnings
-    result = subprocess.run(
+    # Run pulumi up with live output
+    print(colored("[INFO] Starting live infrastructure deployment...", "cyan"))
+    print(colored("-" * 60, "cyan"))
+
+    # Use subprocess.Popen for real-time output
+    process = subprocess.Popen(
         ["pulumi", "up", "-s", "dev", "-y"],
-        capture_output=True,
-        text=True
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+        bufsize=1
     )
 
-    # Print stdout (the useful deployment progress)
-    if result.stdout:
-        print(result.stdout)
-
-    # Filter stderr to hide the python plugin error but show real errors
-    if result.stderr:
-        stderr_lines = result.stderr.split('\n')
-        filtered_errors = []
-        for line in stderr_lines:
-            # Skip the python language plugin error
+    # Stream output in real-time
+    stdout_lines = []
+    for line in iter(process.stdout.readline, ''):
+        line = line.rstrip()
+        if line:
+            # Filter out plugin error messages
             if "failed to load language plugin python" not in line and \
-               "pulumi-language-python" not in line and \
-               line.strip():
-                filtered_errors.append(line)
+               "pulumi-language-python" not in line:
+                print(line)
+            stdout_lines.append(line)
 
-        if filtered_errors:
-            print(colored("⚠️ Warnings:", "yellow"))
-            for error in filtered_errors:
-                print(colored(f"  {error}", "yellow"))
+    process.wait()
+    result_returncode = process.returncode
 
-    if result.returncode != 0:
-        print(colored("❌ Infrastructure deployment failed!", "red"))
+    print(colored("-" * 60, "cyan"))
+
+    if result_returncode != 0:
+        print(colored("[ERROR] Infrastructure deployment failed!", "red"))
         return False
 
     #  Capture Infrastructure Stack Output
@@ -506,6 +583,7 @@ Examples:
   python North_Korean_Cloud_Nightmare.py launch_attack
   python North_Korean_Cloud_Nightmare.py execute_full_scenario
   python North_Korean_Cloud_Nightmare.py clean_up
+  python North_Korean_Cloud_Nightmare.py show_deployed_resources
 
 For more information, see the README.md file.
         """
@@ -513,7 +591,7 @@ For more information, see the README.md file.
 
     parser.add_argument(
         "command",
-        choices=["setup", "deploy_infrastructure", "launch_attack", "execute_full_scenario", "clean_up"],
+        choices=["setup", "deploy_infrastructure", "launch_attack", "execute_full_scenario", "clean_up", "show_deployed_resources"],
         help="Command to execute"
     )
 
@@ -529,11 +607,20 @@ For more information, see the README.md file.
 
     args = parser.parse_args()
 
-    # Print banner
-    print("=" * 60)
-    print(colored("🇰🇵 NORTH KOREAN CLOUD NIGHTMARE 🇰🇵", "red", attrs=["bold"]))
-    print(colored("Advanced Persistent Threat Simulation Platform", "white"))
-    print("=" * 60)
+    # Print banner with North Korean flag ASCII art
+    flag = """
+    ⭐    ████████████████████████████████████████
+         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+         ████████████████████████████████████████
+         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+         ████████████████████████████████████████
+    """
+
+    print(colored("═" * 70, "red"))
+    print(colored("    NORTH KOREAN CLOUD NIGHTMARE", "red", attrs=["bold"]))
+    print(colored(flag, "red"))
+    print(colored("  Advanced Persistent Threat Simulation Platform", "white", attrs=["bold"]))
+    print(colored("═" * 70, "red"))
 
     # Execute the requested command
     success = False
@@ -548,13 +635,15 @@ For more information, see the README.md file.
         success = execute_full_scenario()
     elif args.command == "clean_up":
         success = clean_up()
+    elif args.command == "show_deployed_resources":
+        success = show_deployed_resources()
 
     # Exit with appropriate code
     if success:
-        print(colored(f"\nCommand '{args.command}' completed successfully!", "green", attrs=["bold"]))
+        print(colored(f"\n[SUCCESS] Command '{args.command}' completed successfully!", "green", attrs=["bold"]))
         sys.exit(0)
     else:
-        print(colored(f"\nCommand '{args.command}' failed!", "red", attrs=["bold"]))
+        print(colored(f"\n[ERROR] Command '{args.command}' failed!", "red", attrs=["bold"]))
         sys.exit(1)
 
 
