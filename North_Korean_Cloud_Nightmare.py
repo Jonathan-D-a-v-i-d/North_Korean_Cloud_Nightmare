@@ -184,19 +184,15 @@ def setup():
     print("\n" + colored("[SUCCESS] Environment setup completed successfully!", "green", attrs=["bold"]))
     print(colored("You can now run the other commands:", "white"))
     print(colored("  - deploy_infrastructure", "cyan"))
+    print(colored("  - show_deployed_resources", "cyan"))
     print(colored("  - launch_attack", "cyan"))
     print(colored("  - execute_full_scenario", "cyan"))
     print(colored("  - clean_up", "cyan"))
-    print(colored("  - show_deployed_resources", "cyan"))
     return True
 
 
 def deploy_infrastructure():
     """Deploy AWS infrastructure for the North Korean Cloud Nightmare scenario"""
-    print(colored("═" * 60, "cyan"))
-    print(colored("      INFRASTRUCTURE DEPLOYMENT", "cyan", attrs=["bold"]))
-    print(colored("═" * 60, "cyan"))
-
     # Check environment setup first
     if not check_and_setup_environment():
         return False
@@ -204,6 +200,37 @@ def deploy_infrastructure():
     # Setup Pulumi stack
     if not ensure_pulumi_stack():
         return False
+
+    # Get AWS account info for display
+    try:
+        import boto3
+        sts = boto3.client('sts')
+        identity = sts.get_caller_identity()
+        account_id = identity['Account']
+        user_arn = identity['Arn']
+        # Extract username from ARN
+        if 'user/' in user_arn:
+            username = user_arn.split('user/')[-1]
+        else:
+            username = user_arn.split('/')[-1]
+    except:
+        account_id = "Unknown"
+        username = "Unknown"
+
+    # Display infrastructure deployment header
+    print(colored("╔" + "═" * 78 + "╗", "red"))
+    print(colored("║" + " " * 23 + "ROLLING OUT AWS INFRASTRUCTURE" + " " * 25 + "║", "red", attrs=["bold"]))
+    print(colored("╠" + "═" * 78 + "╣", "red"))
+    print(colored(f"║ Credentials: {username:<25} │ Account: {account_id:<25} ║", "red"))
+    print(colored("╠" + "═" * 78 + "╣", "red"))
+    print(colored("║ Infrastructure Components Being Deployed:" + " " * 35 + "║", "red", attrs=["bold"]))
+    print(colored("║" + " " * 78 + "║", "red"))
+    print(colored("║ • IAM Users & Policies    │ • S3 Buckets & Data" + " " * 25 + "║", "red"))
+    print(colored("║ • DynamoDB Tables & Data  │ • CloudTrail Logging" + " " * 24 + "║", "red"))
+    print(colored("║ • GuardDuty Detection     │ • MFA Devices & Setup" + " " * 23 + "║", "red"))
+    print(colored("║ • Sample Customer Data    │ • Attack Simulation Environment" + " " * 12 + "║", "red"))
+    print(colored("╚" + "═" * 78 + "╝", "red"))
+    print()
 
     # Execute infrastructure deployment
     forrester_scenario_execute()
@@ -225,16 +252,13 @@ def deploy_infrastructure():
 def launch_attack():
     """Launch the attack simulation (requires infrastructure to be deployed)"""
     global iam_client, sts_client
+    import boto3
 
     # Initialize AWS clients when needed
     if iam_client is None:
         iam_client = boto3.client("iam")
     if sts_client is None:
         sts_client = boto3.client("sts")
-
-    print(colored("═" * 60, "red"))
-    print(colored("         ATTACK SIMULATION", "red", attrs=["bold"]))
-    print(colored("═" * 60, "red"))
 
     # Check if infrastructure is deployed
     if not os.path.exists(OUTPUT_PATH):
@@ -252,6 +276,40 @@ def launch_attack():
         print(colored("Please run 'deploy_infrastructure' first.", "yellow"))
         return False
 
+    # Get AWS account info for display
+    try:
+        import boto3
+        sts = boto3.client('sts')
+        identity = sts.get_caller_identity()
+        account_id = identity['Account']
+        user_arn = identity['Arn']
+        # Extract username from ARN
+        if 'user/' in user_arn:
+            username = user_arn.split('user/')[-1]
+        else:
+            username = user_arn.split('/')[-1]
+    except:
+        account_id = "Unknown"
+        username = "Unknown"
+
+    # Display attack simulation header
+    print(colored("╔" + "═" * 78 + "╗", "red"))
+    print(colored("║" + " " * 26 + "NORTH KOREAN ATTACK SIMULATION" + " " * 21 + "║", "red", attrs=["bold"]))
+    print(colored("╠" + "═" * 78 + "╣", "red"))
+    print(colored(f"║ Target Account: {account_id:<25} │ Attacker: {username:<25} ║", "red"))
+    print(colored("╠" + "═" * 78 + "╣", "red"))
+    print(colored("║ Attack Steps to be Executed:" + " " * 48 + "║", "red", attrs=["bold"]))
+    print(colored("║" + " " * 78 + "║", "red"))
+    print(colored("║ Phase 1: MFA Setup & DevOps Compromise" + " " * 37 + "║", "red"))
+    print(colored("║ Phase 2: AWS Resource Enumeration" + " " * 42 + "║", "red"))
+    print(colored("║ Phase 3: Malicious User Creation & Privilege Escalation" + " " * 20 + "║", "red"))
+    print(colored("║ Phase 4: Security Controls Disabling (GuardDuty/CloudTrail)" + " " * 16 + "║", "red"))
+    print(colored("║ Phase 5: S3 Data Exfiltration & Destruction" + " " * 32 + "║", "red"))
+    print(colored("║ Phase 6: DynamoDB Data Exfiltration & Destruction" + " " * 26 + "║", "red"))
+    print(colored("║ Phase 7: Ransomware Note Deployment" + " " * 40 + "║", "red"))
+    print(colored("╚" + "═" * 78 + "╝", "red"))
+    print()
+
     print(colored("[SUCCESS] Infrastructure found. Proceeding with attack simulation...", "green"))
 
     # Setup MFA for DevOpsUser
@@ -260,9 +318,15 @@ def launch_attack():
     user = user_arn.split("/")[-1]  # Extracts the username
     print(f"DEBUG: Extracted IAM Username: {user}")
 
-    mfa_arn = ""
-    mfa = MFASetup(user, mfa_arn, iam_client, sts_client, OUTPUT_PATH)
-    mfa.setup_mfa_and_login()
+    # Change to Infra directory for MFA setup (needed for pulumi commands)
+    original_dir = os.getcwd()
+    try:
+        os.chdir("/workspaces/North_Korean_Cloud_Nightmare/Infra")
+        mfa_arn = ""
+        mfa = MFASetup(user, mfa_arn, iam_client, sts_client, OUTPUT_PATH)
+        mfa.setup_mfa_and_login()
+    finally:
+        os.chdir(original_dir)
 
     # Begin attack enumeration
     print("\n" + colored("[PHASE 2] Enumerating AWS resources...", "cyan"))
@@ -334,9 +398,42 @@ def launch_attack():
 
 def execute_full_scenario():
     """Execute the complete scenario: deploy infrastructure and launch attack"""
-    print(colored("═" * 60, "magenta"))
-    print(colored("   FULL SCENARIO EXECUTION", "magenta", attrs=["bold"]))
-    print(colored("═" * 60, "magenta"))
+    # Get AWS account info for display
+    try:
+        import boto3
+        sts = boto3.client('sts')
+        identity = sts.get_caller_identity()
+        account_id = identity['Account']
+        user_arn = identity['Arn']
+        # Extract username from ARN
+        if 'user/' in user_arn:
+            username = user_arn.split('user/')[-1]
+        else:
+            username = user_arn.split('/')[-1]
+    except:
+        account_id = "Unknown"
+        username = "Unknown"
+
+    # Display combined scenario header
+    print(colored("╔" + "═" * 78 + "╗", "red"))
+    print(colored("║" + " " * 18 + "NORTH KOREAN CLOUD NIGHTMARE - FULL SCENARIO" + " " * 15 + "║", "red", attrs=["bold"]))
+    print(colored("╠" + "═" * 78 + "╣", "red"))
+    print(colored(f"║ Target: {username:<29} │ Account: {account_id:<25} ║", "red"))
+    print(colored("╠" + "═" * 78 + "╣", "red"))
+    print(colored("║ PHASE 1: INFRASTRUCTURE DEPLOYMENT" + " " * 41 + "║", "red", attrs=["bold"]))
+    print(colored("║ • IAM Users & Policies    │ • S3 Buckets & Data" + " " * 25 + "║", "red"))
+    print(colored("║ • DynamoDB Tables & Data  │ • CloudTrail Logging" + " " * 24 + "║", "red"))
+    print(colored("║ • GuardDuty Detection     │ • MFA Devices & Setup" + " " * 23 + "║", "red"))
+    print(colored("║" + " " * 78 + "║", "red"))
+    print(colored("║ PHASE 2: ATTACK SIMULATION" + " " * 49 + "║", "red", attrs=["bold"]))
+    print(colored("║ • MFA Setup & DevOps Compromise" + " " * 44 + "║", "red"))
+    print(colored("║ • AWS Resource Enumeration" + " " * 49 + "║", "red"))
+    print(colored("║ • Malicious User Creation & Privilege Escalation" + " " * 27 + "║", "red"))
+    print(colored("║ • Security Controls Disabling (GuardDuty/CloudTrail)" + " " * 23 + "║", "red"))
+    print(colored("║ • S3 & DynamoDB Data Exfiltration & Destruction" + " " * 28 + "║", "red"))
+    print(colored("║ • Ransomware Note Deployment" + " " * 47 + "║", "red"))
+    print(colored("╚" + "═" * 78 + "╝", "red"))
+    print()
 
     # Deploy infrastructure
     if not deploy_infrastructure():
@@ -664,7 +761,9 @@ For more information, see the README.md file.
 
     # Exit with appropriate code
     if success:
-        print(colored(f"\n[SUCCESS] Command '{args.command}' completed successfully!", "green", attrs=["bold"]))
+        # Only show command completion message for commands other than setup
+        if args.command != "setup":
+            print(colored(f"\n[SUCCESS] Command '{args.command}' completed successfully!", "green", attrs=["bold"]))
 
         # Add context for deploy_infrastructure command
         if args.command == "deploy_infrastructure":

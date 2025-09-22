@@ -7,6 +7,8 @@
 
 A comprehensive simulation of North Korean APT-style attack scenarios for security demonstrations, training, and sales engineering purposes.
 
+This project was created to demonstrate Palo Alto Networks' cybersecurity detection and response capabilities, particularly in relation to their performance in Forrester Wave evaluations. Palo Alto Networks has been recognized as a Leader in [The Forrester Wave™: Extended Detection and Response (XDR) Platforms, Q2 2024](https://www.paloaltonetworks.com/blog/2024/06/forrester-names-palo-alto-networks-a-leader-in-xdr/) and [The Forrester Wave™: Security Analytics Platforms, Q2 2025](https://www.forrester.com/blogs/announcing-the-forrester-wave-security-analytics-platforms-2025-the-siem-vs-xdr-fight-intensifies/), showcasing their advanced threat detection and response capabilities that this simulation platform helps demonstrate.
+
 ## 🚀 Run Locally (Free)
 
 If you don’t want to use GitHub Codespaces (which consumes billing),  
