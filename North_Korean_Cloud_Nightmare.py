@@ -221,14 +221,14 @@ def deploy_infrastructure():
     print(colored("╔" + "═" * 78 + "╗", "red"))
     print(colored("║" + " " * 23 + "ROLLING OUT AWS INFRASTRUCTURE" + " " * 25 + "║", "red", attrs=["bold"]))
     print(colored("╠" + "═" * 78 + "╣", "red"))
-    print(colored(f"║ Credentials: {username:<25} │ Account: {account_id:<25} ║", "red"))
+    print(colored(f"║ Credentials: {username:<23} │ Account: {account_id:<26} ║", "red"))
     print(colored("╠" + "═" * 78 + "╣", "red"))
     print(colored("║ Infrastructure Components Being Deployed:" + " " * 35 + "║", "red", attrs=["bold"]))
     print(colored("║" + " " * 78 + "║", "red"))
-    print(colored("║ • IAM Users & Policies    │ • S3 Buckets & Data" + " " * 25 + "║", "red"))
-    print(colored("║ • DynamoDB Tables & Data  │ • CloudTrail Logging" + " " * 24 + "║", "red"))
-    print(colored("║ • GuardDuty Detection     │ • MFA Devices & Setup" + " " * 23 + "║", "red"))
-    print(colored("║ • Sample Customer Data    │ • Attack Simulation Environment" + " " * 12 + "║", "red"))
+    print(colored("║ • IAM Users & Policies    │ • S3 Buckets & Data" + " " * 31 + "║", "red"))
+    print(colored("║ • DynamoDB Tables & Data  │ • CloudTrail Logging" + " " * 30 + "║", "red"))
+    print(colored("║ • GuardDuty Detection     │ • MFA Devices & Setup" + " " * 29 + "║", "red"))
+    print(colored("║ • Sample Customer Data    │ • Attack Simulation Environment" + " " * 19 + "║", "red"))
     print(colored("╚" + "═" * 78 + "╝", "red"))
     print()
 
@@ -296,7 +296,7 @@ def launch_attack():
     print(colored("╔" + "═" * 78 + "╗", "red"))
     print(colored("║" + " " * 26 + "NORTH KOREAN ATTACK SIMULATION" + " " * 21 + "║", "red", attrs=["bold"]))
     print(colored("╠" + "═" * 78 + "╣", "red"))
-    print(colored(f"║ Target Account: {account_id:<25} │ Attacker: {username:<25} ║", "red"))
+    print(colored(f"║ Target Account: {account_id:<20} │ Attacker: {username:<21} ║", "red"))
     print(colored("╠" + "═" * 78 + "╣", "red"))
     print(colored("║ Attack Steps to be Executed:" + " " * 48 + "║", "red", attrs=["bold"]))
     print(colored("║" + " " * 78 + "║", "red"))
@@ -313,7 +313,9 @@ def launch_attack():
     print(colored("[SUCCESS] Infrastructure found. Proceeding with attack simulation...", "green"))
 
     # Setup MFA for DevOpsUser
-    print("\n" + colored("[PHASE 1] Setting up MFA for DevOpsUser...", "cyan"))
+    print("\n" + colored("═" * 60, "cyan"))
+    print(colored("[PHASE 1] Setting up MFA for DevOpsUser...", "cyan", attrs=["bold"]))
+    print(colored("═" * 60, "cyan"))
     user_arn = get_infrastructure_output("devops_user_arn")
     user = user_arn.split("/")[-1]  # Extracts the username
     print(f"DEBUG: Extracted IAM Username: {user}")
@@ -329,12 +331,16 @@ def launch_attack():
         os.chdir(original_dir)
 
     # Begin attack enumeration
-    print("\n" + colored("[PHASE 2] Enumerating AWS resources...", "cyan"))
+    print("\n" + colored("═" * 60, "cyan"))
+    print(colored("[PHASE 2] Enumerating AWS resources...", "cyan", attrs=["bold"]))
+    print(colored("═" * 60, "cyan"))
     attack = Attack()
     attack.enumeration.run_all_enumerations()
 
     # Create malicious user
-    print("\n" + colored("[PHASE 3] DevopsUser creating malicious user...", "red"))
+    print("\n" + colored("═" * 60, "red"))
+    print(colored("[PHASE 3] DevopsUser creating malicious user...", "red", attrs=["bold"]))
+    print(colored("═" * 60, "red"))
     user_name = generate_unique_username()
     ransomware_access_keys = attack.createuser_attatchpolicies.run_pipeline(
         username=user_name,
@@ -349,7 +355,9 @@ def launch_attack():
     print(f"[CREDENTIALS] {user_name} Secret Key: {secret_key}")
 
     # Initialize ransomware attack
-    print("\n" + colored("[PHASE 4] Initializing Ransomware Attack...", "red", attrs=["bold"]))
+    print("\n" + colored("═" * 60, "red"))
+    print(colored("[PHASE 4] Initializing Ransomware Attack...", "red", attrs=["bold"]))
+    print(colored("═" * 60, "red"))
     ransomware = Ransomware(access_key, secret_key)
     ransomware.session_test()
 
@@ -418,12 +426,12 @@ def execute_full_scenario():
     print(colored("╔" + "═" * 78 + "╗", "red"))
     print(colored("║" + " " * 18 + "NORTH KOREAN CLOUD NIGHTMARE - FULL SCENARIO" + " " * 15 + "║", "red", attrs=["bold"]))
     print(colored("╠" + "═" * 78 + "╣", "red"))
-    print(colored(f"║ Target: {username:<29} │ Account: {account_id:<25} ║", "red"))
+    print(colored(f"║ Target: {username:<28} │ Account: {account_id:<26} ║", "red"))
     print(colored("╠" + "═" * 78 + "╣", "red"))
     print(colored("║ PHASE 1: INFRASTRUCTURE DEPLOYMENT" + " " * 41 + "║", "red", attrs=["bold"]))
-    print(colored("║ • IAM Users & Policies    │ • S3 Buckets & Data" + " " * 25 + "║", "red"))
-    print(colored("║ • DynamoDB Tables & Data  │ • CloudTrail Logging" + " " * 24 + "║", "red"))
-    print(colored("║ • GuardDuty Detection     │ • MFA Devices & Setup" + " " * 23 + "║", "red"))
+    print(colored("║ • IAM Users & Policies    │ • S3 Buckets & Data" + " " * 31 + "║", "red"))
+    print(colored("║ • DynamoDB Tables & Data  │ • CloudTrail Logging" + " " * 30 + "║", "red"))
+    print(colored("║ • GuardDuty Detection     │ • MFA Devices & Setup" + " " * 29 + "║", "red"))
     print(colored("║" + " " * 78 + "║", "red"))
     print(colored("║ PHASE 2: ATTACK SIMULATION" + " " * 49 + "║", "red", attrs=["bold"]))
     print(colored("║ • MFA Setup & DevOps Compromise" + " " * 44 + "║", "red"))
@@ -474,9 +482,6 @@ def clean_up():
         # Import clean_up module only when needed
         from clean_up import full_cleanup
         full_cleanup()
-        print(colored("═" * 60, "green"))
-        print(colored("      CLEANUP COMPLETE!", "green", attrs=["bold"]))
-        print(colored("═" * 60, "green"))
         return True
     except Exception as e:
         print(colored(f"[ERROR] Clean up failed: {str(e)}", "red"))

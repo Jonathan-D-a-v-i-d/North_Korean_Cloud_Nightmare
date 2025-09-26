@@ -1,0 +1,62 @@
+[
+    {
+        "ID": "2002",
+        "SSN": "731-99-4720",
+        "CreditCard": "5500-XXXX-XXXX-8328",
+        "CustomerName": "Angela Wilson"
+    },
+    {
+        "ID": "2001",
+        "SSN": "230-89-5647",
+        "CreditCard": "4111-XXXX-XXXX-8456",
+        "CustomerName": "Johnny Khan"
+    },
+    {
+        "ID": "2007",
+        "SSN": "119-83-9893",
+        "CreditCard": "4111-XXXX-XXXX-7979",
+        "CustomerName": "Stephanie Hicks"
+    },
+    {
+        "ID": "2006",
+        "SSN": "536-41-4788",
+        "CreditCard": "5500-XXXX-XXXX-1820",
+        "CustomerName": "Mr. James Rodriguez"
+    },
+    {
+        "ID": "2004",
+        "SSN": "234-87-2645",
+        "CreditCard": "5500-XXXX-XXXX-6322",
+        "CustomerName": "Heather Oneill"
+    },
+    {
+        "ID": "2003",
+        "SSN": "988-43-3906",
+        "CreditCard": "5500-XXXX-XXXX-6241",
+        "CustomerName": "Kenneth Hunt"
+    },
+    {
+        "ID": "2010",
+        "SSN": "497-43-4492",
+        "CreditCard": "4111-XXXX-XXXX-3371",
+        "CustomerName": "Thomas Whitaker"
+    },
+    {
+        "ID": "2005",
+        "SSN": "937-16-7734",
+        "CreditCard": "5500-XXXX-XXXX-9082",
+        "CustomerName": "Tim Taylor"
+    },
+    {
+        "ID": "2008",
+        "SSN": "119-42-3002",
+        "CreditCard": "4111-XXXX-XXXX-7341",
+        "CustomerName": "Kayla Briggs"
+    },
+    {
+        "ID": "2009",
+        "SSN": "637-78-2659",
+        "CreditCard": "4111-XXXX-XXXX-2289",
+        "CustomerName": "Paige James"
+    }
+]
